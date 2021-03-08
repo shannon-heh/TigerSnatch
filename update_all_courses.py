@@ -6,10 +6,8 @@
 
 from mobileapp import MobileApp
 from database import Database
-from pprint import PrettyPrinter
 
 if __name__ == '__main__':
-    pp = PrettyPrinter(indent=4)
     db = Database()
 
     api = MobileApp()
@@ -27,8 +25,13 @@ if __name__ == '__main__':
         api.configs.COURSE_COURSES,
         fmt='json',
         term=current_term_code,
-        subject='COS'
+        subject='ECO'
     )
+
+    if 'subjects' not in courses['term'][0]:
+        raise RuntimeError('no query results')
+
+    db.reset_db()
 
     for subject in courses['term'][0]['subjects']:
         for course in subject['courses']:
@@ -58,6 +61,5 @@ if __name__ == '__main__':
 
                 new[f'class_{i}'] = new_class
 
-            print('inserting', new['displayname'], end='...')
+            print('inserting', new['displayname'])
             db.add_to_courses(new)
-            print('success')

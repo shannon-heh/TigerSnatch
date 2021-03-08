@@ -26,7 +26,7 @@ class MobileApp:
     '''
 
     def getJSON(self, endpoint, **kwargs):
-        print('querying MobileApp API')
+        print('querying MobileApp API', end='...')
         req = requests.get(
             self.configs.BASE_URL + endpoint,
             params=kwargs if "kwargs" not in kwargs else kwargs["kwargs"],
@@ -39,7 +39,7 @@ class MobileApp:
         # Check to see if the response failed due to invalid credentials
         text = self._updateConfigs(text, endpoint, **kwargs)
 
-        print('query successful')
+        print('success')
 
         return json.loads(text)
 
