@@ -4,20 +4,29 @@
 # database.
 # ----------------------------------------------------------------------
 
+from sys import exit, stdout
 from config import DB_CONNECTION_STR, COLLECTIONS
 from schema import COURSES_SCHEMA, CLASS_SCHEMA
 from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure
 
 
 class Database(object):
     # creates a reference to the TigerSnatch MongoDB database
     def __init__(self):
-        try:
-            self._db = MongoClient(DB_CONNECTION_STR).tigersnatch
-            print('connected to tigersnatch database at', DB_CONNECTION_STR)
-        except:
-            print('failed to connect to tigersnatch database')
+        print('connecting to', DB_CONNECTION_STR, end='...')
+        stdout.flush()
+        self._db = MongoClient(DB_CONNECTION_STR,
+                               serverSelectionTimeoutMS=2000)
 
+        try:
+            self._db.admin.command('ismaster')
+        except ConnectionFailure:
+            print('failed (server not available)')
+            exit(1)
+
+        print('success')
+        self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
     # adds a document containing course data to the courses collection
