@@ -4,32 +4,45 @@
 # ----------------------------------------------------------------------
 
 from flask import Flask
-from flask import render_template, make_response, request
+from flask import render_template, make_response, request, redirect, url_for
 from database import Database
 
 app = Flask(__name__, template_folder='./templates')
 
 
 @app.route('/', methods=['GET'])
-@app.route('/dashboard', methods=['GET'])
 def index():
-    html = render_template('index.html')
+    return redirect(url_for("dashboard"))
+
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    query = request.args.get('query')
+    if query is not None:
+        db = Database()
+        res = db.search_for_course(query)
+        html = render_template('index.html',
+                               search_res=res)
+    else:
+        html = render_template('index.html')
+
     response = make_response(html)
     return response
 
 # ----------------------------------------------------------------------
 
 
-@ app.route('/search', methods=['GET'])
-def search():
-    query = request.args.get('query')
-    db = Database()
-    res = db.search_for_course(query)
+# @ app.route('/search', methods=['GET'])
+# def search():
+#     query = request.args.get('query')
 
-    html = render_template('index.html',
-                           search_res=res)
-    response = make_response(html)
-    return response
+#     db = Database()
+#     res = db.search_for_course(query)
+
+#     html = render_template('index.html',
+#                            search_res=res)
+#     response = make_response(html)
+#     return response
 
 # ----------------------------------------------------------------------
 
