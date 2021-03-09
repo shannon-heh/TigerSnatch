@@ -6,7 +6,7 @@
 
 from sys import exit, stdout
 from config import DB_CONNECTION_STR, COLLECTIONS
-from schema import COURSES_SCHEMA, CLASS_SCHEMA
+from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
@@ -29,12 +29,18 @@ class Database(object):
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
+    # checks if the courses collection contains a course with the
+    # passed-in courseid
+
+    def courses_contains_courseid(self, courseid):
+        return self._db.courses.find_one({"courseid": courseid}) is not None
+
     # adds a document containing course data to the courses collection
     # (see Technical Documentation for schema)
 
     def add_to_courses(self, data):
         def validate(data):
-            # validates the keys of the passed-in data dictionary
+            # validates the keys of the passed-in course data dictionary
 
             if not all(k in data for k in COURSES_SCHEMA):
                 raise RuntimeError('invalid courses document schema')
@@ -48,6 +54,34 @@ class Database(object):
 
         validate(data)
         self._db.courses.insert_one(data)
+
+    # adds a document containing mapping data to the mappings collection
+    # (see Technical Documentation for schema)
+
+    def add_to_mappings(self, data):
+        def validate(data):
+            # validates the keys of the passed-in mappings data
+            # dictionary
+
+            if not all(k in data for k in MAPPINGS_SCHEMA):
+                raise RuntimeError('invalid mappings document schema')
+
+        validate(data)
+        self._db.mappings.insert_one(data)
+
+    # adds a document containing enrollment data to the enrollments
+    # collection (see Technical Documentation for schema)
+
+    def add_to_enrollments(self, data):
+        def validate(data):
+            # validates the keys of the passed-in enrollments data
+            # dictionary
+
+            if not all(k in data for k in ENROLLMENTS_SCHEMA):
+                raise RuntimeError('invalid enrollments document schema')
+
+        validate(data)
+        self._db.enrollments.insert_one(data)
 
     # does the following:
     #   * clears all "waitlists" lists for each user
@@ -97,5 +131,5 @@ class Database(object):
 if __name__ == '__main__':
     db = Database()
     print(db)
-    db.reset_db()
-    print(db)
+    # db.reset_db()
+    print(db._db.courses.find_one({"courseid": "001381"}) is not None)
