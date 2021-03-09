@@ -1,10 +1,11 @@
 # ----------------------------------------------------------------------
-# update_enrollments.py
+# update_all_courses.py
 # Resets and updates the TigerSnatch database with courses from the
 # latest term, clearing all waitlists and waitlist student enrollments.
 # ----------------------------------------------------------------------
 
 from requests import get
+from sys import exit
 from bs4 import BeautifulSoup
 from json import loads
 from mobileapp import MobileApp
@@ -23,6 +24,7 @@ if __name__ == '__main__':
             data = data['ps_registrar']['subjects'][term]
         except:
             print('failed to scrape Course Offerings page for all department codes')
+            exit(1)
 
         codes = tuple([i['code'] for i in data])
         print('success')
@@ -44,6 +46,7 @@ if __name__ == '__main__':
         if n == 0:
             db.reset_db()
 
+        # iterate through all subjects, courses, and classes
         for subject in courses['term'][0]['subjects']:
             for course in subject['courses']:
                 courseid = course['course_id']
@@ -66,11 +69,14 @@ if __name__ == '__main__':
                 print('inserting', new['displayname'], 'into mappings')
                 db.add_to_mappings(new)
 
+                all_new_classes = []
+                lecture_idx = 0
+
                 for i, class_ in enumerate(course['classes']):
                     meetings = class_['schedule']['meetings'][0]
 
-                    # new_class will contain a single lecture, precept, etc.
-                    # for a given course
+                    # new_class will contain a single lecture, precept,
+                    # etc. for a given course
                     new_class = {
                         'classid': class_['class_number'],
                         'section': class_['section'],
@@ -80,6 +86,8 @@ if __name__ == '__main__':
                         'days': ' '.join(meetings['days'])
                     }
 
+                    # new_class_enrollment will contain enrollment and
+                    # capacity for a given class within a course
                     new_class_enrollment = {
                         'classid': class_['class_number'],
                         'enrollment': int(class_['enrollment']),
@@ -90,10 +98,19 @@ if __name__ == '__main__':
                           new_class['section'], 'into enrollments')
                     db.add_to_enrollments(new_class_enrollment)
 
+                    # pre-recorded lectures are marked as 01:00 AM start
                     if new_class['start_time'] == '01:00 AM':
                         new_class['start_time'] = 'Pre-Recorded'
                         new_class['end_time'] = ''
 
+                    # lectures should appear before other section types
+                    if class_['type_name'] == 'Lecture':
+                        all_new_classes.insert(lecture_idx, new_class)
+                        lecture_idx += 1
+                    else:
+                        all_new_classes.append(new_class)
+
+                for i, new_class in enumerate(all_new_classes):
                     new[f'class_{i}'] = new_class
 
                 print('inserting', new['displayname'], 'into courses')
@@ -114,6 +131,7 @@ if __name__ == '__main__':
         current_term_date = term['term'][0]['suffix']
     except:
         print('failed to get current term code')
+        exit(1)
 
     print(
         f'getting all courses in {current_term_date} (term code {current_term_code})')
