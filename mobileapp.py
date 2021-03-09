@@ -16,6 +16,21 @@ class MobileApp:
     def __init__(self):
         self.configs = Configs()
 
+    # wrapper function for _getJSON with the courses/courses endpoint.
+    # kwargs must contain key "term" with the current term code, as well
+    # as one or more of "subject" (department code) and "search" (course
+    # title)
+
+    def get_courses(self, **kwargs):
+        kwargs['fmt'] = 'json'
+        return self._getJSON(self.configs.COURSE_COURSES, **kwargs)
+
+    # wrapper function for _getJSON with the courses/terms endpoint.
+    # takes no arguments.
+
+    def get_terms(self):
+        return self._getJSON(self.configs.COURSE_TERMS, fmt='json')
+
     '''
     This function allows a user to make a request to 
     a certain endpoint, with the BASE_URL of 
@@ -25,7 +40,7 @@ class MobileApp:
     symbolizes a variable number of arguments 
     '''
 
-    def getJSON(self, endpoint, **kwargs):
+    def _getJSON(self, endpoint, **kwargs):
         print('querying MobileApp API', end='...')
         req = requests.get(
             self.configs.BASE_URL + endpoint,

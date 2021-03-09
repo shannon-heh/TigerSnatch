@@ -33,12 +33,8 @@ if __name__ == '__main__':
 
     def process_dept_code(code, db, api, n):
         print('processing dept code', code)
-        courses = api.getJSON(
-            api.configs.COURSE_COURSES,
-            fmt='json',
-            term=current_term_code,
-            subject=code
-        )
+        courses = api.get_courses(term=current_term_code,
+                                  subject=code)
 
         if 'subjects' not in courses['term'][0]:
             raise RuntimeError('no query results')
@@ -126,14 +122,11 @@ if __name__ == '__main__':
     db = Database()
 
     api = MobileApp()
-    term = api.getJSON(
-        api.configs.COURSE_TERMS,
-        fmt='json'
-    )
+    terms = api.get_terms()
 
     try:
-        current_term_code = term['term'][0]['code']
-        current_term_date = term['term'][0]['suffix']
+        current_term_code = terms['term'][0]['code']
+        current_term_date = terms['term'][0]['suffix']
     except:
         print('failed to get current term code')
         exit(1)

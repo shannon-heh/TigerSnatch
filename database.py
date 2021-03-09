@@ -14,6 +14,7 @@ from pymongo.errors import ConnectionFailure
 
 class Database(object):
     # creates a reference to the TigerSnatch MongoDB database
+
     def __init__(self):
         print('connecting to', DB_CONNECTION_STR, end='...')
         stdout.flush()
@@ -32,6 +33,7 @@ class Database(object):
 
     # returns list of results whose title and ddisplayname
     # contain user query string
+
     def search_for_course(self, query):
         query = re.compile(query, re.IGNORECASE)
 
@@ -45,17 +47,20 @@ class Database(object):
         return res
 
     # return basic course details for course with given courseid
+
     def get_course(self, courseid):
         return self._db.courses.find_one(
             {"courseid": courseid}, {"_id": False})
 
     # returns capacity and enrollment for course with given courseid
+
     def get_class_enrollment(self, classid):
         return self._db.enrollments.find_one({"classid": classid}, {"_id": False})
 
     # returns dictionary with basic course details AND enrollment,
     # capacity, and boolean isFull field for each class
     # for the given courseid
+
     def get_course_with_enrollment(self, courseid):
         course_info = self.get_course(courseid)
         for key in course_info.keys():
