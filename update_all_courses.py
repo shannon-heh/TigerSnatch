@@ -72,14 +72,19 @@ if __name__ == '__main__':
                 all_new_classes = []
                 lecture_idx = 0
 
-                for i, class_ in enumerate(course['classes']):
+                for class_ in course['classes']:
                     meetings = class_['schedule']['meetings'][0]
+                    section = class_['section']
+
+                    # skip dummy sections (end with 99)
+                    if section.endswith('99'):
+                        continue
 
                     # new_class will contain a single lecture, precept,
                     # etc. for a given course
                     new_class = {
                         'classid': class_['class_number'],
-                        'section': class_['section'],
+                        'section': section,
                         'type_name': class_['type_name'],
                         'start_time': meetings['start_time'],
                         'end_time': meetings['end_time'],
