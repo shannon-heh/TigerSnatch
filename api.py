@@ -22,7 +22,8 @@ def dashboard():
         db = Database()
         res = db.search_for_course(query)
         html = render_template('index.html',
-                               search_res=res)
+                               search_res=res,
+                               last_query=query)
     else:
         html = render_template('index.html')
 
