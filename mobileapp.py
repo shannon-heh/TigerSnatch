@@ -96,3 +96,8 @@ class Configs:
         text = req.text
         response = json.loads(text)
         self.ACCESS_TOKEN = response['access_token']
+
+
+if __name__ == '__main__':
+    api = MobileApp()
+    print(api.get_courses(term='1214', subject='list'))

@@ -4,37 +4,28 @@
 # latest term, clearing all waitlists and waitlist student enrollments.
 # ----------------------------------------------------------------------
 
-from requests import get
 from sys import exit
-from bs4 import BeautifulSoup
-from json import loads
 from mobileapp import MobileApp
 from database import Database
-from config import COURSE_OFFERINGS_URL
 
 if __name__ == '__main__':
-    def scrape_all_dept_codes(term):
-        print('scraping all department codes for term', term, end='...')
-        req = get(COURSE_OFFERINGS_URL)
-        html = BeautifulSoup(req.content, 'html.parser')
+    def scrape_all_dept_codes(term, api):
+        # hidden feature of MobileApp API (thanks to Jonathan Wilding
+        # from OIT for helping us find this)
+        res = api.get_courses(term='1214', subject='list')
 
         try:
-            data = html.find_all('script', type='application/json')[0]
-            data = loads(data.string)
-            data = data['ps_registrar']['subjects'][term]
+            codes = tuple([k['code'] for k in res['term'][0]['subjects']])
+            codes[0] and codes[1]
         except:
-            print('failed to scrape Course Offerings page for all department codes')
+            print('failed to get all department codes')
             exit(1)
-
-        codes = tuple([i['code'] for i in data])
-        print('success')
 
         return codes
 
     def process_dept_code(code, db, api, n):
         print('processing dept code', code)
-        courses = api.get_courses(term=current_term_code,
-                                  subject=code)
+        courses = api.get_courses(term=current_term_code, subject=code)
 
         if 'subjects' not in courses['term'][0]:
             raise RuntimeError('no query results')
@@ -134,7 +125,7 @@ if __name__ == '__main__':
     print(
         f'getting all courses in {current_term_date} (term code {current_term_code})')
 
-    DEPT_CODES = scrape_all_dept_codes(current_term_code)
+    DEPT_CODES = scrape_all_dept_codes(current_term_code, api)
 
     for n, code in enumerate(DEPT_CODES):
         process_dept_code(code, db, api, n)
