@@ -1,0 +1,20 @@
+<div id="search-wrapper">
+    <div>Search for a course</div>
+    <form id="search-form" action="search" method="get">
+        <input type='text' name="query" placeholder="e.g. COS126"></input>
+        <input type="submit"></input>
+    </form>
+    <div id="search-results">
+        {% if search_res is none %}
+            <p>No matches! Try a different query</p>
+        {% else %}
+            {% for course in search_res %}
+                <li>
+                    <a href="course?courseid={{course.courseid}}">
+                        {{course.displayname}}: {{course.title}}
+                    </a>
+                </li>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>

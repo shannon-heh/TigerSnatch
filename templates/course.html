@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div>
+    <div>{{course_details.courseid}}</div>
+    <div>{{course_details.displayname}}</div>
+    <div>{{course_details.title}}</div>
+    <br>
+    {% for class in classes_list %} 
+      <div>{{class.section}}</div>
+      <div>{{class.start_time}} - {{class.end_time}}</div>
+      <div>{{class.days}}</div>
+      <div>{{class.enrollment}} / {{class.capacity}}</div>
+      <div>Is the class full? {{class.isFull}}</div>
+      <br>
+    {%endfor%}
+  </div>
+{% endblock %}

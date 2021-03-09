@@ -5,6 +5,7 @@
 # ----------------------------------------------------------------------
 
 from sys import exit, stdout
+import re
 from config import DB_CONNECTION_STR, COLLECTIONS
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
@@ -28,6 +29,45 @@ class Database(object):
         print('success')
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
+
+    # returns list of results whose title and ddisplayname
+    # contain user query string
+    def search_for_course(self, query):
+        query = re.compile(query, re.IGNORECASE)
+
+        res = list(self._db.mappings.find({"$or": [
+            {"displayname": {"$regex": query}},
+            {"title": {"$regex": query}}
+        ]}))
+
+        if len(res) == 0:
+            return None
+        return res
+
+    # return basic course details for course with given courseid
+    def get_course(self, courseid):
+        return self._db.courses.find_one(
+            {"courseid": courseid}, {"_id": False})
+
+    # returns capacity and enrollment for course with given courseid
+    def get_class_enrollment(self, classid):
+        return self._db.enrollments.find_one({"classid": classid}, {"_id": False})
+
+    # returns dictionary with basic course details AND enrollment,
+    # capacity, and boolean isFull field for each class
+    # for the given courseid
+    def get_course_with_enrollment(self, courseid):
+        course_info = self.get_course(courseid)
+        for key in course_info.keys():
+            if key.startswith('class_'):
+                class_dict = course_info[key]
+                classid = class_dict['classid']
+                class_data = self.get_class_enrollment(classid)
+                class_dict['enrollment'] = class_data['enrollment']
+                class_dict['capacity'] = class_data['capacity']
+                class_dict['isFull'] = (
+                    class_dict['capacity'] > 0 and class_dict['enrollment'] == class_dict['capacity'])
+        return course_info
 
     # checks if the courses collection contains a course with the
     # passed-in courseid
