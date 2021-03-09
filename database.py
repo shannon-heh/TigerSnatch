@@ -131,5 +131,5 @@ class Database(object):
 if __name__ == '__main__':
     db = Database()
     print(db)
-    # db.reset_db()
-    print(db._db.courses.find_one({"courseid": "001381"}) is not None)
+    db.reset_db()
+    print(db)

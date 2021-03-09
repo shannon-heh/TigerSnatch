@@ -4,11 +4,31 @@
 # latest term, clearing all waitlists and waitlist student enrollments.
 # ----------------------------------------------------------------------
 
+from requests import get
+from bs4 import BeautifulSoup
+from json import loads
 from mobileapp import MobileApp
 from database import Database
-from schema import DEPT_CODES
+from config import COURSE_OFFERINGS_URL
 
 if __name__ == '__main__':
+    def scrape_all_dept_codes(term):
+        print('scraping all department codes for term', term, end='...')
+        req = get(COURSE_OFFERINGS_URL)
+        html = BeautifulSoup(req.content, 'html.parser')
+
+        try:
+            data = html.find_all('script', type='application/json')[0]
+            data = loads(data.string)
+            data = data['ps_registrar']['subjects'][term]
+        except:
+            print('failed to scrape Course Offerings page for all department codes')
+
+        codes = tuple([i['code'] for i in data])
+        print('success')
+
+        return codes
+
     def process_dept_code(code, db, api, n):
         print('processing dept code', code)
         courses = api.getJSON(
@@ -89,10 +109,16 @@ if __name__ == '__main__':
         fmt='json'
     )
 
-    current_term_code = term['term'][0]['code']
-    current_term_date = term['term'][0]['suffix']
+    try:
+        current_term_code = term['term'][0]['code']
+        current_term_date = term['term'][0]['suffix']
+    except:
+        print('failed to get current term code')
+
     print(
         f'getting all courses in {current_term_date} (term code {current_term_code})')
+
+    DEPT_CODES = scrape_all_dept_codes(current_term_code)
 
     for n, code in enumerate(DEPT_CODES):
         process_dept_code(code, db, api, n)
