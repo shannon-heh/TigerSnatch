@@ -9,6 +9,7 @@ from database import Database
 from CASClient import CASClient
 
 app = Flask(__name__, template_folder='./templates')
+app.secret_key = b'N|\x193\\\xb8\xdaTc\x89\x15r\xb0-\xbb\x02'
 
 
 @app.route('/', methods=['GET'])
