@@ -7,9 +7,10 @@ from flask import Flask
 from flask import render_template, make_response, request, redirect, url_for
 from database import Database
 from CASClient import CASClient
+from config import APP_SECRET_KEY
 
 app = Flask(__name__, template_folder='./templates')
-app.secret_key = b'N|\x193\\\xb8\xdaTc\x89\x15r\xb0-\xbb\x02'
+app.secret_key = APP_SECRET_KEY
 
 
 @app.route('/', methods=['GET'])
