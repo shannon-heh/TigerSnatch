@@ -6,6 +6,7 @@
 from flask import Flask
 from flask import render_template, make_response, request, redirect, url_for
 from database import Database
+from CASClient import CASClient
 
 app = Flask(__name__, template_folder='./templates')
 
@@ -17,15 +18,17 @@ def index():
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
+    username = CASClient().authenticate()
     query = request.args.get('query')
     if query is not None:
         db = Database()
         res = db.search_for_course(query)
         html = render_template('index.html',
                                search_res=res,
-                               last_query=query)
+                               last_query=query,
+                               username=username)
     else:
-        html = render_template('index.html')
+        html = render_template('index.html', username=username)
 
     response = make_response(html)
     return response
@@ -69,3 +72,13 @@ def get_course():
                            classes_list=classes_list)
     response = make_response(html)
     return response
+
+
+@app.route('/logout', methods=['GET'])
+def logout():
+
+    casClient = CASClient()
+    username = casClient.authenticate()
+    casClient.logout()
+    html = render_template('index.html',
+                           username=username)
