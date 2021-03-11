@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------
 
 from flask import Flask
-from flask import render_template, make_response, request, redirect, url_for
+from flask import render_template, make_response, request, redirect, url_for, session
 from database import Database
 from CASClient import CASClient
 from config import APP_SECRET_KEY
@@ -15,7 +15,19 @@ app.secret_key = APP_SECRET_KEY
 
 @app.route('/', methods=['GET'])
 def index():
-    return redirect(url_for('dashboard'))
+    if 'username' in session:
+        return redirect(url_for('dashboard'))
+    else:
+        return redirect(url_for('landing'))
+
+
+@app.route('/landing', methods=['GET', 'POST'])
+def landing():
+    html = render_template('landing.html')
+    if request.method == "POST":
+        return redirect(url_for('dashboard'))
+    response = make_response(html)
+    return response
 
 
 @app.route('/dashboard', methods=['GET'])
