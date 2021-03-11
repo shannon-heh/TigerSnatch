@@ -55,6 +55,7 @@ def dashboard():
 
 @ app.route('/course', methods=['GET'])
 def get_course():
+    username = CASClient().authenticate()
     courseid = request.args.get('courseid')
     db = Database()
     course = db.get_course_with_enrollment(courseid)
