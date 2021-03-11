@@ -5,24 +5,16 @@
 
 from urllib.request import urlopen
 from urllib.parse import quote
-from re import sub, match
+from re import sub
 from flask import request, session, redirect, abort
-from sys import stderr
-
-# -----------------------------------------------------------------------
 
 
 class CASClient:
-
-    # -------------------------------------------------------------------
-
     # Initialize a new CASClient object so it uses the given CAS
     # server, or fed.princeton.edu if no server is given.
 
     def __init__(self, url='https://fed.princeton.edu/cas/'):
         self.cas_url = url
-
-    # -------------------------------------------------------------------
 
     # Return the URL of the current request after stripping out the
     # "ticket" parameter added by the CAS server.
@@ -34,8 +26,6 @@ class CASClient:
         url = sub(r'ticket=[^&]*&?', '', url)
         url = sub(r'\?&?$|&$', '', url)
         return url
-
-    # -------------------------------------------------------------------
 
     # Validate a login ticket by contacting the CAS server. If
     # valid, return the user's username; otherwise, return None.
@@ -52,8 +42,6 @@ class CASClient:
         if not firstLine.startswith('yes'):
             return None
         return secondLine
-
-    # -------------------------------------------------------------------
 
     # Authenticate the remote user, and return the user's username.
     # Do not return unless the user is successfully authenticated.
@@ -82,8 +70,6 @@ class CASClient:
             + '?service=' + quote(self.stripTicket())
 
         abort(redirect(login_url))
-
-    # -------------------------------------------------------------------
 
     # Logout the user.
 

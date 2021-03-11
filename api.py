@@ -15,7 +15,7 @@ app.secret_key = APP_SECRET_KEY
 
 @app.route('/', methods=['GET'])
 def index():
-    return redirect(url_for("dashboard"))
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/dashboard', methods=['GET'])
@@ -55,6 +55,7 @@ def dashboard():
 
 @ app.route('/course', methods=['GET'])
 def get_course():
+    username = CASClient().authenticate()
     courseid = request.args.get('courseid')
     db = Database()
     course = db.get_course_with_enrollment(courseid)
@@ -78,7 +79,6 @@ def get_course():
 
 @app.route('/logout', methods=['GET'])
 def logout():
-
     casClient = CASClient()
     username = casClient.authenticate()
     casClient.logout()
