@@ -1,7 +1,7 @@
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # CASClient.py
 # Authors: Alex Halderman, Scott Karlin, Brian Kernighan, Bob Dondero
-# -----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 
 from urllib.request import urlopen
 from urllib.parse import quote
@@ -22,16 +22,21 @@ class CASClient:
     def stripTicket(self):
         url = request.url
         if url is None:
-            return "something is badly wrong"
+            return 'something is badly wrong'
         url = sub(r'ticket=[^&]*&?', '', url)
         url = sub(r'\?&?$|&$', '', url)
         return url
+
+    # Return True if user is logged in
+
+    def is_logged_in(self):
+        return 'username' in session
 
     # Validate a login ticket by contacting the CAS server. If
     # valid, return the user's username; otherwise, return None.
 
     def validate(self, ticket):
-        val_url = self.cas_url + "validate" + \
+        val_url = self.cas_url + 'validate' + \
             '?service=' + quote(self.stripTicket()) + \
             '&ticket=' + quote(ticket)
         r = urlopen(val_url).readlines()   # returns 2 lines
@@ -75,18 +80,18 @@ class CASClient:
 
     def logout(self):
 
-        # Delete the user's username from the session.
-        session.pop('username')
+        if 'username' in session:
+            # Delete the user's username from the session.
+            session.pop('username')
 
-        # Redirect the browser to the logout page.
-        logout_url = self.cas_url + 'logout'
-        abort(redirect(logout_url))
+        # Redirect the browser to the landing page.
+        abort(redirect('landing'))
 
 # -----------------------------------------------------------------------
 
 
 def main():
-    print("CASClient does not run standalone")
+    print('CASClient does not run standalone')
 
 
 if __name__ == '__main__':

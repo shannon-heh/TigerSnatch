@@ -4,34 +4,44 @@
 # ----------------------------------------------------------------------
 
 from flask import Flask
-from flask import render_template, make_response, request, redirect, url_for, session
+from flask import render_template, make_response, request, redirect, url_for
 from database import Database
 from CASClient import CASClient
 from config import APP_SECRET_KEY
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
+CAS = CASClient()  # need to test if this is acceptable (global CAS obj)
 
 
 @app.route('/', methods=['GET'])
 def index():
-    if 'username' in session:
-        return redirect(url_for('dashboard'))
-    else:
+    if not CAS.is_logged_in():
         return redirect(url_for('landing'))
+
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/landing', methods=['GET', 'POST'])
 def landing():
     html = render_template('landing.html')
-    if request.method == "POST":
-        return redirect(url_for('dashboard'))
     response = make_response(html)
     return response
 
 
+@app.route('/login', methods=['GET'])
+def login():
+    if not CAS.is_logged_in():
+        CAS.authenticate()
+
+    return redirect(url_for('dashboard'))
+
+
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
+    if not CAS.is_logged_in():
+        return redirect(url_for('landing'))
+
     username = CASClient().authenticate()
     query = request.args.get('query')
     if query is not None:
@@ -67,7 +77,10 @@ def dashboard():
 
 @ app.route('/course', methods=['GET'])
 def get_course():
-    username = CASClient().authenticate()
+    if not CAS.is_logged_in():
+        return redirect(url_for('landing'))
+
+    username = CAS.authenticate()
     courseid = request.args.get('courseid')
     db = Database()
     course = db.get_course_with_enrollment(courseid)
@@ -91,8 +104,5 @@ def get_course():
 
 @app.route('/logout', methods=['GET'])
 def logout():
-    casClient = CASClient()
-    username = casClient.authenticate()
-    casClient.logout()
-    html = render_template('index.html',
-                           username=username)
+    CAS.logout()
+    return redirect(url_for('landing'))
