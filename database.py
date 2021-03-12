@@ -31,6 +31,17 @@ class Database(object):
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
+    # checks if user exists in users collection
+    def is_user_created(self, netid):
+        netid = netid.rstrip()
+        return self._db.users.find_one({"netid": netid}) is not None
+
+    # creates user entry in users collection
+    def create_user(self, netid):
+        netid = netid.rstrip()
+        self._db.users.insert_one(
+            {"netid": netid, "email": f"{netid}@princeton.edu", "phone": "", "waitlists": []})
+
     # returns list of results whose title and ddisplayname
     # contain user query string
 

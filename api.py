@@ -14,11 +14,19 @@ app.secret_key = APP_SECRET_KEY
 CAS = CASClient()  # need to test if this is acceptable (global CAS obj)
 
 
-@app.route('/', methods=['GET'])
-def index():
-    if not CAS.is_logged_in():
+# private method that redirects to landinage page
+# if user is not logged in with CAS
+# or if user is logged in with CAS, but doesn't have entry in DB
+
+def redirect_landing():
+    db = Database()
+    if not CAS.is_logged_in() or not db.is_user_created(CAS.authenticate()):
         return redirect(url_for('landing'))
 
+
+@app.route('/', methods=['GET'])
+def index():
+    redirect_landing()
     return redirect(url_for('dashboard'))
 
 
@@ -31,28 +39,28 @@ def landing():
 
 @app.route('/login', methods=['GET'])
 def login():
-    if not CAS.is_logged_in():
-        CAS.authenticate()
+    netid = CAS.authenticate()
+    db = Database()
+    if not db.is_user_created(netid):
+        db.create_user(netid)
 
     return redirect(url_for('dashboard'))
 
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    if not CAS.is_logged_in():
-        return redirect(url_for('landing'))
+    redirect_landing()
+    netid = CAS.authenticate()
 
-    username = CASClient().authenticate()
     query = request.args.get('query')
     if query is not None:
-        db = Database()
         res = db.search_for_course(query)
         html = render_template('index.html',
                                search_res=res,
                                last_query=query,
-                               username=username)
+                               username=netid)
     else:
-        html = render_template('index.html', username=username)
+        html = render_template('index.html', username=netid)
 
     response = make_response(html)
     return response
