@@ -50,8 +50,10 @@ def login():
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     redirect_landing()
+
     netid = CAS.authenticate()
 
+    db = Database()
     query = request.args.get('query')
     if query is not None:
         res = db.search_for_course(query)
