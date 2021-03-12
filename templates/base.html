@@ -4,7 +4,11 @@
       <title>TigerSnatch</title>
     </head>
    <body>
-       {% include 'search.html' %}
-       {% block content %}{% endblock %}
+      <form id="logout-btn" action="/logout" method="get">
+          <input type="submit" value="Logout"></input>
+      </form>
+      <br>
+      {% include 'search.html' %}
+      {% block content %}{% endblock %}
    </body>
  </html>
