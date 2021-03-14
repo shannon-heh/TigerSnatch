@@ -49,9 +49,10 @@ def login():
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    redirect_landing()
+    # redirect_landing()
 
-    netid = CAS.authenticate()
+    # netid = CAS.authenticate()
+    netid = 'sheh'
 
     db = Database()
     query = request.args.get('query')
@@ -87,10 +88,11 @@ def dashboard():
 
 @ app.route('/course', methods=['GET'])
 def get_course():
-    if not CAS.is_logged_in():
-        return redirect(url_for('landing'))
+    # if not CAS.is_logged_in():
+    #     return redirect(url_for('landing'))
 
-    username = CAS.authenticate()
+    # username = CAS.authenticate()
+    username = 'sheh'
     courseid = request.args.get('courseid')
     db = Database()
     course = db.get_course_with_enrollment(courseid)

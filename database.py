@@ -31,16 +31,61 @@ class Database(object):
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
+    # helper method to check if class is full
+    def is_class_full(self, enrollment_dict):
+        return enrollment_dict['enrollment'] == enrollment_dict['capacity']
+
+    # returns user data given netid
+    def get_user(self, netid):
+        return self._db.users.find_one({"netid": netid.rstrip()})
+
     # checks if user exists in users collection
     def is_user_created(self, netid):
-        netid = netid.rstrip()
-        return self._db.users.find_one({"netid": netid}) is not None
+        return self.get_user(netid) is not None
 
     # creates user entry in users collection
     def create_user(self, netid):
+        if self.is_user_created(netid):
+            raise Exception(f'user {netid} already exists')
         netid = netid.rstrip()
         self._db.users.insert_one(
             {"netid": netid, "email": f"{netid}@princeton.edu", "phone": "", "waitlists": []})
+
+    # adds user of given netid to waitlist for classid
+    def add_to_waitlist(self, netid, classid):
+        # validation checks
+        if not self.is_user_created(netid):
+            raise Exception(f'user {netid} does not exist')
+        class_enrollment = self._db.enrollments.find_one({"classid": classid})
+        if class_enrollment is None:
+            raise Exception(f'class {classid} does not exist')
+        if not self.is_class_full(class_enrollment):
+            raise Exception(
+                f'user cannot enter waitlist for non-full class {classid}')
+        if classid in self.get_user(netid)['waitlists']:
+            raise Exception(
+                f'user {netid} is already in waitlist for class {classid}')
+
+        # add classid to user's waitlist
+        user_info = self.get_user(netid)
+        user_waitlists = user_info['waitlists']
+        user_waitlists.append(classid)
+        self._db.users.update_one({"netid": netid.rstrip()}, {
+            "$set": {"waitlists": user_waitlists}})
+
+        # add user to waitlist for classid
+        waitlist = self._db.waitlists.find_one({"classid": classid})
+        if waitlist is None:
+            self._db.waitlists.insert_one({"classid": classid, "waitlist": []})
+            class_waitlist = []
+        else:
+            class_waitlist = waitlist['waitlist']
+
+        class_waitlist.append(netid)
+        self._db.waitlists.update_one({"classid": classid}, {
+            "$set": {"waitlist": class_waitlist}})
+
+        print(f"user {netid} successfully added to waitlist for class {classid}")
 
     # returns list of results whose title and ddisplayname
     # contain user query string
