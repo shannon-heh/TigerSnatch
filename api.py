@@ -11,7 +11,8 @@ from config import APP_SECRET_KEY
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
-CAS = CASClient()  # need to test if this is acceptable (global CAS obj)
+_CAS = CASClient()  # need to test if this is acceptable (global CAS obj)
+_db = Database()
 
 
 # private method that redirects to landinage page
@@ -19,8 +20,7 @@ CAS = CASClient()  # need to test if this is acceptable (global CAS obj)
 # or if user is logged in with CAS, but doesn't have entry in DB
 
 def redirect_landing():
-    db = Database()
-    if not CAS.is_logged_in() or not db.is_user_created(CAS.authenticate()):
+    if not _CAS.is_logged_in() or not _db.is_user_created(_CAS.authenticate()):
         return redirect(url_for('landing'))
 
 
@@ -39,10 +39,9 @@ def landing():
 
 @app.route('/login', methods=['GET'])
 def login():
-    netid = CAS.authenticate()
-    db = Database()
-    if not db.is_user_created(netid):
-        db.create_user(netid)
+    netid = _CAS.authenticate()
+    if not _db.is_user_created(netid):
+        _db.create_user(netid)
 
     return redirect(url_for('dashboard'))
 
@@ -54,10 +53,9 @@ def dashboard():
     # netid = CAS.authenticate()
     netid = 'sheh'
 
-    db = Database()
     query = request.args.get('query')
     if query is not None:
-        res = db.search_for_course(query)
+        res = _db.search_for_course(query)
         html = render_template('index.html',
                                search_res=res,
                                last_query=query,
@@ -75,8 +73,7 @@ def dashboard():
 # def search():
 #     query = request.args.get('query')
 
-#     db = Database()
-#     res = db.search_for_course(query)
+#     res = _db.search_for_course(query)
 
 #     html = render_template('index.html',
 #                            search_res=res)
@@ -94,8 +91,7 @@ def get_course():
     # username = CAS.authenticate()
     username = 'sheh'
     courseid = request.args.get('courseid')
-    db = Database()
-    course = db.get_course_with_enrollment(courseid)
+    course = _db.get_course_with_enrollment(courseid)
 
     # split course data into basic course details, and list of classes
     # with enrollmemnt data
@@ -116,5 +112,5 @@ def get_course():
 
 @app.route('/logout', methods=['GET'])
 def logout():
-    CAS.logout()
+    _CAS.logout()
     return redirect(url_for('landing'))

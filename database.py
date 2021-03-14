@@ -87,9 +87,8 @@ class Database(object):
 
         print(f"user {netid} successfully added to waitlist for class {classid}")
 
-    # returns list of results whose title and ddisplayname
-    # contain user query string
-
+   # returns list of results whose title and ddisplayname
+   # contain user query string
     def search_for_course(self, query):
         query = re.compile(query, re.IGNORECASE)
 
