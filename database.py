@@ -53,7 +53,10 @@ class Database:
         except:
             raise RuntimeError(f'courseid {courseid} not found in courses')
 
-        return displayname
+        return displayname.split('/')[0]
+
+    def get_waited_classes(self):
+        return self._db.waitlists.find({}, {"courseid": 1, "classid": 1, "_id": 0})
 
     def get_class_enrollment(self, classid):
         return self._db.enrollments.find_one({"classid": classid})
@@ -309,3 +312,4 @@ if __name__ == '__main__':
     print(db)
     # db.reset_db()
     print(db.classid_to_course_deptnum("41021"))
+    print(list(db.get_waited_classes()))

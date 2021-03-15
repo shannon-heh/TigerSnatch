@@ -15,4 +15,20 @@ class Monitor:
         self._api = MobileApp()
 
     def _construct_waited_classes(self):
-        waitlisted_classes = self._db.get_waitlisted_classes()
+        waited_classes = list(self._db.get_waited_classes())
+        data = {}
+
+        for class_ in waited_classes:
+            deptnum = self._db.classid_to_course_deptnum(class_['classid'])
+
+            if deptnum in data:
+                data[deptnum].append(class_['classid'])
+            else:
+                data[deptnum] = [class_['classid']]
+
+        return data
+
+
+if __name__ == '__main__':
+    monitor = Monitor()
+    print(monitor._construct_waited_classes())

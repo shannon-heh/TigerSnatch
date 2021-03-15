@@ -100,6 +100,6 @@ class Configs:
 
 if __name__ == '__main__':
     api = MobileApp()
-    print(api.get_courses(term='1214', subject='list'))
+    # print(api.get_courses(term='1214', subject='list'))
     print(api.get_courses(term='1214',
-                          search='Introduction to Language and Linguistics'))
+                          search='COS126'))
