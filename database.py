@@ -64,25 +64,19 @@ class Database(object):
         # validation checks
         def validate():
             if not self.is_user_created(netid):
-                print(f'user {netid} does not exist', file=stderr)
-                return False
+                raise Exception(f'user {netid} does not exist')
             class_enrollment = self.get_class_enrollment(classid)
             if class_enrollment is None:
-                print(f'class {classid} does not exist', file=stderr)
-                return False
+                raise Exception(f'class {classid} does not exist')
             if not self.is_class_full(class_enrollment):
-                print(
-                    f'user cannot enter waitlist for non-full class {classid}', file=stderr)
-                return False
+                raise Exception(
+                    f'user cannot enter waitlist for non-full class {classid}')
             if classid in self.get_user(netid)['waitlists']:
-                print(
-                    f'user {netid} is already in waitlist for class {classid}', file=stderr)
-                return False
-            return True
+                raise Exception(
+                    f'user {netid} is already in waitlist for class {classid}')
 
         netid = netid.rstrip()
-        if not validate():
-            return
+        validate()
 
         # add classid to user's waitlist
         user_info = self.get_user(netid)
@@ -108,24 +102,19 @@ class Database(object):
     # removes user of given netid to waitlist for class classid
     # if waitlist for class is empty now, delete entry from waitlists collection
 
-    def remove_from_waitist(self, netid, classid):
+    def remove_from_waitlist(self, netid, classid):
         def validate():
             if not self.is_user_created(netid):
-                print(f'user {netid} does not exist', file=stderr)
-                return False
+                raise Exception(f'user {netid} does not exist')
             waitlist = self.get_class_waitlist(classid)
             if waitlist is None:
-                print(f'no waitlist for class {classid} exists')
-                return False
+                raise Exception(f'no waitlist for class {classid} exists')
             if classid not in self.get_user(netid)['waitlists'] or netid not in waitlist['waitlist']:
-                print(
+                raise Exception(
                     f'user {netid} not in waitlist for class {classid}')
-                return False
-            return True
 
         netid = netid.rstrip()
-        if not validate():
-            return
+        validate()
 
         # remove classid from user's waitlist
         user_info = self.get_user(netid)
