@@ -9,7 +9,7 @@ from mobileapp import MobileApp
 from database import Database
 
 if __name__ == '__main__':
-    def scrape_all_dept_codes(term, api):
+    def get_all_dept_codes(term, api):
         # hidden feature of MobileApp API (thanks to Jonathan Wilding
         # from OIT for helping us find this)
         res = api.get_courses(term='1214', subject='list')
@@ -82,6 +82,7 @@ if __name__ == '__main__':
                     # capacity for a given class within a course
                     new_class_enrollment = {
                         'classid': class_['class_number'],
+                        'courseid': courseid,
                         'enrollment': int(class_['enrollment']),
                         'capacity': int(class_['capacity'])
                     }
@@ -125,7 +126,7 @@ if __name__ == '__main__':
     print(
         f'getting all courses in {current_term_date} (term code {current_term_code})')
 
-    DEPT_CODES = scrape_all_dept_codes(current_term_code, api)
+    DEPT_CODES = get_all_dept_codes(current_term_code, api)
 
     for n, code in enumerate(DEPT_CODES):
         process_dept_code(code, db, api, n)

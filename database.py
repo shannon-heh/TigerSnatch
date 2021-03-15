@@ -12,7 +12,7 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 
 
-class Database(object):
+class Database:
     # creates a reference to the TigerSnatch MongoDB database
 
     def __init__(self):
@@ -38,6 +38,22 @@ class Database(object):
     # returns user data given netid
     def get_user(self, netid):
         return self._db.users.find_one({"netid": netid.rstrip()})
+
+    # returns the corresponding course displayname for a given classid
+    def classid_to_course_deptnum(self, classid):
+        try:
+            courseid = self._db.enrollments.find_one(
+                {"classid": classid})['courseid']
+        except:
+            raise RuntimeError(f'classid {classid} not found in enrollments')
+
+        try:
+            displayname = self._db.courses.find_one(
+                {"courseid": courseid})['displayname']
+        except:
+            raise RuntimeError(f'courseid {courseid} not found in courses')
+
+        return displayname
 
     def get_class_enrollment(self, classid):
         return self._db.enrollments.find_one({"classid": classid})
@@ -281,4 +297,4 @@ if __name__ == '__main__':
     db = Database()
     print(db)
     # db.reset_db()
-    print(db)
+    print(db.classid_to_course_deptnum("41021"))

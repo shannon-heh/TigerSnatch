@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------
-# watilist.py
+# waitlist.py
 # Contains Waitlist, a class which manages waitlist-related
 # functionality for a given user
 # ----------------------------------------------------------------------
