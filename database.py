@@ -13,6 +13,7 @@ from pymongo.errors import ConnectionFailure
 
 
 class Database:
+
     # creates a reference to the TigerSnatch MongoDB database
 
     def __init__(self):
@@ -32,14 +33,17 @@ class Database:
         self._check_basic_integrity()
 
     # helper method to check if class is full
+
     def is_class_full(self, enrollment_dict):
-        return enrollment_dict['enrollment'] == enrollment_dict['capacity']
+        return enrollment_dict['enrollment'] >= enrollment_dict['capacity']
 
     # returns user data given netid
+
     def get_user(self, netid):
         return self._db.users.find_one({"netid": netid.rstrip()})
 
     # returns the corresponding course displayname for a given classid
+
     def classid_to_course_deptnum(self, classid):
         try:
             courseid = self._db.enrollments.find_one(
@@ -55,6 +59,8 @@ class Database:
 
         return displayname.split('/')[0]
 
+    # returns all classes to which there are waitlisted students
+
     def get_waited_classes(self):
         return self._db.waitlists.find({}, {"courseid": 1, "classid": 1, "_id": 0})
 
@@ -65,10 +71,12 @@ class Database:
         return self._db.waitlists.find_one({"classid": classid})
 
     # checks if user exists in users collection
+
     def is_user_created(self, netid):
         return self.get_user(netid) is not None
 
     # creates user entry in users collection
+
     def create_user(self, netid):
         if self.is_user_created(netid):
             print(f'user {netid} already exists', file=stderr)
@@ -79,7 +87,8 @@ class Database:
         print(f'successfully created user {netid}')
 
     # adds user of given netid to waitlist for class classid
-    def add_to_waitlist(self, netid, classid):
+
+    def add_to_waitlist(self, netid, classid, disable_checks=False):
         # validation checks
         def validate():
             if not self.is_user_created(netid):
@@ -95,7 +104,9 @@ class Database:
                     f'user {netid} is already in waitlist for class {classid}')
 
         netid = netid.rstrip()
-        validate()
+
+        if not disable_checks:
+            validate()
 
         # add classid to user's waitlist
         user_info = self.get_user(netid)
@@ -194,7 +205,7 @@ class Database:
                 class_dict['enrollment'] = class_data['enrollment']
                 class_dict['capacity'] = class_data['capacity']
                 class_dict['isFull'] = (
-                    class_dict['capacity'] > 0 and class_dict['enrollment'] == class_dict['capacity'])
+                    class_dict['capacity'] > 0 and class_dict['enrollment'] >= class_dict['capacity'])
         return course_info
 
     # checks if the courses collection contains a course with the

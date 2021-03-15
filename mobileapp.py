@@ -9,6 +9,7 @@ import requests
 import json
 import base64
 from config import CONSUMER_KEY, CONSUMER_SECRET
+from sys import stdout
 
 
 class MobileApp:
@@ -42,6 +43,7 @@ class MobileApp:
 
     def _getJSON(self, endpoint, **kwargs):
         print('querying MobileApp API', end='...')
+        stdout.flush()
         req = requests.get(
             self.configs.BASE_URL + endpoint,
             params=kwargs if "kwargs" not in kwargs else kwargs["kwargs"],

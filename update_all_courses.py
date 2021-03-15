@@ -5,116 +5,15 @@
 # ----------------------------------------------------------------------
 
 from sys import exit
+from time import time
+from multiprocess import Pool
+from os import cpu_count
 from mobileapp import MobileApp
-from database import Database
+from update_all_courses_utils import get_all_dept_codes, process_dept_code
 
 if __name__ == '__main__':
-    def get_all_dept_codes(term, api):
-        # hidden feature of MobileApp API (thanks to Jonathan Wilding
-        # from OIT for helping us find this)
-        res = api.get_courses(term='1214', subject='list')
-
-        try:
-            codes = tuple([k['code'] for k in res['term'][0]['subjects']])
-            codes[0] and codes[1]
-        except:
-            print('failed to get all department codes')
-            exit(1)
-
-        return codes
-
-    def process_dept_code(code, db, api, n):
-        print('processing dept code', code)
-        courses = api.get_courses(term=current_term_code, subject=code)
-
-        if 'subjects' not in courses['term'][0]:
-            raise RuntimeError('no query results')
-
-        if n == 0:
-            db.reset_db()
-
-        # iterate through all subjects, courses, and classes
-        for subject in courses['term'][0]['subjects']:
-            for course in subject['courses']:
-                courseid = course['course_id']
-                if db.courses_contains_courseid(courseid):
-                    print('already processed courseid', courseid, '- skipping')
-                    continue
-
-                # "new" will contain a single course document to be entered
-                # in the courses (and, in part, the mapppings) collection
-                new = {
-                    'courseid': courseid,
-                    'displayname': subject['code'] + course['catalog_number'],
-                    'title': course['title']
-                }
-
-                for x in course['crosslistings']:
-                    new['displayname'] += '/' + \
-                        x['subject'] + x['catalog_number']
-
-                print('inserting', new['displayname'], 'into mappings')
-                db.add_to_mappings(new)
-
-                all_new_classes = []
-                lecture_idx = 0
-
-                for class_ in course['classes']:
-                    meetings = class_['schedule']['meetings'][0]
-                    section = class_['section']
-
-                    # skip dummy sections (end with 99)
-                    if section.endswith('99'):
-                        continue
-
-                    # new_class will contain a single lecture, precept,
-                    # etc. for a given course
-                    new_class = {
-                        'classid': class_['class_number'],
-                        'section': section,
-                        'type_name': class_['type_name'],
-                        'start_time': meetings['start_time'],
-                        'end_time': meetings['end_time'],
-                        'days': ' '.join(meetings['days'])
-                    }
-
-                    # new_class_enrollment will contain enrollment and
-                    # capacity for a given class within a course
-                    new_class_enrollment = {
-                        'classid': class_['class_number'],
-                        'courseid': courseid,
-                        'enrollment': int(class_['enrollment']),
-                        'capacity': int(class_['capacity'])
-                    }
-
-                    print('inserting', new['displayname'],
-                          new_class['section'], 'into enrollments')
-                    db.add_to_enrollments(new_class_enrollment)
-
-                    # pre-recorded lectures are marked as 01:00 AM start
-                    if new_class['start_time'] == '01:00 AM':
-                        new_class['start_time'] = 'Pre-Recorded'
-                        new_class['end_time'] = ''
-
-                    # lectures should appear before other section types
-                    if class_['type_name'] == 'Lecture':
-                        all_new_classes.insert(lecture_idx, new_class)
-                        lecture_idx += 1
-                    else:
-                        all_new_classes.append(new_class)
-
-                for i, new_class in enumerate(all_new_classes):
-                    new[f'class_{i}'] = new_class
-
-                print('inserting', new['displayname'], 'into courses')
-                db.add_to_courses(new)
-
-        print()
-
-    db = Database()
-
-    api = MobileApp()
-    terms = api.get_terms()
+    tic = time()
+    terms = MobileApp().get_terms()
 
     try:
         current_term_code = terms['term'][0]['code']
@@ -126,9 +25,17 @@ if __name__ == '__main__':
     print(
         f'getting all courses in {current_term_date} (term code {current_term_code})')
 
-    DEPT_CODES = get_all_dept_codes(current_term_code, api)
+    DEPT_CODES = get_all_dept_codes(current_term_code)
 
+    process_dept_code_args = []
     for n, code in enumerate(DEPT_CODES):
-        process_dept_code(code, db, api, n)
+        process_dept_code_args.append([code, n, current_term_code, True])
 
-    print('success')
+    # alleviate MobileApp bottleneck using multiprocessing
+    # NOTE: setting cores to > 1 yields in different results every time
+    # replace with cpu_count() if someone figures out why - it's not a
+    # big issue though because this script is run only once per semester
+    with Pool(1) as pool:
+        pool.map(process_dept_code, process_dept_code_args)
+
+    print(f'success: approx. {round(time()-tic)} seconds')

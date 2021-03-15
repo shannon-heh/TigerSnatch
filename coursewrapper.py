@@ -1,20 +1,20 @@
 # ----------------------------------------------------------------------
 # coursewrapper.py
 # Helper class for Monitor, mainly used to compute available slots for
-# all classes in course courseid.
+# all classes in a given course.
 # ----------------------------------------------------------------------
 
 class CourseWrapper:
-    def __init__(self, courseid, new_enroll, new_cap):
-        self._courseid = courseid
+    def __init__(self, course_deptnum, new_enroll, new_cap):
+        self._course_deptnum = course_deptnum
         self._new_enroll = new_enroll
         self._new_cap = new_cap
         self._compute_available_slots()
 
-    # returns courseid
+    # returns _course_deptnum
 
-    def get_courseid(self):
-        return self._courseid
+    def get_course_deptnum(self):
+        return self._course_deptnum
 
     # returns dictionary containing available slots for all inputted
     # classids
@@ -41,14 +41,15 @@ class CourseWrapper:
 
         self._available_slots = diff
 
-    # string representation; prints courseid, classids, and all
+    # string representation; prints _course_deptnum, classids, and all
     # associated available slot counts
 
     def __str__(self):
-        ret = f'CourseWrapper for courseid {self._courseid}:\n'
+        ret = f'CourseWrapper for course_deptnum {self._course_deptnum}:\n'
 
         for k, v in self._available_slots.items():
-            ret += f'\tclassid {k}: {v} available slot(s)\n'
+            ret += f'\tclassid {k}: {v} available slot(s) with enrollment '
+            ret += f'{self._new_enroll[k]}/{self._new_cap[k]}\n'
 
         return ret
 
@@ -66,8 +67,8 @@ if __name__ == '__main__':
         '3': 10
     }
 
-    course = CourseWrapper('01234', new_enroll, new_cap)
+    course = CourseWrapper('COS126', new_enroll, new_cap)
 
     print(course)
     print(course.get_available_slots())
-    print(course.get_courseid())
+    print(course.get_course_deptnum())
