@@ -4,7 +4,7 @@
 # database.
 # ----------------------------------------------------------------------
 
-from sys import exit, stdout
+from sys import exit, stdout, stderr
 import re
 from config import DB_CONNECTION_STR, COLLECTIONS
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
@@ -39,6 +39,12 @@ class Database(object):
     def get_user(self, netid):
         return self._db.users.find_one({"netid": netid.rstrip()})
 
+    def get_class_enrollment(self, classid):
+        return self._db.enrollments.find_one({"classid": classid})
+
+    def get_class_waitlist(self, classid):
+        return self._db.waitlists.find_one({"classid": classid})
+
     # checks if user exists in users collection
     def is_user_created(self, netid):
         return self.get_user(netid) is not None
@@ -46,35 +52,47 @@ class Database(object):
     # creates user entry in users collection
     def create_user(self, netid):
         if self.is_user_created(netid):
-            raise Exception(f'user {netid} already exists')
+            print(f'user {netid} already exists', file=stderr)
+            return
         netid = netid.rstrip()
         self._db.users.insert_one(
             {"netid": netid, "email": f"{netid}@princeton.edu", "phone": "", "waitlists": []})
+        print(f'successfully created user {netid}')
 
-    # adds user of given netid to waitlist for classid
+    # adds user of given netid to waitlist for class classid
     def add_to_waitlist(self, netid, classid):
         # validation checks
-        if not self.is_user_created(netid):
-            raise Exception(f'user {netid} does not exist')
-        class_enrollment = self._db.enrollments.find_one({"classid": classid})
-        if class_enrollment is None:
-            raise Exception(f'class {classid} does not exist')
-        if not self.is_class_full(class_enrollment):
-            raise Exception(
-                f'user cannot enter waitlist for non-full class {classid}')
-        if classid in self.get_user(netid)['waitlists']:
-            raise Exception(
-                f'user {netid} is already in waitlist for class {classid}')
+        def validate():
+            if not self.is_user_created(netid):
+                print(f'user {netid} does not exist', file=stderr)
+                return False
+            class_enrollment = self.get_class_enrollment(classid)
+            if class_enrollment is None:
+                print(f'class {classid} does not exist', file=stderr)
+                return False
+            if not self.is_class_full(class_enrollment):
+                print(
+                    f'user cannot enter waitlist for non-full class {classid}', file=stderr)
+                return False
+            if classid in self.get_user(netid)['waitlists']:
+                print(
+                    f'user {netid} is already in waitlist for class {classid}', file=stderr)
+                return False
+            return True
+
+        netid = netid.rstrip()
+        if not validate():
+            return
 
         # add classid to user's waitlist
         user_info = self.get_user(netid)
         user_waitlists = user_info['waitlists']
         user_waitlists.append(classid)
-        self._db.users.update_one({"netid": netid.rstrip()}, {
+        self._db.users.update_one({"netid": netid}, {
             "$set": {"waitlists": user_waitlists}})
 
         # add user to waitlist for classid
-        waitlist = self._db.waitlists.find_one({"classid": classid})
+        waitlist = self.get_class_waitlist(classid)
         if waitlist is None:
             self._db.waitlists.insert_one({"classid": classid, "waitlist": []})
             class_waitlist = []
@@ -87,8 +105,50 @@ class Database(object):
 
         print(f"user {netid} successfully added to waitlist for class {classid}")
 
+    # removes user of given netid to waitlist for class classid
+    # if waitlist for class is empty now, delete entry from waitlists collection
+
+    def remove_from_waitist(self, netid, classid):
+        def validate():
+            if not self.is_user_created(netid):
+                print(f'user {netid} does not exist', file=stderr)
+                return False
+            waitlist = self.get_class_waitlist(classid)
+            if waitlist is None:
+                print(f'no waitlist for class {classid} exists')
+                return False
+            if classid not in self.get_user(netid)['waitlists'] or netid not in waitlist['waitlist']:
+                print(
+                    f'user {netid} not in waitlist for class {classid}')
+                return False
+            return True
+
+        netid = netid.rstrip()
+        if not validate():
+            return
+
+        # remove classid from user's waitlist
+        user_info = self.get_user(netid)
+        user_waitlists = user_info['waitlists']
+        user_waitlists.remove(classid)
+        self._db.users.update_one({"netid": netid}, {
+            "$set": {"waitlists": user_waitlists}})
+
+        # remove user from waitlist for classid
+        class_waitlist = self.get_class_waitlist(classid)['waitlist']
+        class_waitlist.remove(netid)
+        if len(class_waitlist) == 0:
+            self._db.waitlists.delete_one({"classid": classid})
+        else:
+            self._db.waitlists.update_one({"classid": classid}, {
+                "$set": {"waitlist": class_waitlist}})
+
+        print(
+            f"user {netid} successfully removed from waitlist for class {classid}")
+
    # returns list of results whose title and ddisplayname
    # contain user query string
+
     def search_for_course(self, query):
         query = re.compile(query, re.IGNORECASE)
 
@@ -231,5 +291,5 @@ class Database(object):
 if __name__ == '__main__':
     db = Database()
     print(db)
-    db.reset_db()
+    # db.reset_db()
     print(db)
