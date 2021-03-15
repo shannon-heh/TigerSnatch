@@ -1,3 +1,8 @@
+# ----------------------------------------------------------------------
+# waitlist.py
+# Implements Waitlist, a class that manages ordered waitlist logic.
+# ----------------------------------------------------------------------
+
 from database import Database
 
 

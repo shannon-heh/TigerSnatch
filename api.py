@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # api.py
-# Defines endpoints for TigerSnatch app
+# Defines endpoints for TigerSnatch app.
 # ----------------------------------------------------------------------
 
 from flask import Flask

@@ -1,3 +1,7 @@
+# ----------------------------------------------------------------------
+# run_server.py
+# Manages Flask server execution with a given port.
+# ----------------------------------------------------------------------
 
 from sys import argv, stderr, exit
 from api import app
