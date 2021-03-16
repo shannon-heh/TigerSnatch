@@ -20,13 +20,13 @@ _db = Database()
 # or if user is logged in with CAS, but doesn't have entry in DB
 
 def redirect_landing():
-    if not _CAS.is_logged_in() or not _db.is_user_created(_CAS.authenticate()):
-        return redirect(url_for('landing'))
+    return not _CAS.is_logged_in() or not _db.is_user_created(_CAS.authenticate())
 
 
 @app.route('/', methods=['GET'])
 def index():
-    redirect_landing()
+    if redirect_landing():
+        return redirect(url_for('landing'))
     return redirect(url_for('dashboard'))
 
 
@@ -48,10 +48,10 @@ def login():
 
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-    # redirect_landing()
+    if redirect_landing():
+        return redirect(url_for('landing'))
 
-    # netid = CAS.authenticate()
-    netid = 'sheh'
+    netid = _CAS.authenticate()
 
     query = request.args.get('query')
     if query is not None:
@@ -85,11 +85,10 @@ def dashboard():
 
 @ app.route('/course', methods=['GET'])
 def get_course():
-    # if not CAS.is_logged_in():
-    #     return redirect(url_for('landing'))
+    if not _CAS.is_logged_in():
+        return redirect(url_for('landing'))
 
-    # username = CAS.authenticate()
-    username = 'sheh'
+    username = _CAS.authenticate()
     courseid = request.args.get('courseid')
     course = _db.get_course_with_enrollment(courseid)
 
