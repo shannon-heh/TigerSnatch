@@ -8,6 +8,7 @@ from flask import render_template, make_response, request, redirect, url_for
 from database import Database
 from CASClient import CASClient
 from config import APP_SECRET_KEY
+from waitlist import Waitlist
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
@@ -88,7 +89,7 @@ def get_course():
     if not _CAS.is_logged_in():
         return redirect(url_for('landing'))
 
-    username = _CAS.authenticate()
+    netid = _CAS.authenticate()
     courseid = request.args.get('courseid')
     course = _db.get_course_with_enrollment(courseid)
 
@@ -103,6 +104,7 @@ def get_course():
             course_details[key] = course[key]
 
     html = render_template('course.html',
+                           netid=netid,
                            course_details=course_details,
                            classes_list=classes_list)
     response = make_response(html)
@@ -113,3 +115,19 @@ def get_course():
 def logout():
     _CAS.logout()
     return redirect(url_for('landing'))
+
+
+@app.route('/add_to_waitlist', methods=['GET'])
+def add_to_waitlist():
+    classid = request.args.get('classid')
+    netid = _CAS.authenticate()
+    waitlist = Waitlist(netid)
+    return str(waitlist.add_to_waitlist(classid))
+
+
+@app.route('/remove_from_waitlist', methods=['GET'])
+def remove_from_waitlist():
+    classid = request.args.get('classid')
+    netid = _CAS.authenticate()
+    waitlist = Waitlist(netid)
+    return str(waitlist.remove_from_waitlist(classid))
