@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # monitor.py
 # Manages enrollment updates through cross-referencing MobileApp and
-# the database.
+# the database. Key class method: get_classes_with_changed_enrollments()
 # ----------------------------------------------------------------------
 
 from coursewrapper import CourseWrapper
@@ -16,7 +16,6 @@ from monitor_utils import get_latest_term, process
 class Monitor:
     def __init__(self):
         self._db = Database()
-        self._api = MobileApp()
 
     # organizes all waited-on classes into groups by their parent course
 
@@ -51,6 +50,14 @@ class Monitor:
         with Pool(cpu_count()) as pool:
             all_data = pool.map(process, process_args)
 
+        for course in all_data:
+            for classid in course._new_enroll:
+                print('updating enrollment for',
+                      course._course_deptnum, 'class', classid)
+                self._db.update_enrollment(classid,
+                                           course._new_enroll[classid],
+                                           course._new_cap[classid])
+
         self._waited_course_wrappers = all_data
 
     # generates, caches, and returns a dictionary in the form:
@@ -60,7 +67,8 @@ class Monitor:
     #   ...
     # }
     # the result is to be used to determine to whom notifications are to
-    # be sent
+    # be sent. this method also updates the applicable enrollment data
+    # in the enrollments collection.
 
     def get_classes_with_changed_enrollments(self):
         try:
@@ -84,7 +92,7 @@ class Monitor:
 
         data = {}
         for course in self._waited_course_wrappers:
-            print('generating enrollment delta for',
+            print('generating class enrollment delta for',
                   course.get_course_deptnum())
 
             for class_, n_slots in course.get_available_slots().items():
@@ -99,6 +107,6 @@ class Monitor:
 if __name__ == '__main__':
     monitor = Monitor()
     print(monitor.get_classes_with_changed_enrollments())
-    print('**************************')
     # call again to retrieve cached version
+    print('cached version should print directly beneath this:')
     print(monitor.get_classes_with_changed_enrollments())

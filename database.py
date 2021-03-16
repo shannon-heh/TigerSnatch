@@ -20,7 +20,7 @@ class Database:
         print('connecting to', DB_CONNECTION_STR, end='...')
         stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
-                               serverSelectionTimeoutMS=2000)
+                               serverSelectionTimeoutMS=5000)
 
         try:
             self._db.admin.command('ismaster')
@@ -32,28 +32,23 @@ class Database:
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
-    # helper method to check if class is full
-
-    def is_class_full(self, enrollment_dict):
-        return enrollment_dict['enrollment'] >= enrollment_dict['capacity']
-
     # returns user data given netid
 
     def get_user(self, netid):
-        return self._db.users.find_one({"netid": netid.rstrip()})
+        return self._db.users.find_one({'netid': netid.rstrip()})
 
     # returns the corresponding course displayname for a given classid
 
     def classid_to_course_deptnum(self, classid):
         try:
             courseid = self._db.enrollments.find_one(
-                {"classid": classid})['courseid']
+                {'classid': classid})['courseid']
         except:
             raise RuntimeError(f'classid {classid} not found in enrollments')
 
         try:
             displayname = self._db.courses.find_one(
-                {"courseid": courseid})['displayname']
+                {'courseid': courseid})['displayname']
         except:
             raise RuntimeError(f'courseid {courseid} not found in courses')
 
@@ -62,13 +57,13 @@ class Database:
     # returns all classes to which there are waitlisted students
 
     def get_waited_classes(self):
-        return self._db.waitlists.find({}, {"courseid": 1, "classid": 1, "_id": 0})
+        return self._db.waitlists.find({}, {'courseid': 1, 'classid': 1, '_id': 0})
 
     def get_class_enrollment(self, classid):
-        return self._db.enrollments.find_one({"classid": classid})
+        return self._db.enrollments.find_one({'classid': classid})
 
     def get_class_waitlist(self, classid):
-        return self._db.waitlists.find_one({"classid": classid})
+        return self._db.waitlists.find_one({'classid': classid})
 
     # checks if user exists in users collection
 
@@ -83,7 +78,7 @@ class Database:
             return
         netid = netid.rstrip()
         self._db.users.insert_one(
-            {"netid": netid, "email": f"{netid}@princeton.edu", "phone": "", "waitlists": []})
+            {'netid': netid, 'email': f'{netid}@princeton.edu', 'phone': '', 'waitlists': []})
         print(f'successfully created user {netid}')
 
     # adds user of given netid to waitlist for class classid
@@ -91,12 +86,16 @@ class Database:
     def add_to_waitlist(self, netid, classid, disable_checks=False):
         # validation checks
         def validate():
+            # helper method to check if class is full
+            def is_class_full(enrollment_dict):
+                return enrollment_dict['enrollment'] >= enrollment_dict['capacity']
+
             if not self.is_user_created(netid):
                 raise Exception(f'user {netid} does not exist')
             class_enrollment = self.get_class_enrollment(classid)
             if class_enrollment is None:
                 raise Exception(f'class {classid} does not exist')
-            if not self.is_class_full(class_enrollment):
+            if not is_class_full(class_enrollment):
                 raise Exception(
                     f'user cannot enter waitlist for non-full class {classid}')
             if classid in self.get_user(netid)['waitlists']:
@@ -112,22 +111,22 @@ class Database:
         user_info = self.get_user(netid)
         user_waitlists = user_info['waitlists']
         user_waitlists.append(classid)
-        self._db.users.update_one({"netid": netid}, {
-            "$set": {"waitlists": user_waitlists}})
+        self._db.users.update_one({'netid': netid}, {
+            '$set': {'waitlists': user_waitlists}})
 
         # add user to waitlist for classid
         waitlist = self.get_class_waitlist(classid)
         if waitlist is None:
-            self._db.waitlists.insert_one({"classid": classid, "waitlist": []})
+            self._db.waitlists.insert_one({'classid': classid, 'waitlist': []})
             class_waitlist = []
         else:
             class_waitlist = waitlist['waitlist']
 
         class_waitlist.append(netid)
-        self._db.waitlists.update_one({"classid": classid}, {
-            "$set": {"waitlist": class_waitlist}})
+        self._db.waitlists.update_one({'classid': classid}, {
+            '$set': {'waitlist': class_waitlist}})
 
-        print(f"user {netid} successfully added to waitlist for class {classid}")
+        print(f'user {netid} successfully added to waitlist for class {classid}')
 
     # removes user of given netid to waitlist for class classid
     # if waitlist for class is empty now, delete entry from waitlists collection
@@ -150,20 +149,20 @@ class Database:
         user_info = self.get_user(netid)
         user_waitlists = user_info['waitlists']
         user_waitlists.remove(classid)
-        self._db.users.update_one({"netid": netid}, {
-            "$set": {"waitlists": user_waitlists}})
+        self._db.users.update_one({'netid': netid}, {
+            '$set': {'waitlists': user_waitlists}})
 
         # remove user from waitlist for classid
         class_waitlist = self.get_class_waitlist(classid)['waitlist']
         class_waitlist.remove(netid)
         if len(class_waitlist) == 0:
-            self._db.waitlists.delete_one({"classid": classid})
+            self._db.waitlists.delete_one({'classid': classid})
         else:
-            self._db.waitlists.update_one({"classid": classid}, {
-                "$set": {"waitlist": class_waitlist}})
+            self._db.waitlists.update_one({'classid': classid}, {
+                '$set': {'waitlist': class_waitlist}})
 
         print(
-            f"user {netid} successfully removed from waitlist for class {classid}")
+            f'user {netid} successfully removed from waitlist for class {classid}')
 
    # returns list of results whose title and ddisplayname
    # contain user query string
@@ -171,9 +170,9 @@ class Database:
     def search_for_course(self, query):
         query = re.compile(query, re.IGNORECASE)
 
-        res = list(self._db.mappings.find({"$or": [
-            {"displayname": {"$regex": query}},
-            {"title": {"$regex": query}}
+        res = list(self._db.mappings.find({'$or': [
+            {'displayname': {'$regex': query}},
+            {'title': {'$regex': query}}
         ]}))
 
         if len(res) == 0:
@@ -184,12 +183,12 @@ class Database:
 
     def get_course(self, courseid):
         return self._db.courses.find_one(
-            {"courseid": courseid}, {"_id": False})
+            {'courseid': courseid}, {'_id': False})
 
     # returns capacity and enrollment for course with given courseid
 
     def get_class_enrollment(self, classid):
-        return self._db.enrollments.find_one({"classid": classid}, {"_id": False})
+        return self._db.enrollments.find_one({'classid': classid}, {'_id': False})
 
     # returns dictionary with basic course details AND enrollment,
     # capacity, and boolean isFull field for each class
@@ -212,7 +211,7 @@ class Database:
     # passed-in courseid
 
     def courses_contains_courseid(self, courseid):
-        return self._db.courses.find_one({"courseid": courseid}) is not None
+        return self._db.courses.find_one({'courseid': courseid}) is not None
 
     # adds a document containing course data to the courses collection
     # (see Technical Documentation for schema)
@@ -261,6 +260,13 @@ class Database:
 
         validate(data)
         self._db.enrollments.insert_one(data)
+
+    # updates the enrollment and capacity for class classid
+
+    def update_enrollment(self, classid, new_enroll, new_cap):
+        self._db.enrollments.update_one({'classid': classid},
+                                        {'$set': {'enrollment': new_enroll,
+                                                  'capacity': new_cap}})
 
     # does the following:
     #   * clears all "waitlists" lists for each user
@@ -311,5 +317,5 @@ if __name__ == '__main__':
     db = Database()
     print(db)
     # db.reset_db()
-    print(db.classid_to_course_deptnum("41021"))
+    print(db.classid_to_course_deptnum('41021'))
     print(list(db.get_waited_classes()))

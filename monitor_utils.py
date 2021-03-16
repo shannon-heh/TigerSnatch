@@ -47,7 +47,6 @@ def process(args):
     term, course, classes = args[0], args[1], args[2]
 
     print('processing', course, 'with classes', classes)
-    # TODO: this line is very slow - try multiprocessing?
     new_enroll, new_cap = get_new_mobileapp_data(term, course, classes)
     course_data = CourseWrapper(course, new_enroll, new_cap)
     print(course_data)
