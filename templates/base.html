@@ -2,9 +2,46 @@
  <html>
    <head>
       <title>TigerSnatch</title>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <script type=text/javascript>
+        $(document).ready(function() {
+          $('input.waitlist-switch').on('click', function(e) {
+            e.preventDefault()
+            btn = e.target
+            classid = e.target.getAttribute("data-classid") 
+            if (btn.getAttribute("data-is-added") === "false") {
+                $.get(`/add_to_waitlist?classid=${classid}`,
+                  function(isSuccess) {
+                    if (isSuccess === "False") {
+                      console.log("Something went wrong with adding to waitlist")
+                      return
+                    }
+                    btn.setAttribute("data-is-added", "true")
+                    btn.setAttribute("value", "Remove Me")
+                });
+            }
+            else {
+                $.get(`/remove_from_waitlist?classid=${classid}`,
+                  function(isSuccess) {
+                    if (isSuccess === "False") {
+                      console.log("Something went wrong with removing from waitlist")
+                      return
+                    }
+                    btn.setAttribute("data-is-added", "false")
+                    btn.setAttribute("value", "Add Me")
+                });
+            }
+             return false;
+          });
+        });
+      </script>
     </head>
    <body>
-       {% include 'search.html' %}
-       {% block content %}{% endblock %}
-   </body>
+      <form id="logout-btn" action="/logout" method="get">
+          <input type="submit" value="Logout"></input>
+      </form>
+      <br>
+      {% include 'search.html' %}
+      {% block content %}{% endblock %}
+    </body>
  </html>

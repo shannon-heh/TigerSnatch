@@ -11,6 +11,9 @@
       <div>{{class.days}}</div>
       <div>{{class.enrollment}} / {{class.capacity}}</div>
       <div>Is the class full? {{class.isFull}}</div>
+      {% if class.isFull %}
+        <input type="submit" class="waitlist-switch" id="switch-{{class.classid}}" data-classid = "{{class.classid}}" data-is-added = "false" value="Add Me">
+      {% endif %}
       <br>
     {%endfor%}
   </div>
