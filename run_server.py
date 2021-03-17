@@ -15,7 +15,7 @@ def main(argv):
         print('Port must be an integer.', file=stderr)
         exit(1)
 
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='localhost', port=port, debug=True)
 
 
 if __name__ == '__main__':
