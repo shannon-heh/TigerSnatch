@@ -91,6 +91,7 @@ def process_dept_code(args):
                 new_class_enrollment = {
                     'classid': classid,
                     'courseid': courseid,
+                    'section': section,
                     'enrollment': int(class_['enrollment']),
                     'capacity': int(class_['capacity'])
                 }
