@@ -19,8 +19,10 @@ class Waitlist:
     def add_to_waitlist(self, classid):
         try:
             self._db.add_to_waitlist(self._netid, classid)
+            return True
         except Exception as e:
             print(e, file=stderr)
+            return False
 
     # remove user from waitlist for class with given classid
     def remove_from_waitlist(self, classid):
