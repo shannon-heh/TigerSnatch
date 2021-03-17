@@ -43,7 +43,7 @@ class Database:
         try:
             courseid = self._db.enrollments.find_one(
                 {'classid': classid})['courseid']
-        except:
+        except Exception as e:
             raise RuntimeError(f'classid {classid} not found in enrollments')
 
         try:
@@ -58,16 +58,19 @@ class Database:
    # and section number, for display in email/text messages
     def classid_to_classinfo(self, classid):
         try:
-            courseid = self._db.enrollments.find_one(
-                {'classid': classid})['courseid']
-        except:
-            raise RuntimeError(f'classid {classid} not found in enrollments')
+            classinfo = self._db.enrollments.find_one(
+                {'classid': classid})
+            courseid = classinfo['courseid']
+            sectionname = classinfo['section']
+        except Exception as e:
+            raise e
 
         try:
             mapping = self._db.courses.find_one(
                 {'courseid': courseid})
             displayname = mapping['displayname']
             title = mapping['title']
+            section = mapping['classid']['']
         except:
             raise RuntimeError(f'courseid {courseid} not found in courses')
 

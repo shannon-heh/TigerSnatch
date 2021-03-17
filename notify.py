@@ -12,17 +12,16 @@ class Notify:
     def __init__(self, classid, swap=False):
         db = Database()
         self._classid = classid
-        self.coursename = ''
-        self.sectionname = ''
+        self.coursename, self.sectionname = db.classid_to_classinfo(classid)
         self.secitionname_swap = ''
-        self.netid = ''
+        self.netid = 'zishuoz'
         self.netid_swap = ''
 
-    def text(self, swap=False):
-        try:
-            return 0
+    # def text(self, swap=False):
+    #     try:
+    #         return 0
 
-        return 0
+    #     return 0
 
     def send_email(self, swap=False):
         msg_content = f'Dear {self.netid}\n'
@@ -40,3 +39,8 @@ class Notify:
         s = smtplib.SMTP('localhost')
         s.send_message(msg)
         s.quit()
+
+
+if __name__ == '__main__':
+    n = Notify('41337')
+    n.send_email()
