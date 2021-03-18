@@ -95,7 +95,7 @@ class Database:
         return self._db.enrollments.find_one({'classid': classid})
 
     def get_class_waitlist(self, classid):
-        return self._db.waitlists.find_one({'classid': classid})['waitlist']
+        return self._db.waitlists.find_one({'classid': classid})
 
     # checks if user exists in users collection
 

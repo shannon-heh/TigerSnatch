@@ -127,17 +127,18 @@ def logout():
     return redirect(url_for('landing'))
 
 
-@app.route('/add_to_waitlist', methods=['GET'])
-def add_to_waitlist():
-    classid = request.args.get('classid')
+@app.route('/add_to_waitlist/<classid>', methods=['POST'])
+def add_to_waitlist(classid):
+    # classid = request.args.get('classid')
+    print(classid)
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
     return {"isSuccess": waitlist.add_to_waitlist(classid)}
 
 
-@ app.route('/remove_from_waitlist', methods=['GET'])
-def remove_from_waitlist():
-    classid = request.args.get('classid')
+@ app.route('/remove_from_waitlist/<classid>', methods=['POST'])
+def remove_from_waitlist(classid):
+    # classid = request.args.get('classid')
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
     return {"isSuccess": waitlist.remove_from_waitlist(classid)}

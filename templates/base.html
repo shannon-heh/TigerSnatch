@@ -15,11 +15,12 @@
             
             // if user is not on waitlist for this class
             if (btn.getAttribute("data-on-waitlist") === "false") {
-                $.get(`/add_to_waitlist?classid=${classid}`,
+                $.post(`/add_to_waitlist/${classid}`,
                   function(res) {
+                    console.log(res)
                     // checks that user successfully added to waitlist on back-end
                     if (!res["isSuccess"]) {
-                      console.log("Failed to add to waitlist for class ${classid}")
+                      console.log(`Failed to add to waitlist for class ${classid}`)
                       return
                     }
                     btn.setAttribute("data-on-waitlist", "true")
@@ -33,7 +34,7 @@
                 if (!window.confirm("Are you sure you want to be removed from the waitlist?"))
                   return false
 
-                $.get(`/remove_from_waitlist?classid=${classid}`,
+                $.post(`/remove_from_waitlist/${classid}`,
                   function(res) {
                     // checks that user successfully removed from waitlist on back-end
                     if (!res["isSuccess"]) {
