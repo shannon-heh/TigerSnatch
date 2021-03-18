@@ -37,6 +37,16 @@ class Database:
     def get_user(self, netid):
         return self._db.users.find_one({'netid': netid.rstrip()})
 
+    # returns course displayname corresponding to courseid
+    def courseid_to_displayname(self, courseid):
+        try:
+            displayname = self._db.mappings.find_one(
+                {'courseid': courseid})['displayname']
+        except:
+            raise RuntimeError(f'courseid {courseid} not found in courses')
+
+        return displayname.split('/')[0]
+
     # returns the corresponding course displayname for a given classid
 
     def classid_to_course_deptnum(self, classid):
@@ -47,7 +57,7 @@ class Database:
             raise RuntimeError(f'classid {classid} not found in enrollments')
 
         try:
-            displayname = self._db.courses.find_one(
+            displayname = self._db.mappings.find_one(
                 {'courseid': courseid})['displayname']
         except:
             raise RuntimeError(f'courseid {courseid} not found in courses')
@@ -164,7 +174,7 @@ class Database:
         print(
             f'user {netid} successfully removed from waitlist for class {classid}')
 
-   # returns list of results whose title and ddisplayname
+   # returns list of results whose title and displayname
    # contain user query string
 
     def search_for_course(self, query):
@@ -184,6 +194,16 @@ class Database:
     def get_course(self, courseid):
         return self._db.courses.find_one(
             {'courseid': courseid}, {'_id': False})
+
+    # return list of class ids for a course
+
+    def get_classes_in_course(self, courseid):
+        classid_list = []
+        course_dict = self.get_course(courseid)
+        for key in course_dict.keys():
+            if key.startswith('class_'):
+                classid_list.append(course_dict[key]['classid'])
+        return classid_list
 
     # returns capacity and enrollment for course with given courseid
 
@@ -261,6 +281,12 @@ class Database:
         validate(data)
         self._db.enrollments.insert_one(data)
 
+    # updates the enrollment and capacity for each class in an entire course
+    def update_course_enrollment(self, courseid, new_enroll_dict, new_cap_dict):
+        for classid in new_enroll_dict.keys():
+            self.update_enrollment(
+                classid, new_enroll_dict[classid], new_cap_dict[classid])
+
     # updates the enrollment and capacity for class classid
 
     def update_enrollment(self, classid, new_enroll, new_cap):
@@ -317,5 +343,5 @@ if __name__ == '__main__':
     db = Database()
     print(db)
     # db.reset_db()
-    print(db.classid_to_course_deptnum('41021'))
-    print(list(db.get_waited_classes()))
+    # print(db.classid_to_course_deptnum('41021'))
+    # print(list(db.get_waited_classes()))

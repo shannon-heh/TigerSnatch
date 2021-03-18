@@ -10,7 +10,7 @@ from mobileapp import MobileApp
 from multiprocess import Pool
 from os import cpu_count
 from time import time
-from monitor_utils import get_latest_term, process
+from monitor_utils import get_latest_term, process, get_new_mobileapp_data
 
 
 class Monitor:
@@ -102,6 +102,22 @@ class Monitor:
         print(f'success: approx. {round(time()-tic)} seconds')
         print('enrollments data has been cached; re-call this method to retrieve the cached version')
         return self._changed_enrollments
+
+    # updates enrollments for all classes in course with given courseid
+    def pull_updated_enrollments(self, courseid):
+        terms = MobileApp().get_terms()
+
+        try:
+            current_term_code = terms['term'][0]['code']
+        except:
+            raise Exception('failed to get current term code')
+
+        classes = self._db.get_classes_in_course(courseid)
+        displayname = self._db.courseid_to_displayname(courseid)
+        new_enroll_dict, new_cap_dict = get_new_mobileapp_data(
+            current_term_code, displayname, classes)
+        self._db.update_course_enrollment(
+            courseid, new_enroll_dict, new_cap_dict)
 
 
 if __name__ == '__main__':

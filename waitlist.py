@@ -28,8 +28,10 @@ class Waitlist:
     def remove_from_waitlist(self, classid):
         try:
             self._db.remove_from_waitlist(self._netid, classid)
+            return True
         except Exception as e:
             print(e, file=stderr)
+            return False
 
 
 if __name__ == '__main__':
