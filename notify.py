@@ -7,6 +7,7 @@ from database import Database
 import smtplib
 from email.message import EmailMessage
 from email.utils import make_msgid
+from config import TS_PASSWORD
 
 
 class Notify:
@@ -20,7 +21,7 @@ class Notify:
             raise Exception(f'waitlist for class {classid} does not exist')
         self.email = db.get_user(self.netid)['email']
         self.netid_swap = ''
-        self.secitionname_swap = ''
+        self.sectionname_swap = ''
 
     # sends a formatted email to the first person on waitlist of class with
     # self.classid
@@ -54,7 +55,7 @@ class Notify:
 
         me = 'tigersnatch@princeton.edu'  # sender
         you = self.email  # receiver
-        pwd = 'tigersnatch2021'  # sender's email
+        pwd = TS_PASSWORD
 
         msg['Subject'] = f'A spot opened in {self.sectionname} {self.coursename}'
         msg['From'] = me
