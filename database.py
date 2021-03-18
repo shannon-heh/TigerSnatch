@@ -53,7 +53,7 @@ class Database:
         try:
             courseid = self._db.enrollments.find_one(
                 {'classid': classid})['courseid']
-        except:
+        except Exception as e:
             raise RuntimeError(f'classid {classid} not found in enrollments')
 
         try:
@@ -64,6 +64,28 @@ class Database:
 
         return displayname.split('/')[0]
 
+   # returns information about a class including course depts, numbers, title
+   # and section number, for display in email/text messages
+    def classid_to_classinfo(self, classid):
+        try:
+            classinfo = self._db.enrollments.find_one(
+                {'classid': classid})
+            courseid = classinfo['courseid']
+            sectionname = classinfo['section']
+        except Exception as e:
+            raise e
+
+        try:
+            mapping = self._db.courses.find_one(
+                {'courseid': courseid})
+            displayname = mapping['displayname']
+            title = mapping['title']
+        except Exception as e:
+            raise e
+
+        dept_num = displayname.split('/')[0]
+        return f'{dept_num}: {title}', sectionname
+
     # returns all classes to which there are waitlisted students
 
     def get_waited_classes(self):
@@ -73,7 +95,7 @@ class Database:
         return self._db.enrollments.find_one({'classid': classid})
 
     def get_class_waitlist(self, classid):
-        return self._db.waitlists.find_one({'classid': classid})
+        return self._db.waitlists.find_one({'classid': classid})['waitlist']
 
     # checks if user exists in users collection
 
