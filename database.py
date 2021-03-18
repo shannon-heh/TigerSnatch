@@ -70,12 +70,11 @@ class Database:
                 {'courseid': courseid})
             displayname = mapping['displayname']
             title = mapping['title']
-            section = mapping['classid']['']
-        except:
-            raise RuntimeError(f'courseid {courseid} not found in courses')
+        except Exception as e:
+            raise e
 
         dept_num = displayname.split('/')[0]
-        return f'{dept_num}: {title}',
+        return f'{dept_num}: {title}', sectionname
 
     # returns all classes to which there are waitlisted students
 
@@ -86,7 +85,7 @@ class Database:
         return self._db.enrollments.find_one({'classid': classid})
 
     def get_class_waitlist(self, classid):
-        return self._db.waitlists.find_one({'classid': classid})
+        return self._db.waitlists.find_one({'classid': classid})['waitlist']
 
     # checks if user exists in users collection
 
