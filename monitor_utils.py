@@ -6,25 +6,24 @@
 
 from mobileapp import MobileApp
 from coursewrapper import CourseWrapper
-from sys import exit, stderr
-from database import Database
 
-api = MobileApp()
-_db = Database()
+_api = MobileApp()
 
 
+# gets the latest term code
 def get_latest_term():
-    terms = api.get_terms()
+    terms = _api.get_terms()
 
     try:
         return terms['term'][0]['code']
     except:
-        print('failed to get current term code')
-        exit(1)
+        raise Exception('failed to get current term code')
 
 
+# returns two dictionaries: one containing new class enrollments, one
+# containing new class capacities
 def get_new_mobileapp_data(term, course, classes, default_empty_dicts=False):
-    data = api.get_courses(term=term, search=course)
+    data = _api.get_courses(term=term, search=course)
 
     if 'subjects' not in data['term'][0]:
         if default_empty_dicts:
@@ -49,9 +48,8 @@ def get_new_mobileapp_data(term, course, classes, default_empty_dicts=False):
 
 # returns course data and parses its data into dictionaries
 # ready to be inserted into database collections
-
 def get_course_in_mobileapp(term, course, curr_time):
-    data = api.get_courses(term=term, search=course)
+    data = _api.get_courses(term=term, search=course)
 
     if 'subjects' not in data['term'][0]:
         raise RuntimeError('no query results')
@@ -102,14 +100,6 @@ def get_course_in_mobileapp(term, course, curr_time):
                 new_enroll[classid] = int(class_['enrollment'])
                 new_cap[classid] = int(class_['capacity'])
 
-                new_class_enrollment = {
-                    'classid': classid,
-                    'courseid': courseid,
-                    'section': section,
-                    'enrollment': int(class_['enrollment']),
-                    'capacity': int(class_['capacity'])
-                }
-
                 # pre-recorded lectures are marked as 01:00 AM start
                 if new_class['start_time'] == '01:00 AM':
                     new_class['start_time'] = 'Pre-Recorded'
@@ -128,6 +118,8 @@ def get_course_in_mobileapp(term, course, curr_time):
     return new, new_mapping, new_enroll, new_cap
 
 
+# helper method for multiprocessing: generates CourseWrappers after
+# querying MobileApp for a given course and classid list
 def process(args):
     term, course, classes = args[0], args[1], args[2]
 

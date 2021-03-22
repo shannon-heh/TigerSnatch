@@ -38,6 +38,7 @@ class Database:
         return self._db.users.find_one({'netid': netid.rstrip()})
 
     # returns course displayname corresponding to courseid
+
     def courseid_to_displayname(self, courseid):
         try:
             displayname = self._db.mappings.find_one(
@@ -53,7 +54,7 @@ class Database:
         try:
             courseid = self._db.enrollments.find_one(
                 {'classid': classid})['courseid']
-        except Exception as e:
+        except:
             raise RuntimeError(f'classid {classid} not found in enrollments')
 
         try:
@@ -66,6 +67,7 @@ class Database:
 
    # returns information about a class including course depts, numbers, title
    # and section number, for display in email/text messages
+
     def classid_to_classinfo(self, classid):
         try:
             classinfo = self._db.enrollments.find_one(
@@ -91,8 +93,7 @@ class Database:
     def get_waited_classes(self):
         return self._db.waitlists.find({}, {'courseid': 1, 'classid': 1, '_id': 0})
 
-    def get_class_enrollment(self, classid):
-        return self._db.enrollments.find_one({'classid': classid})
+    # returns a specific classid's waitlist document
 
     def get_class_waitlist(self, classid):
         return self._db.waitlists.find_one({'classid': classid})
@@ -250,6 +251,7 @@ class Database:
         return course_info
 
     # updates time that a course page was last updated
+
     def update_course_time(self, courseid, curr_time):
         try:
             self._db.mappings.update_one({'courseid': courseid}, {
@@ -294,6 +296,7 @@ class Database:
 
     # updates course entry in courses, mappings, and enrollment
     # collections with data dictionary
+
     def update_course_all(self, courseid, new_course, new_mapping, new_enroll, new_cap):
         def validate(new_course, new_mapping):
             if not all(k in new_course for k in COURSES_SCHEMA):
@@ -309,7 +312,6 @@ class Database:
             if not all(k in new_mapping for k in MAPPINGS_SCHEMA):
                 raise RuntimeError('invalid mappings document schema')
 
-        # print(new_course)
         validate(new_course, new_mapping)
         self._db.courses.replace_one({"courseid": courseid}, new_course)
         for classid in new_enroll.keys():
@@ -376,6 +378,21 @@ class Database:
         clear_coll('courses')
         clear_coll('enrollments')
         clear_coll('waitlists')
+
+    # does the following:
+    #   * deletes all documents from mappings
+    #   * deletes all documents from courses
+    #   * deletes all documents from enrollments
+    # NOTE: does NOT clear waitlist-related data, unlike self.reset_db()
+
+    def soft_reset_db(self):
+        def clear_coll(coll):
+            print('clearing', coll)
+            self._db[coll].delete_many({})
+
+        clear_coll('mappings')
+        clear_coll('courses')
+        clear_coll('enrollments')
 
     # checks that all required collections are available in self._db;
     # raises a RuntimeError if not

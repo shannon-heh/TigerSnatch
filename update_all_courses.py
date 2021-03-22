@@ -4,10 +4,8 @@
 # latest term, clearing all waitlists and waitlist student enrollments.
 # ----------------------------------------------------------------------
 
-from sys import exit
 from time import time
 from multiprocess import Pool
-from os import cpu_count
 from mobileapp import MobileApp
 from update_all_courses_utils import get_all_dept_codes, process_dept_code
 
@@ -15,12 +13,12 @@ if __name__ == '__main__':
     tic = time()
     terms = MobileApp().get_terms()
 
+    # get current term code
     try:
         current_term_code = terms['term'][0]['code']
         current_term_date = terms['term'][0]['suffix']
     except:
-        print('failed to get current term code')
-        exit(1)
+        raise Exception('failed to get current term code')
 
     print(
         f'getting all courses in {current_term_date} (term code {current_term_code})')

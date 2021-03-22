@@ -4,7 +4,6 @@
 # the database. Key class method: get_classes_with_changed_enrollments()
 # ----------------------------------------------------------------------
 
-from coursewrapper import CourseWrapper
 from database import Database
 from mobileapp import MobileApp
 from multiprocess import Pool
@@ -12,6 +11,7 @@ from os import cpu_count
 from time import time
 from sys import stderr
 from monitor_utils import get_latest_term, process, get_course_in_mobileapp
+from config import COURSE_UPDATE_INTERVAL_MINS
 
 
 class Monitor:
@@ -104,7 +104,8 @@ class Monitor:
         print('enrollments data has been cached; re-call this method to retrieve the cached version')
         return self._changed_enrollments
 
-    # updates enrollment numbers if it has been 2 minutes since last update
+    # updates all course data if it has been 2 minutes since last update
+
     def pull_course_updates(self, courseid):
         try:
             time_last_updated = self._db.get_course_time_updated(courseid)
@@ -114,9 +115,9 @@ class Monitor:
 
         # if it hasn't been 2 minutes since last update, do not update
         curr_time = time()
-        if curr_time - time_last_updated < 120:
+        if curr_time - time_last_updated < COURSE_UPDATE_INTERVAL_MINS*60:
             print(
-                f"no course update - it hasn't been 2 minutes since last update for course {courseid}")
+                f'no course update - it hasn\'t been {COURSE_UPDATE_INTERVAL_MINS} minutes since last update for course {courseid}')
             return
 
         # update time immediately
@@ -139,12 +140,12 @@ class Monitor:
             # if no changes to course info, do not update
             if new_course == self._db.get_course(courseid):
                 print(
-                    f"no course update - course data hasn't changed for {courseid}")
+                    f'no course update - course data hasn\'t changed for {courseid}')
                 return
 
             # update course data in db
             print(
-                f"yes course update - updated course entry in database for {courseid}")
+                f'yes course update - updated course entry in database for {courseid}')
             self._db.update_course_all(courseid, new_course,
                                        new_mapping, new_enroll, new_cap)
         except Exception as e:

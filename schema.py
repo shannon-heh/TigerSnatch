@@ -9,7 +9,7 @@ CLASS_SCHEMA = ('classid', 'section', 'type_name',
                 'start_time', 'end_time', 'days')
 
 # mappings collection
-MAPPINGS_SCHEMA = ('displayname', 'title', 'courseid')
+MAPPINGS_SCHEMA = ('displayname', 'title', 'courseid', 'time')
 
 # enrollments collection
 ENROLLMENTS_SCHEMA = ('classid', 'enrollment', 'capacity')
