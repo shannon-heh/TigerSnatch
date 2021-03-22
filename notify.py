@@ -11,20 +11,32 @@ from config import TS_PASSWORD
 
 
 class Notify:
+    # initializes Notify, fetching all information about a given classid
+    # to format and send an email to the first student on the waitlist
+    # for that classid
+
     def __init__(self, classid, swap=False):
         db = Database()
         self._classid = classid
-        self.coursename, self.sectionname = db.classid_to_classinfo(classid)
+        self._coursename, self._sectionname = db.classid_to_classinfo(classid)
         try:
-            self.netid = db.get_class_waitlist(classid)[0]
+            self._netid = db.get_class_waitlist(classid)[0]
         except:
             raise Exception(f'waitlist for class {classid} does not exist')
-        self.email = db.get_user(self.netid)['email']
-        self.netid_swap = ''
-        self.sectionname_swap = ''
+        self._email = db.get_user(self._netid)['email']
+
+        if swap:
+            self._netid_swap = ''
+            self._sectionname_swap = ''
+
+    # returns the primary (non-swap) netid of this Notify object
+
+    def get_netid(self):
+        return self._netid
 
     # sends a formatted email to the first person on waitlist of class with
     # self.classid
+
     def send_email_html(self, swap=False):
         msg = EmailMessage()
         asparagus_cid = make_msgid()
@@ -32,8 +44,8 @@ class Notify:
         <html>
         <head></head>
         <body>
-            <p>Dear {self.netid},</p>
-            <p>Your requested section <b>{self.sectionname}</b> in <b>{self.coursename}</b> has a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.</p>
+            <p>Dear {self._netid},</p>
+            <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> has a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.</p>
             <p>Please head over to <a href="https://phubprod.princeton.edu/psp/phubprod/?cmd=start">Tigerhub</a> to register for your course!</p>
             <p>Best,<br>Tigersnatch Team &#128047</p>
         </body>
@@ -45,19 +57,19 @@ class Notify:
             <html>
             <head></head>
             <body>
-                <p>Dear {self.netid},</p>
-                <p>Your requested section <b>{self.sectionname}</b> in <b>{self.coursename}</b> have a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.
-                <p>The netid of your match is: {self.netid_swap}. Please contact them to arrange a section swap!</p>
+                <p>Dear {self._netid},</p>
+                <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> have a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.
+                <p>The netid of your match is: {self._netid_swap}. Please contact them to arrange a section swap!</p>
                 <p>Best,<br>Tigersnatch Team &#128047</p>
             </body>
             </html>
             """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
 
         me = 'tigersnatch@princeton.edu'  # sender
-        you = self.email  # receiver
-        pwd = TS_PASSWORD
+        you = self._email  # receiver
+        pwd = TS_PASSWORD  # see config.py
 
-        msg['Subject'] = f'A spot opened in {self.sectionname} {self.coursename}'
+        msg['Subject'] = f'A spot opened in {self._sectionname} {self._coursename}'
         msg['From'] = me
         msg['To'] = you
         s = smtplib.SMTP('smtp.gmail.com', 587)
