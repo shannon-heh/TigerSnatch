@@ -249,6 +249,23 @@ class Database:
                     class_dict['capacity'] > 0 and class_dict['enrollment'] >= class_dict['capacity'])
         return course_info
 
+    # updates time that a course page was last updated
+    def update_course_time(self, courseid, curr_time):
+        try:
+            self._db.mappings.update_one({'courseid': courseid}, {
+                                         '$set': {'time': curr_time}})
+        except:
+            raise RuntimeError(f'courseid {courseid} not found in courses')
+
+    # returns time that a course page was last updated
+    def get_course_time_updated(self, courseid):
+        try:
+            time = self._db.mappings.find_one(
+                {'courseid': courseid})['time']
+        except:
+            raise RuntimeError(f'courseid {courseid} not found in courses')
+        return time
+
     # checks if the courses collection contains a course with the
     # passed-in courseid
 
@@ -274,6 +291,31 @@ class Database:
 
         validate(data)
         self._db.courses.insert_one(data)
+
+    # updates course entry in courses, mappings, and enrollment
+    # collections with data dictionary
+    def update_course_all(self, courseid, new_course, new_mapping, new_enroll, new_cap):
+        def validate(new_course, new_mapping):
+            if not all(k in new_course for k in COURSES_SCHEMA):
+                raise RuntimeError('invalid courses document schema')
+
+            for k in new_course:
+                if not k.startswith('class_'):
+                    continue
+                if not all(k_ in new_course[k] for k_ in CLASS_SCHEMA):
+                    raise RuntimeError(
+                        'invalid individual class document schema')
+
+            if not all(k in new_mapping for k in MAPPINGS_SCHEMA):
+                raise RuntimeError('invalid mappings document schema')
+
+        # print(new_course)
+        validate(new_course, new_mapping)
+        self._db.courses.replace_one({"courseid": courseid}, new_course)
+        for classid in new_enroll.keys():
+            self.update_enrollment(
+                classid, new_enroll[classid], new_cap[classid])
+        self._db.mappings.replace_one({"courseid": courseid}, new_mapping)
 
     # adds a document containing mapping data to the mappings collection
     # (see Technical Documentation for schema)
@@ -302,12 +344,6 @@ class Database:
 
         validate(data)
         self._db.enrollments.insert_one(data)
-
-    # updates the enrollment and capacity for each class in an entire course
-    def update_course_enrollment(self, courseid, new_enroll_dict, new_cap_dict):
-        for classid in new_enroll_dict.keys():
-            self.update_enrollment(
-                classid, new_enroll_dict[classid], new_cap_dict[classid])
 
     # updates the enrollment and capacity for class classid
 
@@ -363,7 +399,7 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
-    print(db)
-    # db.reset_db()
+    # print(db)
+    db.reset_db()
     # print(db.classid_to_course_deptnum('41021'))
     # print(list(db.get_waited_classes()))

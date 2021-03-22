@@ -10,7 +10,8 @@ from mobileapp import MobileApp
 from multiprocess import Pool
 from os import cpu_count
 from time import time
-from monitor_utils import get_latest_term, process, get_new_mobileapp_data
+from sys import stderr
+from monitor_utils import get_latest_term, process, get_course_in_mobileapp
 
 
 class Monitor:
@@ -103,21 +104,53 @@ class Monitor:
         print('enrollments data has been cached; re-call this method to retrieve the cached version')
         return self._changed_enrollments
 
-    # updates enrollments for all classes in course with given courseid
-    def pull_updated_enrollments(self, courseid):
-        terms = MobileApp().get_terms()
+    # updates enrollment numbers if it has been 2 minutes since last update
+    def pull_course_updates(self, courseid):
+        # try:
+        #     time_last_updated = self._db.get_course_time_updated(courseid)
+        # except Exception as e:
+        #     print(e, file=stderr)
+        #     return
 
+        # if it hasn't been 2 minutes since last update, do not update
+        curr_time = time()
+        # if curr_time - time_last_updated < 120:
+        #     print(
+        #         f"no course update - it hasn't been 2 minutes since last update for course {courseid}")
+        #     return
+
+        # # update time immediately
+        # try:
+        #     self._db.update_course_time(courseid, curr_time)
+        # except Exception as e:
+        #     print(e, file=stderr)
+
+        terms = MobileApp().get_terms()
         try:
             current_term_code = terms['term'][0]['code']
         except:
             raise Exception('failed to get current term code')
 
-        classes = self._db.get_classes_in_course(courseid)
-        displayname = self._db.courseid_to_displayname(courseid)
-        new_enroll_dict, new_cap_dict = get_new_mobileapp_data(
-            current_term_code, displayname, classes)
-        self._db.update_course_enrollment(
-            courseid, new_enroll_dict, new_cap_dict)
+        try:
+            displayname = self._db.courseid_to_displayname(courseid)
+            print("displayname: ", displayname)
+            new_course, new_mapping, new_enroll, new_cap = get_course_in_mobileapp(
+                current_term_code, displayname, curr_time)
+            print(new_course)
+
+            # if no changes to course info, do not update
+            if new_course == self._db.get_course(courseid):
+                print(
+                    f"no course update - course data hasn't changed for {courseid}")
+                return
+
+            # update course data in db
+            print(
+                f"yes course update - updated course entry in database for {courseid}")
+            self._db.update_course_all(courseid, new_course,
+                                       new_mapping, new_enroll, new_cap)
+        except Exception as e:
+            print(e, file=stderr)
 
 
 if __name__ == '__main__':

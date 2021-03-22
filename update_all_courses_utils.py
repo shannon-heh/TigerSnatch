@@ -7,6 +7,7 @@
 from mobileapp import MobileApp
 from database import Database
 from random import random
+import time
 
 api = MobileApp()
 
@@ -52,8 +53,8 @@ def process_dept_code(args):
             new = {
                 'courseid': courseid,
                 'displayname': subject['code'] + course['catalog_number'],
-                'title': course['title']
-            }
+                'title': course['title'],
+                'time': time.time()}
 
             for x in course['crosslistings']:
                 new['displayname'] += '/' + \
@@ -61,6 +62,8 @@ def process_dept_code(args):
 
             print('inserting', new['displayname'], 'into mappings')
             db.add_to_mappings(new)
+
+            del new['time']
 
             all_new_classes = []
             lecture_idx = 0

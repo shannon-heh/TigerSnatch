@@ -95,8 +95,8 @@ def get_course():
 
     courseid = request.args.get('courseid')
 
-    # updates enrollment numbers when user clicks on course
-    # _monitor.pull_updated_enrollments(courseid)
+    # updates enrollment numbers if it has been 2 minutes since last update
+    _monitor.pull_course_updates(courseid)
 
     course = _db.get_course_with_enrollment(courseid)
 
