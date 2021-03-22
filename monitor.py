@@ -106,24 +106,24 @@ class Monitor:
 
     # updates enrollment numbers if it has been 2 minutes since last update
     def pull_course_updates(self, courseid):
-        # try:
-        #     time_last_updated = self._db.get_course_time_updated(courseid)
-        # except Exception as e:
-        #     print(e, file=stderr)
-        #     return
+        try:
+            time_last_updated = self._db.get_course_time_updated(courseid)
+        except Exception as e:
+            print(e, file=stderr)
+            return
 
         # if it hasn't been 2 minutes since last update, do not update
         curr_time = time()
-        # if curr_time - time_last_updated < 120:
-        #     print(
-        #         f"no course update - it hasn't been 2 minutes since last update for course {courseid}")
-        #     return
+        if curr_time - time_last_updated < 120:
+            print(
+                f"no course update - it hasn't been 2 minutes since last update for course {courseid}")
+            return
 
-        # # update time immediately
-        # try:
-        #     self._db.update_course_time(courseid, curr_time)
-        # except Exception as e:
-        #     print(e, file=stderr)
+        # update time immediately
+        try:
+            self._db.update_course_time(courseid, curr_time)
+        except Exception as e:
+            print(e, file=stderr)
 
         terms = MobileApp().get_terms()
         try:
@@ -133,10 +133,8 @@ class Monitor:
 
         try:
             displayname = self._db.courseid_to_displayname(courseid)
-            print("displayname: ", displayname)
             new_course, new_mapping, new_enroll, new_cap = get_course_in_mobileapp(
                 current_term_code, displayname, curr_time)
-            print(new_course)
 
             # if no changes to course info, do not update
             if new_course == self._db.get_course(courseid):
