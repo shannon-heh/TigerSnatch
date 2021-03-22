@@ -6,7 +6,7 @@
 
 from mobileapp import MobileApp
 from coursewrapper import CourseWrapper
-from sys import exit
+from sys import exit, stderr
 
 api = MobileApp()
 
@@ -21,11 +21,13 @@ def get_latest_term():
         exit(1)
 
 
-def get_new_mobileapp_data(term, course, classes):
+def get_new_mobileapp_data(term, course, classes, default_empty_dicts=False):
     data = api.get_courses(term=term, search=course)
 
     if 'subjects' not in data['term'][0]:
-        raise RuntimeError('no query results')
+        if default_empty_dicts:
+            return {}, {}
+        raise Exception('no query results')
 
     new_enroll = {}
     new_cap = {}
@@ -47,7 +49,8 @@ def process(args):
     term, course, classes = args[0], args[1], args[2]
 
     print('processing', course, 'with classes', classes)
-    new_enroll, new_cap = get_new_mobileapp_data(term, course, classes)
+    new_enroll, new_cap = get_new_mobileapp_data(
+        term, course, classes, default_empty_dicts=True)
     course_data = CourseWrapper(course, new_enroll, new_cap)
     print(course_data)
     return course_data
