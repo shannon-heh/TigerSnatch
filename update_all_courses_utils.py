@@ -118,10 +118,19 @@ def process_dept_code(args):
                     all_new_classes.append(new_class)
 
                 # randomly add waitlists for testing purposes
-                if dummy_waitlists and random() < 0.01:
+                rand = random()
+                if dummy_waitlists and rand < 0.005:
                     print('inserting', classid, 'into waitlists')
                     db.add_to_waitlist(
                         'sheh', classid, disable_checks=True)
+                elif dummy_waitlists and 0.005 <= rand < 0.01:
+                    print('inserting', classid, 'into waitlists')
+                    db.add_to_waitlist(
+                        'ntyp', classid, disable_checks=True)
+                elif dummy_waitlists and 0.01 <= rand < 0.015:
+                    print('inserting', classid, 'into waitlists')
+                    db.add_to_waitlist(
+                        'zishuoz', classid, disable_checks=True)
 
             for i, new_class in enumerate(all_new_classes):
                 new[f'class_{i}'] = new_class

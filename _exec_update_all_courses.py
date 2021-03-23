@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------
-# $exec_update_all_courses.py
+# _exec_update_all_courses.py
 # Resets and updates the TigerSnatch database with courses from the
 # latest term, clearing all waitlists and waitlist student enrollments.
 # ----------------------------------------------------------------------

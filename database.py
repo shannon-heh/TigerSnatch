@@ -101,7 +101,10 @@ class Database:
     # returns a specific classid's waitlist size
 
     def get_class_waitlist_size(self, classid):
-        return len(self.get_class_waitlist(classid)['waitlist'])
+        try:
+            return len(self.get_class_waitlist(classid)['waitlist'])
+        except:
+            raise Exception(f'classid {classid} does not exist')
 
     # checks if user exists in users collection
 
@@ -421,8 +424,7 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
-    print(db.get_class_waitlist_size("43193"))
     # print(db)
     # db.reset_db()
-    # print(db.classid_to_course_deptnum('41021'))
+    print(db.classid_to_course_deptnum('41974'))
     # print(list(db.get_waited_classes()))
