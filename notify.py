@@ -20,11 +20,12 @@ class Notify:
         self._classid = classid
         self._coursename, self._sectionname = db.classid_to_classinfo(classid)
         try:
-            self._netid = db.get_class_waitlist(classid)[0]
+            self._netid = db.get_class_waitlist(classid)['waitlist'][0]
         except:
             raise Exception(f'waitlist for class {classid} does not exist')
         self._email = db.get_user(self._netid)['email']
 
+        self._swap = swap
         if swap:
             self._netid_swap = ''
             self._sectionname_swap = ''
@@ -37,7 +38,7 @@ class Notify:
     # sends a formatted email to the first person on waitlist of class with
     # self.classid
 
-    def send_email_html(self, swap=False):
+    def send_email_html(self):
         msg = EmailMessage()
         asparagus_cid = make_msgid()
         msg.add_alternative(f"""\
@@ -52,7 +53,7 @@ class Notify:
         </html>
         """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
 
-        if swap:
+        if self._swap:
             msg.add_alternative(f"""\
             <html>
             <head></head>
@@ -81,6 +82,17 @@ class Notify:
             s.quit()
         except Exception as e:
             raise e
+
+    def __str__(self):
+        ret = 'Notify:\n'
+        ret += f'\tNetID:\t{self._netid}'
+        ret += f'\tEmail:\t{self._email}'
+
+        if self._swap:
+            ret += f'\tSwap with:\t{self._netid_swap}'
+            ret += f'\tSwap sect:\t{self._sectionname_swap}'
+
+        return ret
 
 
 if __name__ == '__main__':
