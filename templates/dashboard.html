@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div id="search-wrapper" class="col">
+        <div>Search for a course</div>
+        <form id="search-form" action="/dashboard" method="get">
+            <input type="text" name="query" placeholder="e.g. COS126" value="{{last_query}}" />
+            <input type="submit" />
+        </form>
+    {% include 'search_results.html' %} 
+    </div>
+  <div id="dashboard-wrapper" class="col">
+    <p>Dashboard for {{ username }}</p>
+  </div>
+{% endblock %}

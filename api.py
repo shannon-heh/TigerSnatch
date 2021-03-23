@@ -59,12 +59,12 @@ def dashboard():
     query = request.args.get('query')
     if query is not None:
         res = _db.search_for_course(query)
-        html = render_template('index.html',
+        html = render_template('dashboard.html',
                                search_res=res,
                                last_query=query,
                                username=netid)
     else:
-        html = render_template('index.html', username=netid)
+        html = render_template('dashboard.html', username=netid)
 
     response = make_response(html)
     return response
@@ -94,6 +94,27 @@ def get_course():
     netid = _CAS.authenticate()
 
     courseid = request.args.get('courseid')
+    query = request.args.get('query')
+
+    # if URL has no query param
+    if query is not None:
+        res = _db.search_for_course(query)
+    else:
+        res = None
+        query = ""
+
+    # if URL has no courseid param, courseid is empty string, or
+    # courseid is invalid
+    if courseid is None or courseid is "" or _db.get_course(courseid) is None:
+        course_details = None
+        html = render_template('course.html',
+                               netid=netid,
+                               course_details=course_details,
+                               search_res=res,
+                               last_query=query)
+
+        response = make_response(html)
+        return response
 
     # updates enrollment numbers if it has been 2 minutes since last update
     _monitor.pull_course_updates(courseid)
@@ -116,7 +137,10 @@ def get_course():
                            netid=netid,
                            course_details=course_details,
                            classes_list=classes_list,
-                           curr_waitlists=curr_waitlists)
+                           curr_waitlists=curr_waitlists,
+                           search_res=res,
+                           last_query=query)
+
     response = make_response(html)
     return response
 
