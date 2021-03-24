@@ -2,6 +2,12 @@
 # _exec_notifs.py
 # Script that wraps core email notification logic - designed to be run
 # on a regular interval.
+#
+# Approximate execution frequency: 2-5 minutes after the previous
+# execution completion. The script itself can take a minute or two to
+# run, depending on the number of waited-on classes.
+#
+# Example: python _exec_notifs.py
 # ----------------------------------------------------------------------
 
 from notify import Notify

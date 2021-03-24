@@ -30,7 +30,8 @@ def get_all_dept_codes(term):
 # helper method for multiprocessing: fetches and inserts new course
 # information into the database
 def process_dept_code(args):
-    code, n, current_term_code, dummy_waitlists = args[0], args[1], args[2], args[3]
+    code, n, current_term_code, dummy_waitlists, hard_reset = args[
+        0], args[1], args[2], args[3], args[4]
     db = Database()
 
     print('processing dept code', code)
@@ -40,7 +41,10 @@ def process_dept_code(args):
         raise RuntimeError('no query results')
 
     if n == 0:
-        db.reset_db()
+        if hard_reset:
+            db.reset_db()
+        else:
+            db.soft_reset_db()
 
     # iterate through all subjects, courses, and classes
     for subject in courses['term'][0]['subjects']:

@@ -1,32 +1,37 @@
 # ----------------------------------------------------------------------
 # _exec_reset_db.py
 # Simple script to either soft or hard reset the database.
+#
+# Specify one of the following flags:
+#   --soft: resets only course-related data
+#	--hard: resets both course and waitlist-related data
+#
+# WARNING: all waitlist-related data will be CLEARED if the flag --hard
+# is specified. If you wish to refresh only course (non-waitlist) data,
+# run with --soft.
+#
+# Example: python _exec_reset_db.py --soft
 # ----------------------------------------------------------------------
 
 from database import Database
-from sys import exit
+from sys import exit, argv
 
-print('Database reset options')
-print('----------------------')
-print('1: SOFT reset (clears only course-related data)')
-print('2: HARD reset (clears course-related AND waitlist-related data)')
-print('3: never mind!')
+if __name__ == '__main__':
+    def process_args():
+        if len(argv) != 2 or (argv[1] != '--soft' and argv[1] != '--hard'):
+            print('specify one of the following flags:')
+            print('\t--soft: resets only course-related data')
+            print('\t--hard: resets both course and waitlist-related data')
+            exit(2)
+        return argv[1] == '--hard'
 
-try:
-    action = int(input('Type a number and press enter: '))
-except:
-    print('non-integer inputted')
-    exit(1)
+    hard_reset = process_args()
 
-if action == 1:
-    database = Database()
-    database.soft_reset_db()
-    print('done')
-elif action == 2:
-    database = Database()
-    database.reset_db()
-    print('done')
-elif action == 3:
-    exit(0)
-else:
-    print('invalid action inputted')
+    if hard_reset:
+        database = Database()
+        database.reset_db()()
+        print('done')
+    else:
+        database = Database()
+        database.soft_reset_db()()
+        print('done')
