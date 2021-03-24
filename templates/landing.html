@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>TigerSnatch</title>
+        {% include 'common.html' %}
     </head>
-    <h>Welcome to TigerSnatch! Click the button below to log in via CAS</h>
+    <h>Welcome to TigerSnatch! Click the button below to log in via CAS.</h>
     <body>
-        <br></br>
         <form action="/login" method="get">
-            <input type="submit" name="login" value="Login">
+            <input class="btn btn-primary" type="submit" name="login" value="Login" />
         </form>
     </body>
 </html>

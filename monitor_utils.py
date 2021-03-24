@@ -68,6 +68,9 @@ def get_course_in_mobileapp(term, course, curr_time):
                 'title': course['title'],
                 'time': curr_time}
 
+            if new['displayname'] != course:
+                continue
+
             for x in course['crosslistings']:
                 new['displayname'] += '/' + \
                     x['subject'] + x['catalog_number']

@@ -19,7 +19,7 @@ def main(argv):
     try:
         port = int(argv[1])
     except Exception:
-        print('Port must be an integer.', file=stderr)
+        print('Port must be an integer', file=stderr)
         exit(1)
 
     app.run(host=TS_HOST, port=port, debug=True)

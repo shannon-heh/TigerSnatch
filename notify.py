@@ -7,6 +7,7 @@ from database import Database
 import smtplib
 from email.message import EmailMessage
 from email.utils import make_msgid
+from sys import stderr
 from config import TS_EMAIL, TS_PASSWORD
 
 
@@ -83,7 +84,7 @@ class Notify:
             s.quit()
             return True
         except Exception as e:
-            print(e)
+            print(e, file=stderr)
             return False
 
     def __str__(self):
