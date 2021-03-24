@@ -7,37 +7,44 @@
 from mobileapp import MobileApp
 from database import Database
 from random import random
+import time
 
-api = MobileApp()
+_api = MobileApp()
 
 
+# return all department codes (e.g. COS, ECE, etc.)
 def get_all_dept_codes(term):
     # hidden feature of MobileApp API (thanks to Jonathan Wilding
     # from OIT for helping us find this)
-    res = api.get_courses(term=term, subject='list')
+    res = _api.get_courses(term=term, subject='list')
 
     try:
         codes = tuple([k['code'] for k in res['term'][0]['subjects']])
         codes[0] and codes[1]
     except:
-        print('failed to get all department codes')
-        exit(1)
+        raise Exception('failed to get all department codes')
 
     return codes
 
 
+# helper method for multiprocessing: fetches and inserts new course
+# information into the database
 def process_dept_code(args):
-    code, n, current_term_code, dummy_waitlists = args[0], args[1], args[2], args[3]
+    code, n, current_term_code, dummy_waitlists, hard_reset = args[
+        0], args[1], args[2], args[3], args[4]
     db = Database()
 
     print('processing dept code', code)
-    courses = api.get_courses(term=current_term_code, subject=code)
+    courses = _api.get_courses(term=current_term_code, subject=code)
 
     if 'subjects' not in courses['term'][0]:
         raise RuntimeError('no query results')
 
     if n == 0:
-        db.reset_db()
+        if hard_reset:
+            db.reset_db()
+        else:
+            db.soft_reset_db()
 
     # iterate through all subjects, courses, and classes
     for subject in courses['term'][0]['subjects']:
@@ -52,8 +59,8 @@ def process_dept_code(args):
             new = {
                 'courseid': courseid,
                 'displayname': subject['code'] + course['catalog_number'],
-                'title': course['title']
-            }
+                'title': course['title'],
+                'time': time.time()}
 
             for x in course['crosslistings']:
                 new['displayname'] += '/' + \
@@ -61,6 +68,8 @@ def process_dept_code(args):
 
             print('inserting', new['displayname'], 'into mappings')
             db.add_to_mappings(new)
+
+            del new['time']
 
             all_new_classes = []
             lecture_idx = 0
@@ -113,10 +122,19 @@ def process_dept_code(args):
                     all_new_classes.append(new_class)
 
                 # randomly add waitlists for testing purposes
-                if dummy_waitlists and random() < 0.01:
+                rand = random()
+                if dummy_waitlists and rand < 0.005:
                     print('inserting', classid, 'into waitlists')
                     db.add_to_waitlist(
                         'sheh', classid, disable_checks=True)
+                elif dummy_waitlists and 0.005 <= rand < 0.01:
+                    print('inserting', classid, 'into waitlists')
+                    db.add_to_waitlist(
+                        'ntyp', classid, disable_checks=True)
+                elif dummy_waitlists and 0.01 <= rand < 0.015:
+                    print('inserting', classid, 'into waitlists')
+                    db.add_to_waitlist(
+                        'zishuoz', classid, disable_checks=True)
 
             for i, new_class in enumerate(all_new_classes):
                 new[f'class_{i}'] = new_class

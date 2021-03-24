@@ -1,20 +1,50 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div>
-    <div>{{course_details.courseid}}</div>
-    <div>{{course_details.displayname}}</div>
-    <div>{{course_details.title}}</div>
-    <br>
-    {% for class in classes_list %} 
-      <div>{{class.section}}</div>
-      <div>{{class.start_time}} - {{class.end_time}}</div>
-      <div>{{class.days}}</div>
-      <div>{{class.enrollment}} / {{class.capacity}}</div>
-      <div>Is the class full? {{class.isFull}}</div>
-      {% if class.isFull %}
-        <input type="submit" class="waitlist-switch" id="switch-{{class.classid}}" data-classid = "{{class.classid}}" data-is-added = "false" value="Add Me">
-      {% endif %}
-      <br>
-    {%endfor%}
+  <div id="search-wrapper" class="col">
+    <div>Search for a course</div>
+    <form id="search-form" action="/course" method="get">
+        <input type="text" name="query" placeholder="e.g. COS126" value="{{last_query}}" />
+        <input type="hidden" name="courseid" value="{{course_details.courseid}}"/>
+        <input type="submit" />
+    </form>
+    {% include 'search_results.html' %} 
   </div>
+
+  {% if course_details is none %}
+    <div id="course-wrapper" class="col">
+      <div>Search for a course...</div>
+    </div>
+  {% else %}
+    <div id="course-wrapper" class="col">
+      <div>{{course_details.courseid}}</div>
+      <div>{{course_details.displayname}}</div>
+      <div>{{course_details.title}}</div>
+      <br>
+      {% for class in classes_list %} 
+        <div>{{class.section}}</div>
+        <div>{{class.start_time}} - {{class.end_time}}</div>
+        <div>{{class.days}}</div>
+        <div>{{class.enrollment}} / {{class.capacity}}</div>
+        <div>Is the class full? {{class.isFull}}</div>
+        {% if class.isFull %}
+          {% if class.classid in curr_waitlists %}
+            <input type="submit" 
+                  class="waitlist-switch" 
+                  id="switch-{{class.classid}}" 
+                  data-classid = "{{class.classid}}" 
+                  data-on-waitlist = "true" 
+                  value="Remove Me">
+          {% else %}
+            <input type="submit" 
+                class="waitlist-switch" 
+                id="switch-{{class.classid}}" 
+                data-classid = "{{class.classid}}" 
+                data-on-waitlist = "false" 
+                value="Add Me">
+          {% endif %}
+        {% endif %}
+        <br>
+      {%endfor%}
+    </div>
+  {% endif %}
 {% endblock %}

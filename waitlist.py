@@ -11,11 +11,13 @@ from sys import stderr
 class Waitlist:
 
     # pass-in netid for a user
+    
     def __init__(self, netid):
         self._netid = netid
         self._db = Database()
 
     # add user to waitlist for class with given classid
+
     def add_to_waitlist(self, classid):
         try:
             self._db.add_to_waitlist(self._netid, classid)
@@ -25,11 +27,14 @@ class Waitlist:
             return False
 
     # remove user from waitlist for class with given classid
+
     def remove_from_waitlist(self, classid):
         try:
             self._db.remove_from_waitlist(self._netid, classid)
+            return True
         except Exception as e:
             print(e, file=stderr)
+            return False
 
 
 if __name__ == '__main__':

@@ -9,16 +9,18 @@ from database import Database
 from CASClient import CASClient
 from config import APP_SECRET_KEY
 from waitlist import Waitlist
+from monitor import Monitor
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
 _CAS = CASClient()  # need to test if this is acceptable (global CAS obj)
 _db = Database()
-
+_monitor = Monitor()
 
 # private method that redirects to landinage page
 # if user is not logged in with CAS
 # or if user is logged in with CAS, but doesn't have entry in DB
+
 
 def redirect_landing():
     return not _CAS.is_logged_in() or not _db.is_user_created(_CAS.authenticate())
@@ -57,12 +59,12 @@ def dashboard():
     query = request.args.get('query')
     if query is not None:
         res = _db.search_for_course(query)
-        html = render_template('index.html',
+        html = render_template('dashboard.html',
                                search_res=res,
                                last_query=query,
                                username=netid)
     else:
-        html = render_template('index.html', username=netid)
+        html = render_template('dashboard.html', username=netid)
 
     response = make_response(html)
     return response
@@ -90,7 +92,33 @@ def get_course():
         return redirect(url_for('landing'))
 
     netid = _CAS.authenticate()
+
     courseid = request.args.get('courseid')
+    query = request.args.get('query')
+
+    # if URL has no query param
+    if query is not None:
+        res = _db.search_for_course(query)
+    else:
+        res = None
+        query = ""
+
+    # if URL has no courseid param, courseid is empty string, or
+    # courseid is invalid
+    if courseid is None or courseid is "" or _db.get_course(courseid) is None:
+        course_details = None
+        html = render_template('course.html',
+                               netid=netid,
+                               course_details=course_details,
+                               search_res=res,
+                               last_query=query)
+
+        response = make_response(html)
+        return response
+
+    # updates enrollment numbers if it has been 2 minutes since last update
+    _monitor.pull_course_updates(courseid)
+
     course = _db.get_course_with_enrollment(courseid)
 
     # split course data into basic course details, and list of classes
@@ -103,10 +131,16 @@ def get_course():
         else:
             course_details[key] = course[key]
 
+    curr_waitlists = _db.get_user(netid)['waitlists']
+
     html = render_template('course.html',
                            netid=netid,
                            course_details=course_details,
-                           classes_list=classes_list)
+                           classes_list=classes_list,
+                           curr_waitlists=curr_waitlists,
+                           search_res=res,
+                           last_query=query)
+
     response = make_response(html)
     return response
 
@@ -117,17 +151,18 @@ def logout():
     return redirect(url_for('landing'))
 
 
-@app.route('/add_to_waitlist', methods=['GET'])
-def add_to_waitlist():
-    classid = request.args.get('classid')
+@app.route('/add_to_waitlist/<classid>', methods=['POST'])
+def add_to_waitlist(classid):
+    # classid = request.args.get('classid')
+    print(classid)
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
-    return str(waitlist.add_to_waitlist(classid))
+    return {"isSuccess": waitlist.add_to_waitlist(classid)}
 
 
-@app.route('/remove_from_waitlist', methods=['GET'])
-def remove_from_waitlist():
-    classid = request.args.get('classid')
+@ app.route('/remove_from_waitlist/<classid>', methods=['POST'])
+def remove_from_waitlist(classid):
+    # classid = request.args.get('classid')
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
-    return str(waitlist.remove_from_waitlist(classid))
+    return {"isSuccess": waitlist.remove_from_waitlist(classid)}

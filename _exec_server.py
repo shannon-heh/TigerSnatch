@@ -1,14 +1,17 @@
 # ----------------------------------------------------------------------
-# run_server.py
-# Manages Flask server execution with a given port.
+# _exec_server.py
+# Manages Flask server execution with a given port. To alter the host
+# address, change TS_HOST in config.py.
+#
+# Example: python _exec_server.py 12345
 # ----------------------------------------------------------------------
 
 from sys import argv, stderr, exit
 from api import app
+from config import TS_HOST
 
 
 def main(argv):
-
     if len(argv) != 2:
         print('Incorrect number of arguments - specify port only', file=stderr)
         exit(1)
@@ -19,7 +22,7 @@ def main(argv):
         print('Port must be an integer.', file=stderr)
         exit(1)
 
-    app.run(host='localhost', port=port, debug=True)
+    app.run(host=TS_HOST, port=port, debug=True)
 
 
 if __name__ == '__main__':

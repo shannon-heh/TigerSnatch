@@ -4,13 +4,14 @@
 # the database. Key class method: get_classes_with_changed_enrollments()
 # ----------------------------------------------------------------------
 
-from coursewrapper import CourseWrapper
 from database import Database
 from mobileapp import MobileApp
 from multiprocess import Pool
 from os import cpu_count
 from time import time
-from monitor_utils import get_latest_term, process
+from sys import stderr
+from monitor_utils import get_latest_term, process, get_course_in_mobileapp
+from config import COURSE_UPDATE_INTERVAL_MINS
 
 
 class Monitor:
@@ -50,13 +51,13 @@ class Monitor:
         with Pool(cpu_count()) as pool:
             all_data = pool.map(process, process_args)
 
-        for course in all_data:
-            for classid in course._new_enroll:
-                print('updating enrollment for',
-                      course._course_deptnum, 'class', classid)
-                self._db.update_enrollment(classid,
-                                           course._new_enroll[classid],
-                                           course._new_cap[classid])
+        # for course in all_data:
+        #     for classid in course._new_enroll:
+        #         print('updating enrollment for',
+        #               course._course_deptnum, 'class', classid)
+        #         self._db.update_enrollment(classid,
+        #                                    course._new_enroll[classid],
+        #                                    course._new_cap[classid])
 
         self._waited_course_wrappers = all_data
 
@@ -102,6 +103,53 @@ class Monitor:
         print(f'success: approx. {round(time()-tic)} seconds')
         print('enrollments data has been cached; re-call this method to retrieve the cached version')
         return self._changed_enrollments
+
+    # updates all course data if it has been 2 minutes since last update
+
+    def pull_course_updates(self, courseid):
+        try:
+            time_last_updated = self._db.get_course_time_updated(courseid)
+        except Exception as e:
+            print(e, file=stderr)
+            return
+
+        # if it hasn't been 2 minutes since last update, do not update
+        curr_time = time()
+        if curr_time - time_last_updated < COURSE_UPDATE_INTERVAL_MINS*60:
+            print(
+                f'no course update - it hasn\'t been {COURSE_UPDATE_INTERVAL_MINS} minutes since last update for course {courseid}')
+            return
+
+        # update time immediately
+        try:
+            self._db.update_course_time(courseid, curr_time)
+        except Exception as e:
+            print(e, file=stderr)
+
+        terms = MobileApp().get_terms()
+        try:
+            current_term_code = terms['term'][0]['code']
+        except:
+            raise Exception('failed to get current term code')
+
+        try:
+            displayname = self._db.courseid_to_displayname(courseid)
+            new_course, new_mapping, new_enroll, new_cap = get_course_in_mobileapp(
+                current_term_code, displayname, curr_time)
+
+            # if no changes to course info, do not update
+            if new_course == self._db.get_course(courseid):
+                print(
+                    f'no course update - course data hasn\'t changed for {courseid}')
+                return
+
+            # update course data in db
+            print(
+                f'yes course update - updated course entry in database for {courseid}')
+            self._db.update_course_all(courseid, new_course,
+                                       new_mapping, new_enroll, new_cap)
+        except Exception as e:
+            print(e, file=stderr)
 
 
 if __name__ == '__main__':
