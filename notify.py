@@ -18,8 +18,9 @@ class Notify:
     def __init__(self, classid, swap=False):
         db = Database()
         self._classid = classid
-        self._coursename, self._sectionname = db.classid_to_classinfo(classid)
         try:
+            self._coursename, self._sectionname = db.classid_to_classinfo(
+                classid)
             self._netid = db.get_class_waitlist(classid)['waitlist'][0]
         except:
             raise Exception(f'waitlist for class {classid} does not exist')
@@ -73,7 +74,7 @@ class Notify:
         msg['Subject'] = f'A spot opened in {self._sectionname} {self._coursename}'
         msg['From'] = me
         msg['To'] = you
-        s = smtplib.SMTP('smtp.gmail.com', 587)
+        s = smtplib.SMTP('smtp.office365.com', 587)
 
         try:
             s.starttls()
@@ -101,5 +102,5 @@ class Notify:
 
 
 if __name__ == '__main__':
-    n = Notify('43193')
+    n = Notify('40526w')
     n.send_email_html()

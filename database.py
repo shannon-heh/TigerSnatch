@@ -74,16 +74,16 @@ class Database:
                 {'classid': classid})
             courseid = classinfo['courseid']
             sectionname = classinfo['section']
-        except Exception as e:
-            raise e
+        except:
+            raise Exception(f'classid {classid} cannot be found')
 
         try:
             mapping = self._db.courses.find_one(
                 {'courseid': courseid})
             displayname = mapping['displayname']
             title = mapping['title']
-        except Exception as e:
-            raise e
+        except:
+            raise Exception(f'courseid {courseid} cannot be found')
 
         dept_num = displayname.split('/')[0]
         return f'{dept_num}: {title}', sectionname
