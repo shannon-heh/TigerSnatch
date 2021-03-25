@@ -45,7 +45,7 @@ class Notify:
         <html>
         <head></head>
         <body>
-            <p>Dear {self._netid},</p>
+            <p>Dear srijam,</p>
             <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> has a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.</p>
             <p>Please head over to <a href="https://phubprod.princeton.edu/psp/phubprod/?cmd=start">Tigerhub</a> to register for your course!</p>
             <p>Best,<br>Tigersnatch Team</p>
@@ -101,5 +101,5 @@ class Notify:
 
 
 if __name__ == '__main__':
-    n = Notify('41464')
+    n = Notify('41283')
     n.send_email_html()
