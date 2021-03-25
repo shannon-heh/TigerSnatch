@@ -71,21 +71,25 @@ def dashboard():
     data = _db.get_dashboard_data(netid)
 
     query = request.args.get('query')
+
     new_email = request.form.get('new_email')
     if query is not None and query != "":
         query = query.replace(' ', '')
         res = _db.search_for_course(query)
+        email = _db.get_user(netid)['email']
         html = render_template('dashboard.html',
                                search_res=res,
                                last_query=query,
-                               username=netid, data=data)
+                               username=netid, data=data, email=email)
     elif new_email is not None:
-        print(new_email)
         _db.update_user(netid, new_email.strip())
+        email = _db.get_user(netid)['email']
         html = render_template(
-            'dashboard.html', username=netid.rstrip(), data=data)
+            'dashboard.html', username=netid.rstrip(), data=data, email=email)
     else:
-        html = render_template('dashboard.html', username=netid, data=data)
+        email = _db.get_user(netid)['email']
+        html = render_template(
+            'dashboard.html', username=netid, data=data, email=email)
     return make_response(html)
 
 
