@@ -20,7 +20,7 @@ class Database:
         print('connecting to', DB_CONNECTION_STR, end='...')
         stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
-                               serverSelectionTimeoutMS=500)
+                               serverSelectionTimeoutMS=5000)
 
         try:
             self._db.admin.command('ismaster')
