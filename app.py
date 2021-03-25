@@ -11,6 +11,7 @@ from CASClient import CASClient
 from config import APP_SECRET_KEY
 from waitlist import Waitlist
 from monitor import Monitor
+from email.utils import parseaddr
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
@@ -60,7 +61,7 @@ def login():
     return redirect(url_for('dashboard'))
 
 
-@app.route('/dashboard', methods=['GET'])
+@app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if redirect_landing():
         return redirect(url_for('landing'))
@@ -70,18 +71,21 @@ def dashboard():
     data = _db.get_dashboard_data(netid)
 
     query = request.args.get('query')
+    new_email = request.form.get('new_email')
     if query is not None and query != "":
+        query = query.replace(' ', '')
         res = _db.search_for_course(query)
         html = render_template('dashboard.html',
                                search_res=res,
                                last_query=query,
-                               username=netid,
-                               data=data)
+                               username=netid, data=data)
+    elif new_email is not None:
+        print(new_email)
+        _db.update_user(netid, new_email.strip())
+        html = render_template(
+            'dashboard.html', username=netid.rstrip(), data=data)
     else:
-        html = render_template('dashboard.html',
-                               username=netid,
-                               data=data)
-
+        html = render_template('dashboard.html', username=netid, data=data)
     return make_response(html)
 
 
@@ -108,6 +112,7 @@ def get_course():
 
     # if URL has no query param
     if query is not None and query != "":
+        query = query.replace(' ', '')
         res = _db.search_for_course(query)
     else:
         res = None
@@ -172,3 +177,9 @@ def remove_from_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
     return {"isSuccess": waitlist.remove_from_waitlist(classid)}
+
+
+# @app.route('/change_email/<email>', methods=['GET', 'POST'])
+# def change_email(email):
+#     netid = _CAS.authenticate()
+#     Database().update_user(netid, email)

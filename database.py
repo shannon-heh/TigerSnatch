@@ -87,6 +87,14 @@ class Database:
         return dashboard_data
 
         # returns course displayname corresponding to courseid
+    def update_user(self, netid, email):
+        try:
+            self._db.users.update_one({'netid': netid.rstrip()}, {
+                '$set': {'email': email}})
+        except:
+            raise RuntimeError(f'attempt to update email for {netid} failed')
+
+    # returns course displayname corresponding to courseid
 
     def courseid_to_displayname(self, courseid):
         try:

@@ -53,5 +53,13 @@
             {%endfor%} 
         </tbody>
     </table>
+
+    <form id='new_email' action="/dashboard" method="post">
+        <div class="input-group">
+            <label for="new_email" class="col-sm-2 col-form-label">Email</label>
+            <input class="form-control" id='new_email' name="new_email" placeholder="{{ username + '@princeton.edu' }}" pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$" title="Invalid Email"/>
+            <button class="btn btn-primary" type="submit">Change</button>
+        </div>
+    </form>
 </div>
 {% endblock %}
