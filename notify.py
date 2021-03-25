@@ -7,6 +7,7 @@ from database import Database
 import smtplib
 from email.message import EmailMessage
 from email.utils import make_msgid
+from sys import stderr
 from config import TS_EMAIL, TS_PASSWORD
 
 
@@ -18,8 +19,9 @@ class Notify:
     def __init__(self, classid, swap=False):
         db = Database()
         self._classid = classid
-        self._coursename, self._sectionname = db.classid_to_classinfo(classid)
         try:
+            self._coursename, self._sectionname = db.classid_to_classinfo(
+                classid)
             self._netid = db.get_class_waitlist(classid)['waitlist'][0]
         except:
             raise Exception(f'waitlist for class {classid} does not exist')
@@ -82,7 +84,7 @@ class Notify:
             s.quit()
             return True
         except Exception as e:
-            print(e)
+            print(e, file=stderr)
             return False
 
     def __str__(self):

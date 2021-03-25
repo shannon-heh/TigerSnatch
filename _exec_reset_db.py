@@ -29,9 +29,9 @@ if __name__ == '__main__':
 
     if hard_reset:
         database = Database()
-        database.reset_db()()
+        database.reset_db()
         print('done')
     else:
         database = Database()
-        database.soft_reset_db()()
+        database.soft_reset_db()
         print('done')

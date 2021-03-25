@@ -20,7 +20,7 @@ class Database:
         print('connecting to', DB_CONNECTION_STR, end='...')
         stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
-                               serverSelectionTimeoutMS=5000)
+                               serverSelectionTimeoutMS=500)
 
         try:
             self._db.admin.command('ismaster')
@@ -36,6 +36,13 @@ class Database:
 
     def get_user(self, netid):
         return self._db.users.find_one({'netid': netid.rstrip()})
+
+    def update_user(self, netid, email):
+        try:
+            self._db.users.update_one({'netid': netid.rstrip()}, {
+                '$set': {'email': email}})
+        except:
+            raise RuntimeError(f'attempt to update email for {netid} failed')
 
     # returns course displayname corresponding to courseid
 
@@ -74,16 +81,16 @@ class Database:
                 {'classid': classid})
             courseid = classinfo['courseid']
             sectionname = classinfo['section']
-        except Exception as e:
-            raise e
+        except:
+            raise Exception(f'classid {classid} cannot be found')
 
         try:
             mapping = self._db.courses.find_one(
                 {'courseid': courseid})
             displayname = mapping['displayname']
             title = mapping['title']
-        except Exception as e:
-            raise e
+        except:
+            raise Exception(f'courseid {courseid} cannot be found')
 
         dept_num = displayname.split('/')[0]
         return f'{dept_num}: {title}', sectionname

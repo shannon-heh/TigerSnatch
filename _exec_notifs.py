@@ -13,20 +13,27 @@
 from notify import Notify
 from monitor import Monitor
 from database import Database
-from sys import stdout
+from sys import stdout, stderr
 from time import time
+from datetime import datetime
 
 if __name__ == '__main__':
     tic = time()
     monitor = Monitor()
     db = Database()
 
+    print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
     # get all class openings (for waited-on classes) from MobileApp
     new_slots = monitor.get_classes_with_changed_enrollments()
 
     total = 0
     for classid, n_new_slots in new_slots.items():
-        n_notifs = min(db.get_class_waitlist_size(classid), n_new_slots)
+        try:
+            n_notifs = min(db.get_class_waitlist_size(classid), n_new_slots)
+        except Exception as e:
+            print(e, file=stderr)
+            continue
 
         for i in range(n_notifs):
             try:
@@ -45,7 +52,9 @@ if __name__ == '__main__':
                 else:
                     print('failed to send email')
             except Exception as e:
-                print(e)
+                print(e, file=stderr)
+
+            print()
 
     print('done: sent a total of', total,
           'emails in approx.', round(time()-tic), 'seconds')

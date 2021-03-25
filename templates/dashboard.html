@@ -1,14 +1,20 @@
-{% extends 'base.html' %}
-{% block content %}
-    <div id="search-wrapper" class="col">
-        <div>Search for a course</div>
-        <form id="search-form" action="/dashboard" method="get">
-            <input type="text" name="query" placeholder="e.g. COS126" value="{{last_query}}" />
-            <input type="submit" />
-        </form>
-    {% include 'search_results.html' %} 
-    </div>
-  <div id="dashboard-wrapper" class="col">
-    <p>Dashboard for {{ username }}</p>
-  </div>
+{% extends 'base.html' %} {% block content %}
+<div id="search-wrapper" class="col">
+    <div>Search for a course</div>
+    <form id="search-form" class="form-inline" action="/dashboard" method="get">
+        {% include 'search_form.html' %}
+    </form>
+    {% include 'search_results.html' %}
+</div>
+
+<div id="dashboard-wrapper" class="col">
+    <div>Dashboard for {{ username }}</div>
+    <form id='new_email' action="/dashboard" method="post">
+        <div class="input-group">
+            <label for="new_email" class="col-sm-2 col-form-label">Email</label>
+            <input class="form-control" id='new_email' name="new_email" placeholder="{{ username + '@princeton.edu' }}" pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$" title="Invalid Email"/>
+            <button class="btn btn-primary" type="submit">Change</button>
+        </div>
+    </form>
+</div>
 {% endblock %}
