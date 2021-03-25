@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        {% include 'common.html' %}
-    </head>
-    <body>
-        <div>Oops! Something went wrong :(</div>
-        <form action="/dashboard"">
-            <input type="submit" value="Go to Dashboard" />
-        </form>
-    </body>
-</html>
+{% extends 'base.html' %} 
+{% block title %}
+<title>TigerSnatch | Error</title>
+{% endblock %}
+
+{% block content %}
+<div>Oops! Something went wrong :(</div>
+<form action="/dashboard"">
+    <input class="btn btn-warning text-dark fs-5 fw-light" type="submit" value="Go to Dashboard" />
+</form>
+{% endblock %}
+

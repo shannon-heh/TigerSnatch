@@ -7,7 +7,7 @@
 # ----------------------------------------------------------------------
 
 from sys import argv, stderr, exit
-from api import app
+from app import app
 from config import TS_HOST
 
 

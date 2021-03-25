@@ -116,7 +116,7 @@ def get_course_in_mobileapp(term, course, curr_time):
                     all_new_classes.append(new_class)
 
             for i, new_class in enumerate(all_new_classes):
-                new[f'class_{i}'] = new_class
+                new[f'class_{new_class["classid"]}'] = new_class
 
     return new, new_mapping, new_enroll, new_cap
 

@@ -37,6 +37,56 @@ class Database:
     def get_user(self, netid):
         return self._db.users.find_one({'netid': netid.rstrip()})
 
+    # returns all data needed to display user waitlists on dashboard
+
+    def get_dashboard_data(self, netid):
+        netid = netid.rstrip()
+        dashboard_data = {}
+        try:
+            waitlists = self._db.users.find_one({'netid': netid})['waitlists']
+        except:
+            raise RuntimeError(f'user {netid} does not exist')
+        for classid in waitlists:
+            try:
+                class_stats = self.get_class_enrollment(classid)
+            except:
+                raise RuntimeError(
+                    f'classid {classid} not found in enrollments')
+
+            dashboard_data[classid] = {}
+
+            courseid = class_stats['courseid']
+            course_data = self.get_course(courseid)
+            try:
+                class_data = course_data[f'class_{classid}']
+            except:
+                raise RuntimeError(
+                    f'classid {classid} not found in courses')
+
+            dashboard_data[classid]['courseid'] = courseid
+            dashboard_data[classid]['displayname'] = course_data['displayname']
+            dashboard_data[classid]['section'] = class_data['section']
+            dashboard_data[classid]['start_time'] = class_data['start_time']
+            dashboard_data[classid]['end_time'] = class_data['end_time']
+            dashboard_data[classid]['days'] = class_data['days']
+            dashboard_data[classid]['enrollment'] = class_stats['enrollment']
+            dashboard_data[classid]['capacity'] = class_stats['capacity']
+
+            try:
+                class_waitlist = self._db.waitlists.find_one(
+                    {'classid': classid})['waitlist']
+                dashboard_data[classid]['position'] = class_waitlist.index(
+                    netid)+1
+            except ValueError:
+                raise ValueError(
+                    f'user {netid} not found in waitlist for {classid}')
+            except:
+                raise RuntimeError(
+                    f'classid {classid} not found in waitlists')
+
+        return dashboard_data
+
+        # returns course displayname corresponding to courseid
     def update_user(self, netid, email):
         try:
             self._db.users.update_one({'netid': netid.rstrip()}, {
@@ -62,6 +112,7 @@ class Database:
             courseid = self._db.enrollments.find_one(
                 {'classid': classid})['courseid']
         except:
+
             raise RuntimeError(f'classid {classid} not found in enrollments')
 
         try:
@@ -223,8 +274,6 @@ class Database:
             {'title': {'$regex': query}}
         ]}))
 
-        if len(res) == 0:
-            return None
         return res
 
     # return basic course details for course with given courseid
@@ -232,6 +281,17 @@ class Database:
     def get_course(self, courseid):
         return self._db.courses.find_one(
             {'courseid': courseid}, {'_id': False})
+
+    # get dictionary for class with given classid in courses
+    def get_class(self, courseid, classid):
+        try:
+            course_data = self.get_course(courseid)
+        except:
+            raise RuntimeError(f'courseid {courseid} not found in courses')
+        try:
+            return course_data[f'class_{classid}']
+        except:
+            raise RuntimeError(f'class {classid} not found in courses')
 
     # return list of class ids for a course
 
@@ -243,7 +303,7 @@ class Database:
                 classid_list.append(course_dict[key]['classid'])
         return classid_list
 
-    # returns capacity and enrollment for course with given courseid
+    # returns capacity and enrollment for course with given classid
 
     def get_class_enrollment(self, classid):
         return self._db.enrollments.find_one({'classid': classid}, {'_id': False})
@@ -432,6 +492,6 @@ class Database:
 if __name__ == '__main__':
     db = Database()
     # print(db)
-    # db.reset_db()
-    print(db.classid_to_course_deptnum('41974'))
+    db.reset_db()
+    # print(db.classid_to_course_deptnum('41974'))
     # print(list(db.get_waited_classes()))

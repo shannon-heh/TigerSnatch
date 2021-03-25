@@ -26,6 +26,8 @@ def handle_exception(e):
     if isinstance(e, HTTPException):
         return e
 
+    print(e)
+
     # non-HTTP exceptions only
     return render_template('error.html'), 500
 
@@ -66,38 +68,36 @@ def dashboard():
 
     netid = _CAS.authenticate()
 
+    data = _db.get_dashboard_data(netid)
+
     query = request.args.get('query')
     new_email = request.form.get('new_email')
-    if query is not None:
+    if query is not None and query != "":
         query = query.replace(' ', '')
         res = _db.search_for_course(query)
         html = render_template('dashboard.html',
                                search_res=res,
                                last_query=query,
-                               username=netid)
+                               username=netid, data=data)
     elif new_email is not None:
         print(new_email)
         _db.update_user(netid, new_email.strip())
-        html = render_template('dashboard.html', username=netid.rstrip())
+        html = render_template(
+            'dashboard.html', username=netid.rstrip(), data=data)
     else:
-        html = render_template('dashboard.html', username=netid)
+        html = render_template('dashboard.html', username=netid, data=data)
     return make_response(html)
 
-# ----------------------------------------------------------------------
 
+@app.route('/about', methods=['GET'])
+def about():
+    if redirect_landing():
+        return redirect(url_for('landing'))
 
-# @ app.route('/search', methods=['GET'])
-# def search():
-#     query = request.args.get('query')
+    netid = _CAS.authenticate()
 
-#     res = _db.search_for_course(query)
-
-#     html = render_template('index.html',
-#                            search_res=res)
-#     response = make_response(html)
-#     return response
-
-# ----------------------------------------------------------------------
+    html = render_template('about.html')
+    return make_response(html)
 
 
 @ app.route('/course', methods=['GET'])
@@ -111,7 +111,7 @@ def get_course():
     query = request.args.get('query')
 
     # if URL has no query param
-    if query is not None:
+    if query is not None and query != "":
         query = query.replace(' ', '')
         res = _db.search_for_course(query)
     else:
@@ -167,8 +167,6 @@ def logout():
 
 @app.route('/add_to_waitlist/<classid>', methods=['POST'])
 def add_to_waitlist(classid):
-    # classid = request.args.get('classid')
-    print(classid)
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
     return {"isSuccess": waitlist.add_to_waitlist(classid)}
@@ -176,7 +174,6 @@ def add_to_waitlist(classid):
 
 @ app.route('/remove_from_waitlist/<classid>', methods=['POST'])
 def remove_from_waitlist(classid):
-    # classid = request.args.get('classid')
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
     return {"isSuccess": waitlist.remove_from_waitlist(classid)}
