@@ -1,29 +1,28 @@
 <!DOCTYPE html>
  <html>
    <head>
+      {% block title %}{% endblock %}
       {% include 'common.html' %}
       <script type=text/javascript>
-      
+
         // links client-side and backend logic for add and remove from waitlist 
         $(document).ready(function() {
           // listener for waitlist "switch"
-          $('input.waitlist-switch').on('click', function(e) {
+          $('input.waitlist-switch').change(function(e) {
             e.preventDefault()
-            btn = e.target
-            classid = e.target.getAttribute("data-classid") 
+            toggler = e.target
+            classid = toggler.getAttribute("data-classid") 
             
             // if user is not on waitlist for this class
-            if (btn.getAttribute("data-on-waitlist") === "false") {
+            if(!toggler.hasAttribute("checked")) {
                 $.post(`/add_to_waitlist/${classid}`,
                   function(res) {
-                    console.log(res)
                     // checks that user successfully added to waitlist on back-end
                     if (!res["isSuccess"]) {
                       console.log(`Failed to add to waitlist for class ${classid}`)
                       return
                     }
-                    btn.setAttribute("data-on-waitlist", "true")
-                    btn.setAttribute("value", "Remove Me")
+                    toggler.setAttribute("checked", "true")
                     console.log(`Successfully added to waitlist for class ${classid}`)
                 });
             }
@@ -40,8 +39,7 @@
                       console.log(`Failed to remove from waitlist for class ${classid}`)
                       return
                     }
-                    btn.setAttribute("data-on-waitlist", "false")
-                    btn.setAttribute("value", "Add Me")
+                    toggler.removeAttribute("checked")
                     console.log(`Successfully removed from waitlist for class ${classid}`)
                 });
             }
@@ -52,16 +50,12 @@
       </script>
     </head>
    <body>
-      <form id="logout-btn" action="/logout" method="get">
-          <input type="submit" value="Logout"></input>
-      </form>
-      <br>
-
-      <div class="container">
+      {% include 'nav.html' %}
+      <div class="container-fluid">
         <div class="row align-items-start">
           {% block content %}{% endblock %}
         </div>
       </div>
-
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
     </body>
  </html>

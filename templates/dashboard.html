@@ -1,12 +1,57 @@
-{% extends 'base.html' %} {% block content %}
-<div id="search-wrapper" class="col">
+{% extends 'base.html' %} 
+{% block title %}
+<title>TigerSnatch | Dashboard</title>
+{% endblock %}
+
+{% block content %}
+<div id="search-wrapper" class="col-sm-4">
     <div>Search for a course</div>
     <form id="search-form" class="form-inline" action="/dashboard" method="get">
         {% include 'search_form.html' %}
     </form>
     {% include 'search_results.html' %}
 </div>
-<div id="dashboard-wrapper" class="col">
-    <p>Dashboard for {{ username }}</p>
+<div id="dashboard-wrapper" class="col-sm-8">
+    <p>Welcome {{ username }}!</p>
+    <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Course</th>
+            <th scope="col">Section</th>
+            <th scope="col">Time</th>
+            <th scope="col">Days</th>
+            <th scope="col">Enrollment</th>
+            <th scope="col">Waitist Position</th>
+            <th scope="col">Notify Me</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for classid in data.keys() %}
+                <tr data-courseid="{{data[classid].courseid}}">
+                    <td><a href="/course?query={{last_query}}&courseid={{data[classid].courseid}}">{{data[classid].displayname}}</a></td>
+                    <td> {{data[classid].section}}</td>
+                    {% if data[classid].end_time == "" %}
+                        <td>{{data[classid].start_time}}</td>
+                    {% else %}
+                        <td>{{data[classid].start_time}} - {{data[classid].end_time}}</td>
+                    {% endif %}
+                    <td>{{data[classid].days}}</td>
+                    <td>{{data[classid].enrollment}} / {{data[classid].capacity}}</td>
+                    <td>{{data[classid].position}}</td>
+                    <td>
+                        <div class="form-check form-switch">
+                            <input 
+                                class="form-check-input waitlist-switch" 
+                                type="checkbox"
+                                id="switch-{{classid}}"
+                                data-classid="{{classid}}"
+                                checked
+                            >
+                        </div>
+                    </td>
+                    </tr>
+            {%endfor%} 
+        </tbody>
+    </table>
 </div>
 {% endblock %}

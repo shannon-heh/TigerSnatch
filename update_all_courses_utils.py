@@ -139,7 +139,7 @@ def process_dept_code(args):
                             'zishuoz', classid, disable_checks=True)
 
                 for i, new_class in enumerate(all_new_classes):
-                    new[f'class_{i}'] = new_class
+                    new[f'class_{new_class["classid"]}'] = new_class
 
                 print('inserting', new['displayname'], 'into courses')
                 db.add_to_courses(new)
