@@ -80,7 +80,7 @@ def dashboard():
         html = render_template('dashboard.html',
                                search_res=res,
                                last_query=query,
-                               username=netid, data=data, email=email)
+                               username=netid.rstrip(), data=data, email=email)
     elif new_email is not None:
         _db.update_user(netid, new_email.strip())
         email = _db.get_user(netid)['email']
@@ -89,7 +89,7 @@ def dashboard():
     else:
         email = _db.get_user(netid)['email']
         html = render_template(
-            'dashboard.html', username=netid, data=data, email=email)
+            'dashboard.html', username=netid.rstrip(), data=data, email=email)
     return make_response(html)
 
 
