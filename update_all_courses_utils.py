@@ -125,15 +125,15 @@ def process_dept_code(args):
 
                     # randomly add waitlists for testing purposes
                     rand = random()
-                    if dummy_waitlists and rand < 0.0025:
-                        print('inserting', classid, 'into waitlists')
-                        db.add_to_waitlist(
-                            'sheh', classid, disable_checks=True)
-                    elif dummy_waitlists and 0.0025 <= rand < 0.005:
-                        print('inserting', classid, 'into waitlists')
-                        db.add_to_waitlist(
-                            'ntyp', classid, disable_checks=True)
-                    elif dummy_waitlists and 0.005 <= rand < 0.0075:
+                    # if dummy_waitlists and rand < 0.0025:
+                    #     print('inserting', classid, 'into waitlists')
+                    #     db.add_to_waitlist(
+                    #         'zishuoz', classid, disable_checks=True)
+                    # elif dummy_waitlists and 0.0025 <= rand < 0.005:
+                    #     print('inserting', classid, 'into waitlists')
+                    #     db.add_to_waitlist(
+                    #         'zishuoz', classid, disable_checks=True)
+                    if dummy_waitlists and 0.005 <= rand < 0.0075:
                         print('inserting', classid, 'into waitlists')
                         db.add_to_waitlist(
                             'zishuoz', classid, disable_checks=True)
