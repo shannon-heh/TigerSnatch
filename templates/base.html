@@ -5,16 +5,48 @@
       {% include 'common.html' %}
       <script type=text/javascript>
 
+
+        // Handles user toggle switch off to remove from waitlist 
+        // and modal dialog pops up
+        $(document).ready(function() {
+          // listener for modal "Cancel" button 
+          $('#waitlist-modal-cancel').click(function(e) {
+            e.preventDefault()
+            classid = $('#confirm-remove-waitlist').attr('data-classid');
+            $('#switch-'+classid).prop('checked', true)
+          })
+
+          // listener for modal "Confirm" button 
+          $('#waitlist-modal-confirm').click(function(e) {
+            e.preventDefault()
+            classid = $('#confirm-remove-waitlist').attr('data-classid');
+            $.post(`/remove_from_waitlist/${classid}`,
+                  function(res) {
+                    // checks that user successfully removed from waitlist on back-end
+                    if (!res["isSuccess"]) {
+                      console.log(`Failed to remove from waitlist for class ${classid}`)
+                      return
+                    }
+                    $('#switch-'+classid).removeAttr('checked')
+                    $('#switch-'+classid).removeAttr("data-bs-toggle")
+                    $('#switch-'+classid).removeAttr("data-bs-target")
+
+                    console.log(`Successfully removed from waitlist for class ${classid}`)
+                });
+          })
+        });
+
         // links client-side and backend logic for add and remove from waitlist 
         $(document).ready(function() {
           // listener for waitlist "switch"
           $('input.waitlist-switch').change(function(e) {
             e.preventDefault()
-            toggler = e.target
-            classid = toggler.getAttribute("data-classid") 
+            classid = e.target.getAttribute("data-classid")
+
+            $('#confirm-remove-waitlist').attr('data-classid',classid);
             
             // if user is not on waitlist for this class
-            if(!toggler.hasAttribute("checked")) {
+            if(!$('#switch-'+classid).attr('checked')) {
                 $.post(`/add_to_waitlist/${classid}`,
                   function(res) {
                     // checks that user successfully added to waitlist on back-end
@@ -22,25 +54,10 @@
                       console.log(`Failed to add to waitlist for class ${classid}`)
                       return
                     }
-                    toggler.setAttribute("checked", "true")
+                    $('#switch-'+classid).attr('checked', true)
+                    $('#switch-'+classid).attr('data-bs-toggle', 'modal')
+                    $('#switch-'+classid).attr('data-bs-target', '#confirm-remove-waitlist')
                     console.log(`Successfully added to waitlist for class ${classid}`)
-                });
-            }
-
-            // if user is not on waitlist for this class
-            else {
-                if (!window.confirm("Are you sure you want to be removed from the waitlist?"))
-                  return false
-
-                $.post(`/remove_from_waitlist/${classid}`,
-                  function(res) {
-                    // checks that user successfully removed from waitlist on back-end
-                    if (!res["isSuccess"]) {
-                      console.log(`Failed to remove from waitlist for class ${classid}`)
-                      return
-                    }
-                    toggler.removeAttribute("checked")
-                    console.log(`Successfully removed from waitlist for class ${classid}`)
                 });
             }
              return false;
