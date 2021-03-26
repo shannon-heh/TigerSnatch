@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------
 
 from flask import Flask
-from flask import render_template, make_response, request, redirect, url_for
+from flask import render_template, make_response, request, redirect, url_for, jsonify
 from werkzeug.exceptions import HTTPException
 from database import Database
 from CASClient import CASClient
@@ -20,16 +20,16 @@ _db = Database()
 _monitor = Monitor()
 
 
-# @app.errorhandler(Exception)
-# def handle_exception(e):
-#     # pass through HTTP errors
-#     if isinstance(e, HTTPException):
-#         return e
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # pass through HTTP errors
+    if isinstance(e, HTTPException):
+        return e
 
-#     print(e)
+    print(e)
 
-#     # non-HTTP exceptions only
-#     return render_template('error.html'), 500
+    # non-HTTP exceptions only
+    return render_template('error.html'), 500
 
 
 # private method that redirects to landinage page
@@ -173,11 +173,11 @@ def logout():
 def add_to_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
-    return {"isSuccess": waitlist.add_to_waitlist(classid)}
+    return jsonify({"isSuccess": waitlist.add_to_waitlist(classid)})
 
 
 @ app.route('/remove_from_waitlist/<classid>', methods=['POST'])
 def remove_from_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
-    return {"isSuccess": waitlist.remove_from_waitlist(classid)}
+    return jsonify({"isSuccess": waitlist.remove_from_waitlist(classid)})
