@@ -55,17 +55,31 @@
         </tbody>
     </table>
 
-    <form id="new_email" action="/dashboard" method="post">
+    <form id="new-email" action="/dashboard" method="post">
         <div class="input-group">
-            <label for="new_email" class="col-sm-2 col-form-label">Email</label>
+            <span id="email-badge" class="badge bg-light text-dark">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="30"
+                    height="30"
+                    fill="currentColor"
+                    class="bi bi-envelope"
+                    viewBox="0 0 16 16"
+                >
+                    <path
+                        d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383l-4.758 2.855L15 11.114v-5.73zm-.034 6.878L9.271 8.82 8 9.583 6.728 8.82l-5.694 3.44A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.739zM1 11.114l4.758-2.876L1 5.383v5.73z"
+                    />
+                </svg>
+            </span>
+
             <input
                 class="form-control"
                 name="new_email"
                 placeholder="{{ email }}"
                 pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"
-                title="Invalid Email"
+                title="Change your email address"
             />
-            <button class="btn btn-primary" type="submit">Change</button>
+            <button class="btn btn-warning" type="submit">Change</button>
         </div>
     </form>
 </div>
