@@ -20,3 +20,16 @@
 .navbar-brand#nav-logo {
     letter-spacing: 0.1em;
 }
+
+.input-group#course-search {
+    z-index: 999;
+}
+
+.form-check-input:checked {
+    background-color: #51a451;
+    border-color: #51a451;
+}
+
+#email-badge {
+    width: 75px;
+}

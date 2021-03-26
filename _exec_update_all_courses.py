@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     # get current term code
     try:
-        current_term_code = terms['term'][0]['code']
+        current_term_code = '1214'  # terms['term'][0]['code']
         current_term_date = terms['term'][0]['suffix']
     except:
         raise Exception('failed to get current term code')

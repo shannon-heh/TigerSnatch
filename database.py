@@ -17,7 +17,7 @@ class Database:
     # creates a reference to the TigerSnatch MongoDB database
 
     def __init__(self):
-        print('connecting to', DB_CONNECTION_STR, end='...')
+        print('connecting to database', end='...')
         stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
                                serverSelectionTimeoutMS=5000)

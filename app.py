@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------
 
 from flask import Flask
-from flask import render_template, make_response, request, redirect, url_for
+from flask import render_template, make_response, request, redirect, url_for, jsonify
 from werkzeug.exceptions import HTTPException
 from database import Database
 from CASClient import CASClient
@@ -15,7 +15,7 @@ from email.utils import parseaddr
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
-_CAS = CASClient()  # need to test if this is acceptable (global CAS obj)
+_CAS = CASClient()
 _db = Database()
 _monitor = Monitor()
 
@@ -71,21 +71,25 @@ def dashboard():
     data = _db.get_dashboard_data(netid)
 
     query = request.args.get('query')
+
     new_email = request.form.get('new_email')
     if query is not None and query != "":
         query = query.replace(' ', '')
         res = _db.search_for_course(query)
+        email = _db.get_user(netid)['email']
         html = render_template('dashboard.html',
                                search_res=res,
                                last_query=query,
-                               username=netid, data=data)
+                               username=netid.rstrip(), data=data, email=email)
     elif new_email is not None:
-        print(new_email)
         _db.update_user(netid, new_email.strip())
+        email = _db.get_user(netid)['email']
         html = render_template(
-            'dashboard.html', username=netid.rstrip(), data=data)
+            'dashboard.html', username=netid.rstrip(), data=data, email=email)
     else:
-        html = render_template('dashboard.html', username=netid, data=data)
+        email = _db.get_user(netid)['email']
+        html = render_template(
+            'dashboard.html', username=netid.rstrip(), data=data, email=email)
     return make_response(html)
 
 
@@ -169,17 +173,11 @@ def logout():
 def add_to_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
-    return {"isSuccess": waitlist.add_to_waitlist(classid)}
+    return jsonify({"isSuccess": waitlist.add_to_waitlist(classid)})
 
 
 @ app.route('/remove_from_waitlist/<classid>', methods=['POST'])
 def remove_from_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
-    return {"isSuccess": waitlist.remove_from_waitlist(classid)}
-
-
-# @app.route('/change_email/<email>', methods=['GET', 'POST'])
-# def change_email(email):
-#     netid = _CAS.authenticate()
-#     Database().update_user(netid, email)
+    return jsonify({"isSuccess": waitlist.remove_from_waitlist(classid)})
