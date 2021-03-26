@@ -1,8 +1,8 @@
 <div id="search-results">
     {% if search_res == [] %}
-        <p>No matches! Try a different query</p>
+    <p>No matches! Try a different query</p>
     {% elif search_res is none %}
-        <p>Try searching for a course!</p>
+    <p>Try searching for a course!</p>
     {% else %} {% for course in search_res %}
     <li>
         <a href="course?query={{last_query}}&courseid={{course.courseid}}">

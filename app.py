@@ -15,21 +15,21 @@ from email.utils import parseaddr
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
-_CAS = CASClient()  # need to test if this is acceptable (global CAS obj)
+_CAS = CASClient()
 _db = Database()
 _monitor = Monitor()
 
 
-@app.errorhandler(Exception)
-def handle_exception(e):
-    # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
+# @app.errorhandler(Exception)
+# def handle_exception(e):
+#     # pass through HTTP errors
+#     if isinstance(e, HTTPException):
+#         return e
 
-    print(e)
+#     print(e)
 
-    # non-HTTP exceptions only
-    return render_template('error.html'), 500
+#     # non-HTTP exceptions only
+#     return render_template('error.html'), 500
 
 
 # private method that redirects to landinage page
@@ -181,9 +181,3 @@ def remove_from_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
     return {"isSuccess": waitlist.remove_from_waitlist(classid)}
-
-
-# @app.route('/change_email/<email>', methods=['GET', 'POST'])
-# def change_email(email):
-#     netid = _CAS.authenticate()
-#     Database().update_user(netid, email)

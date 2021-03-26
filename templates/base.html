@@ -17,6 +17,7 @@
             if(!toggler.hasAttribute("checked")) {
                 $.post(`/add_to_waitlist/${classid}`,
                   function(res) {
+                    console.log(res)
                     // checks that user successfully added to waitlist on back-end
                     if (!res["isSuccess"]) {
                       console.log(`Failed to add to waitlist for class ${classid}`)
