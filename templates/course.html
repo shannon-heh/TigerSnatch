@@ -35,66 +35,91 @@
             </thead>
             <tbody>
                 {% for class in classes_list %}
-                    <tr>
-                        <td>{{class.section}}</td>
-                        {% if class.end_time == "" %}
-                            <td>{{class.start_time}}</td>
-                        {% else %}
-                            <td>{{class.start_time}} - {{class.end_time}}</td>
-                        {% endif %}
-                        <td>{{class.days}}</td>
-                        <td>{{class.enrollment}} / {{class.capacity}}</td>
-                        {% if class.isFull %} {% if class.classid in curr_waitlists %}
-                            <td>
-                                <div class="form-check form-switch">
-                                    <input 
-                                        class="form-check-input waitlist-switch" 
-                                        type="checkbox"
-                                        id="switch-{{class.classid}}"
-                                        data-classid="{{class.classid}}"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#confirm-remove-waitlist"
-                                        checked
-                                    >
-                                </div>
-                            </td>
-                        {% else %}
-                        <td>
-                            <div class="form-check form-switch">
-                                <input 
-                                    class="form-check-input waitlist-switch" 
-                                    type="checkbox"
-                                    id="switch-{{class.classid}}"
-                                    data-classid="{{class.classid}}"
-                                >
-                            </div>
-                        </td>
-                        {% endif %} {% endif %}
-                    </tr>
-                {% endfor %} 
+                <tr>
+                    <td>{{class.section}}</td>
+                    {% if class.end_time == "" %}
+                    <td>{{class.start_time}}</td>
+                    {% else %}
+                    <td>{{class.start_time}} - {{class.end_time}}</td>
+                    {% endif %}
+                    <td>{{class.days}}</td>
+                    <td>{{class.enrollment}} / {{class.capacity}}</td>
+                    {% if class.isFull %} {% if class.classid in curr_waitlists %}
+                    <td>
+                        <div class="form-check form-switch">
+                            <input
+                                class="form-check-input waitlist-switch"
+                                type="checkbox"
+                                id="switch-{{class.classid}}"
+                                data-classid="{{class.classid}}"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirm-remove-waitlist"
+                                checked
+                            />
+                        </div>
+                    </td>
+                    {% else %}
+                    <td>
+                        <div class="form-check form-switch">
+                            <input
+                                class="form-check-input waitlist-switch"
+                                type="checkbox"
+                                id="switch-{{class.classid}}"
+                                data-classid="{{class.classid}}"
+                            />
+                        </div>
+                    </td>
+                    {% endif %} {% endif %}
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
     <br />
 
     <!-- Modal -->
-    <div class="modal fade" id="confirm-remove-waitlist" data-classid="" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div
+        class="modal fade"
+        id="confirm-remove-waitlist"
+        data-classid=""
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+    >
         <div class="modal-dialog">
             <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Confirm Removal from Waitlist</h5>
-            </div>
-            <div class="modal-body">
-                Are you sure you want to remove yourself from this waitlist?
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="waitlist-modal-cancel" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="waitlist-modal-confirm" class="btn btn-primary" data-bs-dismiss="modal">Confirm</button>
-            </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">
+                        Confirm Removal from Waitlist
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to remove yourself from this waitlist?
+                </div>
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        id="waitlist-modal-cancel"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        id="waitlist-modal-confirm"
+                        class="btn btn-warning"
+                        data-bs-dismiss="modal"
+                    >
+                        Confirm
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    
+
     {% endif %}
 </div>
 {% endblock %}
