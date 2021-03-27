@@ -84,8 +84,7 @@ def dashboard():
     elif new_email is not None:
         _db.update_user(netid, new_email.strip())
         email = _db.get_user(netid)['email']
-        html = render_template(
-            'dashboard.html', username=netid.rstrip(), data=data, email=email)
+        return redirect(url_for('dashboard'))
     else:
         email = _db.get_user(netid)['email']
         html = render_template(
