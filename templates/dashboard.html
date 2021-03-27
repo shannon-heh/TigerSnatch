@@ -2,130 +2,25 @@
 <title>TigerSnatch | Dashboard</title>
 {% endblock %} {% block content %}
 <div id="search-wrapper" class="col-sm-4">
-    <div>Search for a course</div>
     <form id="search-form" class="form-inline" action="/dashboard" method="get">
         {% include 'search_form.html' %}
     </form>
     {% include 'search_results.html' %}
 </div>
-<div id="dashboard-wrapper" class="col-sm-8">
-    <p>Welcome {{ username }}!</p>
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th scope="col">Course</th>
-                <th scope="col">Section</th>
-                <th scope="col">Time</th>
-                <th scope="col">Days</th>
-                <th scope="col">Enrollment</th>
-                <th scope="col">Waitist Position</th>
-                <th scope="col">Notify Me</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for classid in data.keys() %}
-            <tr data-courseid="{{data[classid].courseid}}">
-                <td>
-                    <a href="/course?query={{last_query}}&courseid={{data[classid].courseid}}"
-                        >{{data[classid].displayname}}</a
-                    >
-                </td>
-                <td>{{data[classid].section}}</td>
-                {% if data[classid].end_time == "" %}
-                <td>{{data[classid].start_time}}</td>
-                {% else %}
-                <td>{{data[classid].start_time}} - {{data[classid].end_time}}</td>
-                {% endif %}
-                <td>{{data[classid].days}}</td>
-                <td>{{data[classid].enrollment}} / {{data[classid].capacity}}</td>
-                <td>{{data[classid].position}}</td>
-                <td>
-                    <div class="form-check form-switch">
-                        <input
-                            class="form-check-input waitlist-switch"
-                            type="checkbox"
-                            id="switch-{{classid}}"
-                            data-classid="{{classid}}"
-                            data-bs-toggle="modal"
-                            data-bs-target="#confirm-remove-waitlist"
-                            checked
-                        />
-                    </div>
-                </td>
-            </tr>
-            {%endfor%}
-        </tbody>
-    </table>
 
-    <!-- Modal -->
-    <div
-        class="modal fade"
-        id="confirm-remove-waitlist"
-        data-classid=""
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabindex="-1"
-        aria-labelledby="staticBackdropLabel"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">
-                        Confirm Removal from Waitlist
-                    </h5>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to remove yourself from this waitlist?
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        id="waitlist-modal-cancel"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        id="waitlist-modal-confirm"
-                        class="btn btn-warning"
-                        data-bs-dismiss="modal"
-                    >
-                        Confirm
-                    </button>
-                </div>
+<div id="dashboard-wrapper" class="col-sm-8 px-0">
+    <div id="dashboard-header" class="row">{% include 'dashboard_header.html' %}</div>
+    <div id="dashboard-content" class="row">
+        <div id="dashboard-table" class="row px-4 py-3">{% include 'dashboard_table.html' %}</div>
+        <div id="dashboard-other" class="row">
+            <div id="dashboard-prefs" class="col-sm-5 px-3 py-3">
+                {% include 'dashboard_prefs.html' %}
+            </div>
+            <div class="col-sm-2"></div>
+            <div id="dashboard-guide" class="col-sm-5 px-3 py-3">
+                {% include 'dashboard_guide.html' %}
             </div>
         </div>
     </div>
-
-    <form id="new-email" action="/dashboard" method="post">
-        <div class="input-group">
-            <div class="input-group-text">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="currentColor"
-                    class="bi bi-envelope"
-                    viewBox="0 0 16 16"
-                >
-                    <path
-                        d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383l-4.758 2.855L15 11.114v-5.73zm-.034 6.878L9.271 8.82 8 9.583 6.728 8.82l-5.694 3.44A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.739zM1 11.114l4.758-2.876L1 5.383v5.73z"
-                    />
-                </svg>
-            </div>
-
-            <input
-                class="form-control"
-                name="new_email"
-                placeholder="{{ email }}"
-                pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"
-                title="Change your email address"
-            />
-            <button class="btn btn-warning" type="submit">Change</button>
-        </div>
-    </form>
 </div>
 {% endblock %}

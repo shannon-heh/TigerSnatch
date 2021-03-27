@@ -1,4 +1,4 @@
-<nav id="nav" class="navbar navbar-expand-lg navbar-light">
+<nav id="nav" class="navbar navbar-expand-lg navbar-light fixed-top">
     <div class="container-fluid">
         <a id="nav-logo" class="navbar-brand fs-2" href="/dashboard">
             <img
@@ -23,15 +23,43 @@
         </button>
     </div>
     <div id="navbarNavAltMarkup" class="collapse navbar-collapse">
-        <div class="navbar-nav">
-            <a class="nav-link text-dark ms-4 fs-5 fw-light" href="/about">About</a>
-            <a class="nav-link ms-4 me-2 text-dark fs-5 fw-light" href="/dashboard">Dashboard</a>
-
-            <form id="logout-btn" class="d-flex mx-4" action="/logout" method="get">
-                <button class="btn btn-warning text-dark fs-5 px-4 fw-light" type="submit">
-                    Logout
-                </button>
-            </form>
-        </div>
+        <ul class="navbar-nav">
+            {% if dashboard %}
+            <li class="nav-item">
+                <a class="nav-link ms-4 fs-5 fw-light hvr-underline-from-center" href="/about"
+                    >About</a
+                >
+            </li>
+            <li class="nav-item">
+                <a
+                    class="nav-link ms-4 me-2 fs-5 fw-light hvr-underline-from-center active"
+                    href="/dashboard"
+                    >Dashboard</a
+                >
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a
+                    class="nav-link ms-4 fs-5 fw-light hvr-underline-from-center active"
+                    href="/about"
+                    >About</a
+                >
+            </li>
+            <li class="nav-item">
+                <a
+                    class="nav-link ms-4 me-2 fs-5 fw-light hvr-underline-from-center"
+                    href="/dashboard"
+                    >Dashboard</a
+                >
+            </li>
+            {% endif %}
+            <li>
+                <form id="logout-btn" class="d-flex mx-4" action="/logout" method="get">
+                    <button class="btn btn-warning text-dark fs-5 px-4 fw-light" type="submit">
+                        Logout
+                    </button>
+                </form>
+            </li>
+        </ul>
     </div>
 </nav>

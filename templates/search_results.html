@@ -1,13 +1,22 @@
 <div id="search-results">
     {% if search_res == [] %}
-    <p>No matches! Try a different query</p>
+    <p id="search-results-message">No matches! Try another course query.</p>
     {% elif search_res is none %}
-    <p>Try searching for a course!</p>
+    <p id="search-results-message">Search for courses above!</p>
     {% else %} {% for course in search_res %}
-    <li>
-        <a href="course?query={{last_query}}&courseid={{course.courseid}}">
-            {{course.displayname}}: {{course.title}}
-        </a>
-    </li>
+    <div>
+        <div id="search-results-{{course.courseid}}" class="card search-results-card">
+            <a
+                data-courseid="{{course.courseid}}"
+                class="search-results-link"
+                href="course?query={{last_query}}&courseid={{course.courseid}}"
+            >
+                <div class="card-body">
+                    <div class="search-results-displayname">{{course.displayname}}</div>
+                    <div class="search-results-title">{{course.title}}</div>
+                </div>
+            </a>
+        </div>
+    </div>
     {% endfor %} {% endif %}
 </div>

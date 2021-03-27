@@ -4,7 +4,6 @@
 <title>TigerSnatch | {{course_details.displayname}}</title>
 {% endif %} {% endblock %} {% block content %}
 <div id="search-wrapper" class="col-sm-4">
-    <div>Search for a course</div>
     <form id="search-form" class="form-inline" action="/course" method="get">
         {% include 'search_form.html' %}
         <input type="hidden" name="courseid" value="{{course_details.courseid}}" />
@@ -77,49 +76,6 @@
     </div>
     <br />
 
-    <!-- Modal -->
-    <div
-        class="modal fade"
-        id="confirm-remove-waitlist"
-        data-classid=""
-        data-bs-backdrop="static"
-        data-bs-keyboard="false"
-        tabindex="-1"
-        aria-labelledby="staticBackdropLabel"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">
-                        Confirm Removal from Waitlist
-                    </h5>
-                </div>
-                <div class="modal-body">
-                    Are you sure you want to remove yourself from this waitlist?
-                </div>
-                <div class="modal-footer">
-                    <button
-                        type="button"
-                        id="waitlist-modal-cancel"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="button"
-                        id="waitlist-modal-confirm"
-                        class="btn btn-warning"
-                        data-bs-dismiss="modal"
-                    >
-                        Confirm
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% endif %}
+    {% include 'waitlist_modal.html' %} {% endif %}
 </div>
 {% endblock %}

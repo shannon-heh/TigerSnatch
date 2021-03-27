@@ -69,26 +69,32 @@ def dashboard():
     netid = _CAS.authenticate()
 
     data = _db.get_dashboard_data(netid)
+    email = _db.get_user(netid)['email']
 
     query = request.args.get('query')
-
     new_email = request.form.get('new_email')
-    if query is not None and query != "":
+
+    if query is None:
+        query = ""
+
+    if query == "":
+        res = None
+    else:
         query = query.replace(' ', '')
         res = _db.search_for_course(query)
-        email = _db.get_user(netid)['email']
-        html = render_template('dashboard.html',
-                               search_res=res,
-                               last_query=query,
-                               username=netid.rstrip(), data=data, email=email)
-    elif new_email is not None:
+
+    if new_email is not None:
         _db.update_user(netid, new_email.strip())
-        email = _db.get_user(netid)['email']
         return redirect(url_for('dashboard'))
-    else:
-        email = _db.get_user(netid)['email']
-        html = render_template(
-            'dashboard.html', username=netid.rstrip(), data=data, email=email)
+
+    html = render_template('dashboard.html',
+                           search_res=res,
+                           last_query=query,
+                           username=netid.rstrip(),
+                           data=data,
+                           email=email,
+                           dashboard=True)
+
     return make_response(html)
 
 
@@ -99,7 +105,7 @@ def about():
 
     netid = _CAS.authenticate()
 
-    html = render_template('about.html')
+    html = render_template('about.html', dashboard=False)
     return make_response(html)
 
 
@@ -113,13 +119,14 @@ def get_course():
     courseid = request.args.get('courseid')
     query = request.args.get('query')
 
-    # if URL has no query param
-    if query is not None and query != "":
+    if query is None:
+        query = ""
+
+    if query == "":
+        res = None
+    else:
         query = query.replace(' ', '')
         res = _db.search_for_course(query)
-    else:
-        res = None
-        query = ""
 
     # if URL has no courseid param, courseid is empty string, or
     # courseid is invalid

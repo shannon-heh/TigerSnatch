@@ -5,6 +5,14 @@
       {% include 'common.html' %}
       <script type=text/javascript>
 
+      $(document).ready(function() {
+          // listener for modal "Cancel" button 
+          $('.search-results-link').click(function(e) {
+            // e.preventDefault()
+            // classid = $('#confirm-remove-waitlist').attr('data-classid');
+            // $('#switch-'+classid).prop('checked', true)
+          })
+      });
 
         // Handles user toggle switch off to remove from waitlist 
         // and modal dialog pops up
@@ -66,9 +74,9 @@
         
       </script>
     </head>
-   <body>
+   <body style="padding-top:65px">
       {% include 'nav.html' %}
-      <div class="container-fluid">
+      <div id="main" class="container-fluid">
         <div class="row align-items-start">
           {% block content %}{% endblock %}
         </div>
