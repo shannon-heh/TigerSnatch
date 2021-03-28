@@ -1,0 +1,65 @@
+{% if course_details is none %}
+<div>Search for a course...</div>
+{% else %}
+
+<div>
+    <div>{{course_details.displayname}}</div>
+    <div>{{course_details.title}}</div>
+</div>
+
+<div class="table-responsive-lg">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Section</th>
+                <th scope="col">Time</th>
+                <th scope="col">Days</th>
+                <th scope="col">Enrollment</th>
+                <th scope="col">Notify Me</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for class in classes_list %}
+            <tr>
+                <td>{{class.section}}</td>
+                {% if class.end_time == "" %}
+                <td>{{class.start_time}}</td>
+                {% else %}
+                <td>{{class.start_time}} - {{class.end_time}}</td>
+                {% endif %}
+                <td>{{class.days}}</td>
+                <td>{{class.enrollment}} / {{class.capacity}}</td>
+                {% if class.isFull %} {% if class.classid in curr_waitlists %}
+                <td>
+                    <div class="form-check form-switch">
+                        <input
+                            class="form-check-input waitlist-switch"
+                            type="checkbox"
+                            id="switch-{{class.classid}}"
+                            data-classid="{{class.classid}}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirm-remove-waitlist"
+                            checked
+                        />
+                    </div>
+                </td>
+                {% else %}
+                <td>
+                    <div class="form-check form-switch">
+                        <input
+                            class="form-check-input waitlist-switch"
+                            type="checkbox"
+                            id="switch-{{class.classid}}"
+                            data-classid="{{class.classid}}"
+                        />
+                    </div>
+                </td>
+                {% endif %} {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<br />
+
+{% include 'waitlist_modal.html' %} {% endif %}
