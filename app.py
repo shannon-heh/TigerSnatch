@@ -71,6 +71,7 @@ def dashboard():
     data = _db.get_dashboard_data(netid)
     email = _db.get_user(netid)['email']
 
+    updateSearch = request.args.get('updateSearch')
     query = request.args.get('query')
     new_email = request.form.get('new_email')
 
@@ -87,7 +88,8 @@ def dashboard():
         _db.update_user(netid, new_email.strip())
         return redirect(url_for('dashboard'))
 
-    html = render_template('dashboard.html',
+    html = render_template('base.html',
+                           isDashboard=True,
                            search_res=res,
                            last_query=query,
                            username=netid.rstrip(),
@@ -116,11 +118,14 @@ def get_course():
 
     netid = _CAS.authenticate()
 
-    refresh = request.args.get('refresh')
+    # either update course or search
+    updateSearch = request.args.get('updateSearch')
     courseid = request.args.get('courseid')
     query = request.args.get('query')
 
-    if refresh is None:
+    res = []
+
+    if updateSearch != 'false':
         if query is None:
             query = ""
 
@@ -134,14 +139,14 @@ def get_course():
     # courseid is invalid
     if courseid is None or courseid == "" or _db.get_course(courseid) is None:
         course_details = None
-        html = render_template('course.html',
+        html = render_template('base.html',
+                               isDashboard=False,
                                netid=netid,
                                course_details=course_details,
                                search_res=res,
                                last_query=query)
 
-        response = make_response(html)
-        return response
+        return make_response(html)
 
     # updates course info if it has been 2 minutes since last update
     _monitor.pull_course_updates(courseid)
@@ -160,8 +165,9 @@ def get_course():
 
     curr_waitlists = _db.get_user(netid)['waitlists']
 
-    if refresh is None:
-        html = render_template('course.html',
+    if updateSearch is None:
+        html = render_template('base.html',
+                               isDashboard=False,
                                netid=netid,
                                course_details=course_details,
                                classes_list=classes_list,
@@ -169,7 +175,7 @@ def get_course():
                                search_res=res,
                                last_query=query)
     else:
-        html = render_template('course_table.html',
+        html = render_template('course.html',
                                course_details=course_details,
                                classes_list=classes_list,
                                curr_waitlists=curr_waitlists)

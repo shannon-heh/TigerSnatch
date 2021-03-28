@@ -1,26 +1,14 @@
-{% extends 'base.html' %} {% block title %}
 <title>TigerSnatch | Dashboard</title>
-{% endblock %} {% block content %}
-<div id="search-wrapper" class="col-md-4">
-    <form id="search-form" class="form-inline" action="/dashboard" method="get">
-        {% include 'search_form.html' %}
-    </form>
-    {% include 'search_results.html' %}
-</div>
 
-<div id="dashboard-wrapper" class="col-md-8 px-0">
-    <div id="dashboard-header" class="row">{% include 'dashboard_header.html' %}</div>
-    <div id="dashboard-content" class="row">
-        <div id="dashboard-table" class="row px-4 py-3">{% include 'dashboard_table.html' %}</div>
-        <div id="dashboard-other" class="row px-0">
-            <div id="dashboard-prefs" class="col-xl px-4 py-3">
-                {% include 'dashboard_prefs.html' %}
-            </div>
-            <div id="dashboard-guide" class="col-xl px-4 py-3">
-                {% include 'dashboard_guide.html' %}
-            </div>
+<div id="dashboard-header" class="row">{% include 'dashboard_header.html' %}</div>
+<div id="dashboard-content" class="row">
+    <div id="dashboard-table" class="row px-4 py-3">{% include 'dashboard_table.html' %}</div>
+    <div id="dashboard-other" class="row px-0">
+        <div id="dashboard-prefs" class="col-xl px-4 py-3">
+            {% include 'dashboard_prefs.html' %}
+        </div>
+        <div id="dashboard-guide" class="col-xl px-4 py-3">
+            {% include 'dashboard_guide.html' %}
         </div>
     </div>
 </div>
-
-{% endblock %}

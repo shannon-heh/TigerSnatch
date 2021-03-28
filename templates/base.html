@@ -3,110 +3,28 @@
    <head>
       {% block title %}{% endblock %}
       {% include 'common.html' %}
-      <script type=text/javascript>
-
-      $(document).ready(function() {
-
-        // dynamically loads course details when search result is clicked
-          $('.search-results-link').click(function(e) {
-            e.preventDefault();
-
-            $('#dashboard-wrapper').css("pointer-events", "none")
-            $('#dashboard-wrapper').css("pointer", "wait")
-            $('#dashboard-wrapper').css("filter", "blur(2px)")
-
-            course_link = $(this).closest('a').attr('href')
-            $.get(`${course_link}&refresh=false`,
-                  function(res) {
-                    $('#course-wrapper').html(res)
-                    $('#dashboard-wrapper').html(res)
-                    window.history.pushState(res, '', course_link)
-                    
-                    $('#dashboard-wrapper').css("filter", "")
-                    $('#dashboard-wrapper').css("pointer", "")
-                    $('#dashboard-wrapper').css("pointer-events", "")
-                });
-          })
-
-          // handles going back to previous page
-          $(window).on("popstate", function () {
-              prevState = window.history.state
-              console.log(window.history.state)
-              if(prevState) {
-                $('#course-wrapper').html(prevState)
-                $('#dashboard-wrapper').html(prevState)
-              }
-              else {
-                location.reload();
-              }
-          });
-      });
-
-        // Handles user toggle switch off to remove from waitlist 
-        // and modal dialog pops up
-        $(document).ready(function() {
-          // listener for modal "Cancel" button 
-          $('#waitlist-modal-cancel').click(function(e) {
-            e.preventDefault()
-            classid = $('#confirm-remove-waitlist').attr('data-classid');
-            $('#switch-'+classid).prop('checked', true)
-          })
-
-          // listener for modal "Confirm" button 
-          $('#waitlist-modal-confirm').click(function(e) {
-            e.preventDefault()
-            classid = $('#confirm-remove-waitlist').attr('data-classid');
-            $.post(`/remove_from_waitlist/${classid}`,
-                  function(res) {
-                    // checks that user successfully removed from waitlist on back-end
-                    if (!res["isSuccess"]) {
-                      console.log(`Failed to remove from waitlist for class ${classid}`)
-                      return
-                    }
-                    $('#switch-'+classid).removeAttr('checked')
-                    $('#switch-'+classid).removeAttr("data-bs-toggle")
-                    $('#switch-'+classid).removeAttr("data-bs-target")
-
-                    console.log(`Successfully removed from waitlist for class ${classid}`)
-                });
-          })
-        });
-
-        // links client-side and backend logic for add and remove from waitlist 
-        $(document).ready(function() {
-          // listener for waitlist "switch"
-          $('input.waitlist-switch').change(function(e) {
-            e.preventDefault()
-            classid = e.target.getAttribute("data-classid")
-
-            $('#confirm-remove-waitlist').attr('data-classid',classid);
-            
-            // if user is not on waitlist for this class
-            if(!$('#switch-'+classid).attr('checked')) {
-                $.post(`/add_to_waitlist/${classid}`,
-                  function(res) {
-                    // checks that user successfully added to waitlist on back-end
-                    if (!res["isSuccess"]) {
-                      console.log(`Failed to add to waitlist for class ${classid}`)
-                      return
-                    }
-                    $('#switch-'+classid).attr('checked', true)
-                    $('#switch-'+classid).attr('data-bs-toggle', 'modal')
-                    $('#switch-'+classid).attr('data-bs-target', '#confirm-remove-waitlist')
-                    console.log(`Successfully added to waitlist for class ${classid}`)
-                });
-            }
-             return false;
-          });
-        });
-        
-      </script>
     </head>
    <body style="padding-top:4.2rem">
       {% include 'nav.html' %}
       <div id="main" class="container-fluid">
         <div class="row align-items-start">
-          {% block content %}{% endblock %}
+          <div id="search-wrapper" class="col-md-4">
+            {% if isDashboard %}
+              {% include 'dashboard_search.html' %}
+            {% else %}
+              {% include 'course_search.html' %}
+            {% endif %}
+            <div id="search-results">
+              {% include 'search_results.html' %}
+            </div>
+          </div>
+          <div id="right-wrapper" class="col-md-8 px-0">
+            {% if isDashboard %}
+              {% include 'dashboard.html' %}
+            {% else %}
+              {% include 'course.html' %}
+            {% endif %}
+          </div>
         </div>
       </div>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>

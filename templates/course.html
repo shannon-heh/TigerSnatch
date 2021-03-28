@@ -1,25 +1,14 @@
-{% extends 'base.html' %} {% block title %} {% if course_details is none %}
+{% if course_details is none %}
 <title>TigerSnatch | Courses</title>
 {% else %}
 <title>TigerSnatch | {{course_details.displayname}}</title>
-{% endif %} {% endblock %} {% block content %}
-<div id="search-wrapper" class="col-md-4">
-    <form id="search-form" class="form-inline" action="/course" method="get">
-        {% include 'search_form.html' %}
-        <input type="hidden" name="courseid" value="{{course_details.courseid}}" />
-    </form>
-    {% include 'search_results.html' %}
-</div>
+{% endif %} 
 
-<div id="course-wrapper" class="col-md-8 px-0">
-    <div id="course-header" class="row">{% include 'course_header.html' %}</div>
-    <div id="course-content" class="row">
-        <div id="course-table" class="row px-4 py-3">{% include 'course_table.html' %}</div>
-        <div id="course-other" class="row px-0">
-            <div id="course-mss" class="col-xl px-4 py-3">{% include 'course_mss.html' %}</div>
-            <div id="course-guide" class="col-xl px-4 py-3">{% include 'course_guide.html' %}</div>
-        </div>
+<div id="course-header" class="row">{% include 'course_header.html' %}</div>
+<div id="course-content" class="row">
+    <div id="course-table" class="row px-4 py-3">{% include 'course_table.html' %}</div>
+    <div id="course-other" class="row px-0">
+        <div id="course-mss" class="col-xl px-4 py-3">{% include 'course_mss.html' %}</div>
+        <div id="course-guide" class="col-xl px-4 py-3">{% include 'course_guide.html' %}</div>
     </div>
 </div>
-
-{% endblock %}

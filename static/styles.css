@@ -108,8 +108,7 @@ a {
     color: black;
 }
 
-div#dashboard-wrapper,
-div#course-wrapper {
+div#right-wrapper {
     padding-top: 30px;
     height: 100%;
     overflow: scroll;
