@@ -116,17 +116,19 @@ def get_course():
 
     netid = _CAS.authenticate()
 
+    refresh = request.args.get('refresh')
     courseid = request.args.get('courseid')
     query = request.args.get('query')
 
-    if query is None:
-        query = ""
+    if refresh is None:
+        if query is None:
+            query = ""
 
-    if query == "":
-        res = None
-    else:
-        query = query.replace(' ', '')
-        res = _db.search_for_course(query)
+        if query == "":
+            res = None
+        else:
+            query = query.replace(' ', '')
+            res = _db.search_for_course(query)
 
     # if URL has no courseid param, courseid is empty string, or
     # courseid is invalid
@@ -158,13 +160,19 @@ def get_course():
 
     curr_waitlists = _db.get_user(netid)['waitlists']
 
-    html = render_template('course.html',
-                           netid=netid,
-                           course_details=course_details,
-                           classes_list=classes_list,
-                           curr_waitlists=curr_waitlists,
-                           search_res=res,
-                           last_query=query)
+    if refresh is None:
+        html = render_template('course.html',
+                               netid=netid,
+                               course_details=course_details,
+                               classes_list=classes_list,
+                               curr_waitlists=curr_waitlists,
+                               search_res=res,
+                               last_query=query)
+    else:
+        html = render_template('course_info.html',
+                               course_details=course_details,
+                               classes_list=classes_list,
+                               curr_waitlists=curr_waitlists)
 
     return make_response(html)
 

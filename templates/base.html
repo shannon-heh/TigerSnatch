@@ -6,12 +6,24 @@
       <script type=text/javascript>
 
       $(document).ready(function() {
-          // listener for modal "Cancel" button 
           $('.search-results-link').click(function(e) {
-            // e.preventDefault()
-            // classid = $('#confirm-remove-waitlist').attr('data-classid');
-            // $('#switch-'+classid).prop('checked', true)
+            e.preventDefault();
+            course_link = $(this).closest('a').attr('href')
+            $.get(`${course_link}&refresh=false`,
+                  function(res) {
+                    $('#course-wrapper').html(res)
+                    $('#dashboard-wrapper').html(res)
+                    window.history.pushState(res, 'hello', course_link)
+                });
           })
+
+          $(window).on("popstate", function () {
+              html = window.history.state
+              if(html) {
+                $('#course-wrapper').html(html)
+                $('#dashboard-wrapper').html(html)
+              }
+          });
       });
 
         // Handles user toggle switch off to remove from waitlist 
