@@ -6,6 +6,8 @@
       <script type=text/javascript>
 
       $(document).ready(function() {
+
+        // dynamically loads course details when search result is clicked
           $('.search-results-link').click(function(e) {
             e.preventDefault();
             course_link = $(this).closest('a').attr('href')
@@ -13,15 +15,20 @@
                   function(res) {
                     $('#course-wrapper').html(res)
                     $('#dashboard-wrapper').html(res)
-                    window.history.pushState(res, 'hello', course_link)
+                    window.history.pushState(res, '', course_link)
                 });
           })
 
+          // handles going back to previous page
           $(window).on("popstate", function () {
-              html = window.history.state
-              if(html) {
-                $('#course-wrapper').html(html)
-                $('#dashboard-wrapper').html(html)
+              prevState = window.history.state
+              console.log(window.history.state)
+              if(prevState) {
+                $('#course-wrapper').html(prevState)
+                $('#dashboard-wrapper').html(prevState)
+              }
+              else {
+                location.reload();
               }
           });
       });
