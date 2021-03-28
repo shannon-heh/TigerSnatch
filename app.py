@@ -107,7 +107,7 @@ def about():
 
     netid = _CAS.authenticate()
 
-    html = render_template('about.html', dashboard=False)
+    html = render_template('base.html', isAbout=True)
     return make_response(html)
 
 

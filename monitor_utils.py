@@ -56,7 +56,6 @@ def get_course_in_mobileapp(term, course_, curr_time):
 
     new_enroll = {}
     new_cap = {}
-    new_mapping = None
 
     # iterate through all subjects, courses, and classes
     for subject in data['term'][0]['subjects']:
@@ -119,6 +118,13 @@ def get_course_in_mobileapp(term, course_, curr_time):
 
             for i, new_class in enumerate(all_new_classes):
                 new[f'class_{new_class["classid"]}'] = new_class
+
+            break
+
+        else:
+            continue
+
+        break
 
     return new, new_mapping, new_enroll, new_cap
 

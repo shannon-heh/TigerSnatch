@@ -128,9 +128,9 @@ class Monitor:
 
         current_term_code = get_latest_term()
 
-        ############# REMOVE LATER ###################
+        ######################### REMOVE LATER #########################
         current_term_code = '1214'
-        ##############################################
+        ################################################################
 
         try:
             displayname = self._db.courseid_to_displayname(courseid)

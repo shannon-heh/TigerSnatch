@@ -388,11 +388,11 @@ class Database:
                 raise RuntimeError('invalid mappings document schema')
 
         validate(new_course, new_mapping)
-        self._db.courses.replace_one({"courseid": courseid}, new_course)
+        self._db.courses.replace_one({'courseid': courseid}, new_course)
         for classid in new_enroll.keys():
             self.update_enrollment(
                 classid, new_enroll[classid], new_cap[classid])
-        self._db.mappings.replace_one({"courseid": courseid}, new_mapping)
+        self._db.mappings.replace_one({'courseid': courseid}, new_mapping)
 
     # adds a document containing mapping data to the mappings collection
     # (see Technical Documentation for schema)
