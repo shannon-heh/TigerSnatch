@@ -1,45 +1,47 @@
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">Course</th>
-            <th scope="col">Section</th>
-            <th scope="col">Time</th>
-            <th scope="col">Days</th>
-            <th scope="col">Waitist Position</th>
-            <th scope="col">Notify Me</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for classid in data.keys() %}
-        <tr data-courseid="{{data[classid].courseid}}">
-            <td>
-                <a href="/course?query={{last_query}}&courseid={{data[classid].courseid}}"
-                    >{{data[classid].displayname}}</a
-                >
-            </td>
-            <td>{{data[classid].section}}</td>
-            {% if data[classid].end_time == "" %}
-            <td>{{data[classid].start_time}}</td>
-            {% else %}
-            <td>{{data[classid].start_time}} - {{data[classid].end_time}}</td>
-            {% endif %}
-            <td>{{data[classid].days}}</td>
-            <td>{{data[classid].position}}</td>
-            <td>
-                <div class="form-check form-switch">
-                    <input
-                        class="form-check-input waitlist-switch"
-                        type="checkbox"
-                        id="switch-{{classid}}"
-                        data-classid="{{classid}}"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirm-remove-waitlist"
-                        checked
-                    />
-                </div>
-            </td>
-        </tr>
-        {%endfor%}
-    </tbody>
-</table>
+<div class="table-responsive-xl">
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Course</th>
+                <th scope="col">Section</th>
+                <th scope="col">Notify Me</th>
+                <th scope="col">Waitlist Position</th>
+                <th scope="col">Time</th>
+                <th scope="col">Days</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for classid in data.keys() %}
+            <tr data-courseid="{{data[classid].courseid}}">
+                <td>
+                    <a href="/course?query={{last_query}}&courseid={{data[classid].courseid}}"
+                        >{{data[classid].displayname}}</a
+                    >
+                </td>
+                <td>{{data[classid].section}}</td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input
+                            class="form-check-input waitlist-switch"
+                            type="checkbox"
+                            id="switch-{{classid}}"
+                            data-classid="{{classid}}"
+                            data-bs-toggle="modal"
+                            data-bs-target="#confirm-remove-waitlist"
+                            checked
+                        />
+                    </div>
+                </td>
+                <td>{{data[classid].position}}</td>
+                {% if data[classid].end_time == "" %}
+                <td>{{data[classid].start_time}}</td>
+                {% else %}
+                <td>{{data[classid].start_time}} - {{data[classid].end_time}}</td>
+                {% endif %}
+                <td>{{data[classid].days}}</td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+</div>
 {% include 'waitlist_modal.html' %}

@@ -126,11 +126,11 @@ class Monitor:
         except Exception as e:
             print(e, file=stderr)
 
-        terms = MobileApp().get_terms()
-        try:
-            current_term_code = terms['term'][0]['code']
-        except:
-            raise Exception('failed to get current term code')
+        current_term_code = get_latest_term()
+
+        ############# REMOVE LATER ###################
+        current_term_code = '1214'
+        ##############################################
 
         try:
             displayname = self._db.courseid_to_displayname(courseid)

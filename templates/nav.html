@@ -24,7 +24,7 @@
     </div>
     <div id="navbarNavAltMarkup" class="collapse navbar-collapse">
         <ul class="navbar-nav">
-            <!-- to undo: replace "true" with "dashboard"; delete "active" from About -->
+            <!-- to undo: replace "true" with "dashboard"; delete "active" from About; remove margin -->
             {% if true %}
             <li class="nav-item">
                 <a
@@ -57,8 +57,12 @@
             </li>
             {% endif %}
             <li>
-                <form id="logout-btn" class="d-flex mx-4" action="/logout" method="get">
-                    <button class="btn btn-warning text-dark fs-5 px-4 fw-light" type="submit">
+                <form class="d-flex mx-4" action="/logout" method="get">
+                    <button
+                        id="logout-btn"
+                        class="btn btn-warning text-dark fs-5 px-4 fw-light"
+                        type="submit"
+                    >
                         Logout
                     </button>
                 </form>

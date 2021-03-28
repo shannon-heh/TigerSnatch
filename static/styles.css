@@ -11,13 +11,8 @@
     --color-blue: #e3f3ff 64%;
 }
 
-/* .vsc-initialized {
+.vsc-initialized {
     height: 100%;
-} */
-
-.navbar#nav {
-    background-color: #ffe58a;
-    height: 4.2rem;
 }
 
 html {
@@ -25,14 +20,33 @@ html {
 }
 
 div#main.container-fluid {
-    /* margin-top: 4.2rem; */
-    height: 90%;
+    min-height: 100%;
+    overflow: hidden;
+}
+
+div#main.container-fluid {
+    height: 100%;
     overflow: scroll;
 }
 
 div.row.align-items-start {
     height: 100%;
 }
+
+.navbar#nav {
+    background-color: #ffe58a;
+    height: 4.2rem;
+}
+
+ul.navbar-nav {
+    margin-top: -1px;
+    background: #ffe68ab1;
+}
+/* 
+.navbar-collapse li > form > #logout-btn {
+    margin-top: 10px;
+    margin-bottom: 10px;
+} */
 
 .navbar-brand#nav-logo {
     letter-spacing: 0.1em;
@@ -50,6 +64,10 @@ div.row.align-items-start {
 div#search-results {
     height: 90%;
     overflow: scroll;
+}
+
+td {
+    white-space: nowrap !important;
 }
 
 div.card.search-results-card {
@@ -81,6 +99,7 @@ small#course-search-help {
 }
 
 p#search-results-message {
+    padding-top: 100px;
     text-align: center;
 }
 
@@ -91,6 +110,8 @@ a {
 
 div#dashboard-wrapper {
     padding-top: 30px;
+    height: 100%;
+    overflow: scroll;
     /* margin-bottom: 20px; */
 }
 

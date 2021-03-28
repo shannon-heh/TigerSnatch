@@ -8,12 +8,21 @@
       $(document).ready(function() {
           $('.search-results-link').click(function(e) {
             e.preventDefault();
+
+            $('*').css("pointer-events", "none")
+            $('*').css("pointer", "wait")
+            $('*').css("filter", "blur(1px)")
+
             course_link = $(this).closest('a').attr('href')
             $.get(`${course_link}&refresh=false`,
                   function(res) {
                     $('#course-wrapper').html(res)
                     $('#dashboard-wrapper').html(res)
                     window.history.pushState(res, 'hello', course_link)
+                    
+                    $('*').css("filter", "")
+                    $('*').css("pointer", "")
+                    $('*').css("pointer-events", "")
                 });
           })
 
@@ -86,7 +95,7 @@
         
       </script>
     </head>
-   <body style="padding-top:65px">
+   <body style="padding-top:4.2rem">
       {% include 'nav.html' %}
       <div id="main" class="container-fluid">
         <div class="row align-items-start">

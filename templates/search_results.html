@@ -2,7 +2,16 @@
     {% if search_res == [] %}
     <p id="search-results-message">No matches! Try another course query.</p>
     {% elif search_res is none %}
-    <p id="search-results-message">Search for courses above!</p>
+    <p id="search-results-message" class="fw-light fs-3">
+        <img
+            src="/static/search-tiger.svg"
+            width="100"
+            height="100"
+            alt="TigerSnatch search"
+            class="d-inline-block align-text-center mx-2"
+        />
+        Search for courses above!
+    </p>
     {% else %} {% for course in search_res %}
     <div>
         <div id="search-results-{{course.courseid}}" class="card search-results-card">
