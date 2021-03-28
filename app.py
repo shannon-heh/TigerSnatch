@@ -116,8 +116,12 @@ def get_course():
 
     netid = _CAS.authenticate()
 
+    refresh = request.args.get('refresh')
     courseid = request.args.get('courseid')
     query = request.args.get('query')
+
+    if refresh is not None:
+        html = render_template('')
 
     if query is None:
         query = ""
