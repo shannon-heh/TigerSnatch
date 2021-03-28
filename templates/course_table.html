@@ -2,32 +2,21 @@
 <div>Search for a course...</div>
 {% else %}
 
-<div>
-    <div>{{course_details.displayname}}</div>
-    <div>{{course_details.title}}</div>
-</div>
-
-<div class="table-responsive-lg">
+<div class="table-responsive-xl">
     <table class="table table-hover table-striped">
         <thead>
             <tr>
                 <th scope="col">Section</th>
-                <th scope="col">Time</th>
-                <th scope="col">Days</th>
                 <th scope="col">Enrollment</th>
                 <th scope="col">Notify Me</th>
+                <th scope="col">Time</th>
+                <th scope="col">Days</th>
             </tr>
         </thead>
         <tbody>
             {% for class in classes_list %}
             <tr>
                 <td>{{class.section}}</td>
-                {% if class.end_time == "" %}
-                <td>{{class.start_time}}</td>
-                {% else %}
-                <td>{{class.start_time}} - {{class.end_time}}</td>
-                {% endif %}
-                <td>{{class.days}}</td>
                 <td>{{class.enrollment}} / {{class.capacity}}</td>
                 {% if class.isFull %} {% if class.classid in curr_waitlists %}
                 <td>
@@ -54,7 +43,14 @@
                         />
                     </div>
                 </td>
-                {% endif %} {% endif %}
+                {% endif %} {% else %}
+                <td></td>
+                {% endif %} {% if class.end_time == "" %}
+                <td>{{class.start_time}}</td>
+                {% else %}
+                <td>{{class.start_time}} - {{class.end_time}}</td>
+                {% endif %}
+                <td>{{class.days}}</td>
             </tr>
             {% endfor %}
         </tbody>

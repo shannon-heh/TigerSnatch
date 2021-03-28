@@ -11,9 +11,9 @@
           $('.search-results-link').click(function(e) {
             e.preventDefault();
 
-            $('*').css("pointer-events", "none")
-            $('*').css("pointer", "wait")
-            $('*').css("filter", "blur(1px)")
+            $('#dashboard-wrapper').css("pointer-events", "none")
+            $('#dashboard-wrapper').css("pointer", "wait")
+            $('#dashboard-wrapper').css("filter", "blur(2px)")
 
             course_link = $(this).closest('a').attr('href')
             $.get(`${course_link}&refresh=false`,
@@ -22,9 +22,9 @@
                     $('#dashboard-wrapper').html(res)
                     window.history.pushState(res, '', course_link)
                     
-                    $('*').css("filter", "")
-                    $('*').css("pointer", "")
-                    $('*').css("pointer-events", "")
+                    $('#dashboard-wrapper').css("filter", "")
+                    $('#dashboard-wrapper').css("pointer", "")
+                    $('#dashboard-wrapper').css("pointer-events", "")
                 });
           })
 

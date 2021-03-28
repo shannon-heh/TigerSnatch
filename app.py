@@ -169,7 +169,7 @@ def get_course():
                                search_res=res,
                                last_query=query)
     else:
-        html = render_template('course_info.html',
+        html = render_template('course_table.html',
                                course_details=course_details,
                                classes_list=classes_list,
                                curr_waitlists=curr_waitlists)
