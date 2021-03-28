@@ -24,9 +24,12 @@
     </div>
     <div id="navbarNavAltMarkup" class="collapse navbar-collapse">
         <ul class="navbar-nav">
-            {% if dashboard %}
+            <!-- to undo: replace "true" with "dashboard"; delete "active" from About -->
+            {% if true %}
             <li class="nav-item">
-                <a class="nav-link ms-4 fs-5 fw-light hvr-underline-from-center" href="/about"
+                <a
+                    class="nav-link ms-4 fs-5 fw-light hvr-underline-from-center active"
+                    href="/about"
                     >About</a
                 >
             </li>
