@@ -5,32 +5,22 @@
 
 from flask import Flask
 from flask import render_template, make_response, request, redirect, url_for, jsonify
-from werkzeug.exceptions import HTTPException
 from database import Database
 from CASClient import CASClient
 from config import APP_SECRET_KEY
 from waitlist import Waitlist
-from monitor import Monitor
-from email.utils import parseaddr
 from app_helper import do_search, pull_course
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
 _CAS = CASClient()
 _db = Database()
-_monitor = Monitor()
 
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
-
     print(e)
-
-    # non-HTTP exceptions only
-    return render_template('error.html'), 500
+    return render_template('error.html')
 
 
 # private method that redirects to landinage page
@@ -100,21 +90,19 @@ def about():
     if redirect_landing():
         return redirect(url_for('landing'))
 
-    netid = _CAS.authenticate()
-
     html = render_template('base.html', isAbout=True)
     return make_response(html)
 
 
-@ app.route('/searchresults', methods=['POST'])
-@ app.route('/searchresults/<query>', methods=['POST'])
+@app.route('/searchresults', methods=['POST'])
+@app.route('/searchresults/<query>', methods=['POST'])
 def get_search_results(query=''):
     res = do_search(query)
     html = render_template('search/search_results.html', search_res=res)
     return make_response(html)
 
 
-@ app.route('/courseinfo/<courseid>', methods=['POST'])
+@app.route('/courseinfo/<courseid>', methods=['POST'])
 def get_course_info(courseid):
     netid = _CAS.authenticate()
     course_details, classes_list = pull_course(courseid)
@@ -126,7 +114,7 @@ def get_course_info(courseid):
     return make_response(html)
 
 
-@ app.route('/course', methods=['GET'])
+@app.route('/course', methods=['GET'])
 def get_course():
     if not _CAS.is_logged_in():
         return redirect(url_for('landing'))
@@ -157,20 +145,20 @@ def get_course():
     return make_response(html)
 
 
-@ app.route('/logout', methods=['GET'])
+@app.route('/logout', methods=['GET'])
 def logout():
     _CAS.logout()
     return redirect(url_for('landing'))
 
 
-@ app.route('/add_to_waitlist/<classid>', methods=['POST'])
+@app.route('/add_to_waitlist/<classid>', methods=['POST'])
 def add_to_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
     return jsonify({"isSuccess": waitlist.add_to_waitlist(classid)})
 
 
-@ app.route('/remove_from_waitlist/<classid>', methods=['POST'])
+@app.route('/remove_from_waitlist/<classid>', methods=['POST'])
 def remove_from_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)

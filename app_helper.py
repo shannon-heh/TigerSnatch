@@ -1,4 +1,3 @@
-
 # ----------------------------------------------------------------------
 # app_helper.py
 # Defines helper methods to construct endpoints.

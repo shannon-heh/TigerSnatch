@@ -5,7 +5,6 @@
 # ----------------------------------------------------------------------
 
 from database import Database
-from mobileapp import MobileApp
 from multiprocess import Pool
 from os import cpu_count
 from time import time

@@ -24,8 +24,6 @@
     </div>
     <div id="navbarNavAltMarkup" class="collapse navbar-collapse">
         <ul class="navbar-nav">
-            <!-- to undo: replace "true" with "dashboard"; delete "active" from About; remove margin -->
-            {% if true %}
             <li class="nav-item">
                 <a
                     class="nav-link ms-4 fs-5 fw-light hvr-underline-from-center active"
@@ -40,22 +38,6 @@
                     >Dashboard</a
                 >
             </li>
-            {% else %}
-            <li class="nav-item">
-                <a
-                    class="nav-link ms-4 fs-5 fw-light hvr-underline-from-center active"
-                    href="/about"
-                    >About</a
-                >
-            </li>
-            <li class="nav-item">
-                <a
-                    class="nav-link ms-4 me-2 fs-5 fw-light hvr-underline-from-center"
-                    href="/dashboard"
-                    >Dashboard</a
-                >
-            </li>
-            {% endif %}
             <li>
                 <form class="d-flex mx-4" action="/logout" method="get">
                     <button
