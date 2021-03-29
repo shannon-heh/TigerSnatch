@@ -12,6 +12,7 @@ from config import APP_SECRET_KEY
 from waitlist import Waitlist
 from monitor import Monitor
 from email.utils import parseaddr
+from app_helper import do_search, pull_course
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
@@ -71,18 +72,12 @@ def dashboard():
     data = _db.get_dashboard_data(netid)
     email = _db.get_user(netid)['email']
 
-    updateSearch = request.args.get('updateSearch')
     query = request.args.get('query')
     new_email = request.form.get('new_email')
 
     if query is None:
         query = ""
-
-    if query == "":
-        res = None
-    else:
-        query = query.replace(' ', '')
-        res = _db.search_for_course(query)
+    search_res = do_search(query)
 
     if new_email is not None:
         _db.update_user(netid, new_email.strip())
@@ -90,7 +85,7 @@ def dashboard():
 
     html = render_template('base.html',
                            isDashboard=True,
-                           search_res=res,
+                           search_res=search_res,
                            last_query=query,
                            username=netid.rstrip(),
                            data=data,
@@ -111,6 +106,26 @@ def about():
     return make_response(html)
 
 
+@ app.route('/searchresults', methods=['POST'])
+@ app.route('/searchresults/<query>', methods=['POST'])
+def get_search_results(query=''):
+    res = do_search(query)
+    html = render_template('search/search_results.html', search_res=res)
+    return make_response(html)
+
+
+@ app.route('/courseinfo/<courseid>', methods=['POST'])
+def get_course_info(courseid):
+    netid = _CAS.authenticate()
+    course_details, classes_list = pull_course(courseid)
+    curr_waitlists = _db.get_user(netid)['waitlists']
+    html = render_template('course/course.html',
+                           course_details=course_details,
+                           classes_list=classes_list,
+                           curr_waitlists=curr_waitlists)
+    return make_response(html)
+
+
 @ app.route('/course', methods=['GET'])
 def get_course():
     if not _CAS.is_logged_in():
@@ -118,78 +133,37 @@ def get_course():
 
     netid = _CAS.authenticate()
 
-    # either update course or search
-    updateSearch = request.args.get('updateSearch')
     courseid = request.args.get('courseid')
     query = request.args.get('query')
 
-    res = []
+    if query is None:
+        query = ""
+    search_res = do_search(query)
 
-    if updateSearch != 'false':
-        if query is None:
-            query = ""
-
-        if query == "":
-            res = None
-        else:
-            query = query.replace(' ', '')
-            res = _db.search_for_course(query)
-
-    # if URL has no courseid param, courseid is empty string, or
-    # courseid is invalid
-    if courseid is None or courseid == "" or _db.get_course(courseid) is None:
-        course_details = None
-        html = render_template('base.html',
-                               isDashboard=False,
-                               netid=netid,
-                               course_details=course_details,
-                               search_res=res,
-                               last_query=query)
-
-        return make_response(html)
-
-    # updates course info if it has been 2 minutes since last update
-    _monitor.pull_course_updates(courseid)
-
-    course = _db.get_course_with_enrollment(courseid)
-
-    # split course data into basic course details, and list of classes
-    # with enrollmemnt data
-    course_details = {}
-    classes_list = []
-    for key in course.keys():
-        if key.startswith('class_'):
-            classes_list.append(course[key])
-        else:
-            course_details[key] = course[key]
-
+    course_details, classes_list = pull_course(courseid)
     curr_waitlists = _db.get_user(netid)['waitlists']
 
-    if updateSearch is None:
-        html = render_template('base.html',
-                               isDashboard=False,
-                               netid=netid,
-                               course_details=course_details,
-                               classes_list=classes_list,
-                               curr_waitlists=curr_waitlists,
-                               search_res=res,
-                               last_query=query)
-    else:
-        html = render_template('course.html',
-                               course_details=course_details,
-                               classes_list=classes_list,
-                               curr_waitlists=curr_waitlists)
+    # change to check if updateSearch == 'false'
+    # if updateSearch is None:
+    html = render_template('base.html',
+                           isDashboard=False,
+                           netid=netid,
+                           course_details=course_details,
+                           classes_list=classes_list,
+                           curr_waitlists=curr_waitlists,
+                           search_res=search_res,
+                           last_query=query)
 
     return make_response(html)
 
 
-@app.route('/logout', methods=['GET'])
+@ app.route('/logout', methods=['GET'])
 def logout():
     _CAS.logout()
     return redirect(url_for('landing'))
 
 
-@app.route('/add_to_waitlist/<classid>', methods=['POST'])
+@ app.route('/add_to_waitlist/<classid>', methods=['POST'])
 def add_to_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)

@@ -8,13 +8,11 @@
         <div id="main" class="container-fluid">
             <div class="row align-items-start">
                 <div id="search-wrapper" class="col-md-4">
-                    {% if isDashboard %} {% include 'dashboard_search.html' %} {% else %} {% include
-                    'course_search.html' %} {% endif %}
-                    <div id="search-results">{% include 'search_results.html' %}</div>
+                    {% include 'search/search.html' %}
                 </div>
                 <div id="right-wrapper" class="col-md-8 px-0">
-                    {% if isDashboard %} {% include 'dashboard.html' %} {% else %} {% include
-                    'course.html' %} {% endif %}
+                    {% if isDashboard %} {% include 'dashboard/dashboard.html' %} {% else %} {% include
+                    'course/course.html' %} {% endif %}
                 </div>
             </div>
         </div>
@@ -24,5 +22,6 @@
             integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
             crossorigin="anonymous"
         ></script>
+        <script src="{{url_for('static', filename='app.js')}}"></script>
     </body>
 </html>
