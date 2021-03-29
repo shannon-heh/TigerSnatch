@@ -1,4 +1,4 @@
-* {
+*:not(.form-control) {
     -webkit-user-select: none; /* Safari */
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* IE10+/Edge */
@@ -11,10 +11,8 @@
     --color-blue: #e3f3ff 64%;
 }
 
-.vsc-initialized {
-    height: 100%;
-}
-
+.vsc-initialized,
+body,
 html {
     height: 100%;
 }
@@ -34,7 +32,7 @@ div.row.align-items-start {
 }
 
 .navbar#nav {
-    background-color: #ffe58a;
+    background-color: var(--color-yellow);
     height: 4.2rem;
 }
 
@@ -42,19 +40,10 @@ ul.navbar-nav {
     margin-top: -1px;
     background: #ffe68ab1;
 }
-/* 
-.navbar-collapse li > form > #logout-btn {
-    margin-top: 10px;
-    margin-bottom: 10px;
-} */
 
 .navbar-brand#nav-logo {
     letter-spacing: 0.1em;
 }
-
-/* .input-group#course-search {
-    z-index: 999;
-} */
 
 .form-check-input:checked {
     background-color: var(--color-green);
