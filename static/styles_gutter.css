@@ -9,7 +9,8 @@
 :root {
     --color-yellow: #ffe58a;
     --color-green: #51a451;
-    --color-blue: #e3f3ff 64%;
+    --color-blue: #e3f3ff8c;
+    --color-orange: #e87722;
 }
 
 .vsc-initialized,
@@ -43,6 +44,12 @@ ul.navbar-nav {
 
 .navbar-brand#nav-logo {
     letter-spacing: 0.1em;
+}
+
+@media (max-width: 992px) {
+    div.container-fluid#nav-container {
+        margin-top: -5px;
+    }
 }
 
 .form-check-input:checked {
@@ -177,4 +184,39 @@ div#guide-content {
 
 div#course-warning {
     font-size: 0.8em;
+}
+
+body#landing-container {
+    background: var(--color-blue);
+}
+
+input#login-btn {
+    background-color: var(--color-orange);
+    color: white;
+    font-weight: 500;
+    border-radius: 100px;
+}
+
+input#login-btn:hover {
+    filter: brightness(107%);
+}
+
+form#login-btn-form {
+    padding-top: 100px;
+}
+
+div#landing-auth-req {
+    color: var(--color-orange);
+}
+
+strong#landing-tigersnatch-highlight {
+    background-color: #e8782276;
+}
+
+p#landing-bottom-text {
+    margin: auto;
+}
+
+svg#landing-splash {
+    /* padding-bottom: 80px; */
 }

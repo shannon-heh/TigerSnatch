@@ -2,11 +2,21 @@
 <html>
     <head>
         {% include 'common.html' %}
+        <title>TigerSnatch</title>
     </head>
-    <h>Welcome to TigerSnatch! Click the button below to log in via CAS.</h>
-    <body>
-        <form action="/login" method="get">
-            <input class="btn btn-primary" type="submit" name="login" value="Login" />
-        </form>
+    <body id="landing-container">
+        {% include 'nav/nav_landing.html' %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xxl-4 px-5">{% include 'landing/landing_left.html' %}</div>
+                <div class="col-xxl-8">{% include 'landing/landing_right.html' %}</div>
+            </div>
+        </div>
+
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+            crossorigin="anonymous"
+        ></script>
     </body>
 </html>
