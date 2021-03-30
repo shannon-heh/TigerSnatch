@@ -98,7 +98,9 @@ def about():
 @app.route('/searchresults/<query>', methods=['POST'])
 def get_search_results(query=''):
     res = do_search(query)
-    html = render_template('search/search_results.html', search_res=res)
+    html = render_template('search/search_results.html',
+                           last_query=query,
+                           search_res=res)
     return make_response(html)
 
 
@@ -108,6 +110,7 @@ def get_course_info(courseid):
     course_details, classes_list = pull_course(courseid)
     curr_waitlists = _db.get_user(netid)['waitlists']
     html = render_template('course/course.html',
+                           courseid=courseid,
                            course_details=course_details,
                            classes_list=classes_list,
                            curr_waitlists=curr_waitlists)
@@ -136,6 +139,7 @@ def get_course():
     html = render_template('base.html',
                            isDashboard=False,
                            netid=netid,
+                           courseid=courseid,
                            course_details=course_details,
                            classes_list=classes_list,
                            curr_waitlists=curr_waitlists,

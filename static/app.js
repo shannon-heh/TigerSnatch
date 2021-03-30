@@ -5,7 +5,6 @@ let searchFormListener = function () {
 
         // get serach query
         query = $("#search-form-input").prop("value");
-
         // construct new URL
         params = location.search;
         curr_path = location.pathname;
@@ -21,7 +20,6 @@ let searchFormListener = function () {
                 else curr_path += arr[i];
             }
         }
-
         // get search results
         if (query.trim() === "") {
             endpoint = "/searchresults";
@@ -30,7 +28,7 @@ let searchFormListener = function () {
         }
         $.post(endpoint, function (res) {
             $("div#search-results").html(res);
-            window.history.pushState(res, "", curr_path);
+            window.history.pushState({'restore': 'search', 'html': res}, "restore search results", curr_path);
             // adds listener to new search results
             searchResultListener();
         });
@@ -47,7 +45,17 @@ let searchResultListener = function () {
         $("#right-wrapper").css("pointer", "wait");
         $("#right-wrapper").css("filter", "blur(2px)");
 
+        // remove gray background from currently selected course entry
+        $('a.selected-course').css('background-color', '');
+        $('a.selected-course').removeClass('selected-course')
+
         closest_a = $(this).closest("a");
+
+        // background: #C0BDBD;
+        // add gray background to selected course
+        closest_a.css('background-color', '#EDE9E9');
+        closest_a.addClass('selected-course')
+
         course_link = closest_a.attr("href");
         courseid = closest_a.attr("data-courseid");
 
@@ -63,8 +71,10 @@ let searchResultListener = function () {
             $("#right-wrapper").css("pointer", "");
             $("#right-wrapper").css("pointer-events", "");
 
+            console.log(course_link)
+
             // update URL
-            window.history.pushState(res, "", course_link);
+            window.history.pushState({'restore': 'right', 'html': res}, '' , course_link);
 
             // add listener to new switches & modals
             switchListener();
@@ -82,17 +92,19 @@ let switchListener = function () {
 
         $("#confirm-remove-waitlist").attr("data-classid", classid);
 
+        switchid = `#switch-${classid}`
+
         // if user is not on waitlist for this class, then add them
-        if (!$("#switch-" + classid).attr("checked")) {
+        if (!$(switchid).attr("checked")) {
             $.post(`/add_to_waitlist/${classid}`, function (res) {
                 // checks that user successfully added to waitlist on back-end
                 if (!res["isSuccess"]) {
                     console.log(`Failed to add to waitlist for class ${classid}`);
                     return;
                 }
-                $("#switch-" + classid).attr("checked", true);
-                $("#switch-" + classid).attr("data-bs-toggle", "modal");
-                $("#switch-" + classid).attr("data-bs-target", "#confirm-remove-waitlist");
+                $(switchid).attr("checked", true);
+                $(switchid).attr("data-bs-toggle", "modal");
+                $(switchid).attr("data-bs-target", "#confirm-remove-waitlist");
                 console.log(`Successfully added to waitlist for class ${classid}`);
             });
         }
@@ -104,15 +116,17 @@ let modalConfirmListener = function () {
     $("#waitlist-modal-confirm").on("click", function (e) {
         e.preventDefault();
         classid = $("#confirm-remove-waitlist").attr("data-classid");
+        switchid = `#switch-${classid}`
         $.post(`/remove_from_waitlist/${classid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
                 console.log(`Failed to remove from waitlist for class ${classid}`);
                 return;
             }
-            $("#switch-" + classid).removeAttr("checked");
-            $("#switch-" + classid).removeAttr("data-bs-toggle");
-            $("#switch-" + classid).removeAttr("data-bs-target");
+            $(`${switchid}.dashboard-switch`).closest('tr.dashboard-course-row').remove();
+            $(switchid).removeAttr("checked");
+            $(switchid).removeAttr("data-bs-toggle");
+            $(switchid).removeAttr("data-bs-target");
 
             console.log(`Successfully removed from waitlist for class ${classid}`);
         });
@@ -124,19 +138,26 @@ let modalCancelListener = function () {
     $("#waitlist-modal-cancel").on("click", function (e) {
         e.preventDefault();
         classid = $("#confirm-remove-waitlist").attr("data-classid");
-        $("#switch-" + classid).prop("checked", true);
+        $(`#switch-${classid}`).prop("checked", true);
     });
 };
 
 // listens for user to click back button on page
 let pageBackListener = function () {
     $(window).on("popstate", function () {
-        prevState = window.history.state;
-        if (prevState) {
-            $("#right-wrapper").html(prevState);
-        } else {
-            location.reload();
-        }
+        // for now, just reloads
+        location.reload();
+
+        // html = window.history.state['html'];
+        // restore = window.history.state['restore'];
+        // if (restore === 'right') {
+        //     $("#right-wrapper").html(html);
+        // } 
+        // else if (restore === 'search') {
+        //     $("div#search-results").html(html);
+        // }
+        // else {
+        // }
     });
 };
 
