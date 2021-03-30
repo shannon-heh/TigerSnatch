@@ -15,11 +15,20 @@
 {% else %} {% for course in search_res %}
 <div>
     <div id="search-results-{{course.courseid}}" class="card search-results-card">
-        <a
-        data-courseid="{{course.courseid}}"
-        class="search-results-link"
-        href="course?query={{last_query}}&courseid={{course.courseid}}"
-        >
+        {% if courseid is not none and courseid == course.courseid %}
+            <a
+            data-courseid="{{course.courseid}}"
+            class="search-results-link selected-course"
+            href="course?query={{last_query}}&courseid={{course.courseid}}"
+            style="background-color: #EDE9E9"
+            >
+        {% else %}
+            <a
+            data-courseid="{{course.courseid}}"
+            class="search-results-link"
+            href="course?query={{last_query}}&courseid={{course.courseid}}"
+            >
+        {% endif %}
         <div class="card-body">
             <div class="search-results-displayname">{{course.displayname}}</div>
             <div class="search-results-title">{{course.title}}</div>

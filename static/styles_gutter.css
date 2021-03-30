@@ -220,3 +220,21 @@ p#landing-bottom-text {
 svg#landing-splash {
     /* padding-bottom: 80px; */
 }
+
+a.search-results-link {
+    border-radius: 0.25em;
+}
+
+a.search-results-link:hover {
+    color: black;
+}
+
+div.search-results-card:hover {
+    transform: scale(1.03);
+    transition: transform 0.3s;
+}
+
+a.dashboard-course-link:hover {
+    color: black;
+    text-decoration: underline;
+}

@@ -12,9 +12,9 @@
         </thead>
         <tbody>
             {% for classid in data.keys() %}
-            <tr data-courseid="{{data[classid].courseid}}">
+            <tr class="dashboard-course-row" data-courseid="{{data[classid].courseid}}">
                 <td>
-                    <a href="/course?query={{last_query}}&courseid={{data[classid].courseid}}"
+                    <a class="dashboard-course-link" href="/course?query={{last_query}}&courseid={{data[classid].courseid}}"
                         >{{data[classid].displayname}}</a
                     >
                 </td>
@@ -22,7 +22,7 @@
                 <td>
                     <div class="form-check form-switch">
                         <input
-                            class="form-check-input waitlist-switch"
+                            class="form-check-input waitlist-switch dashboard-switch"
                             type="checkbox"
                             id="switch-{{classid}}"
                             data-classid="{{classid}}"
