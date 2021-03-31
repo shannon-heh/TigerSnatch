@@ -7,8 +7,8 @@
         {% include 'nav/nav.html' %} {% if isAbout %} {% include 'about.html' %} {% else %}
         <div id="main" class="container-fluid">
             <div class="row align-items-start">
-                <div id="search-wrapper" class="col-md-4">{% include 'search/search.html' %}</div>
-                <div id="right-wrapper" class="col-md-8 px-0">
+                <div id="search-wrapper" class="col-lg-4">{% include 'search/search.html' %}</div>
+                <div id="right-wrapper" class="col-lg-8 px-0">
                     {% if isDashboard %} {% include 'dashboard/dashboard.html' %} {% else %} {%
                     include 'course/course.html' %} {% endif %}
                 </div>

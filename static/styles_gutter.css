@@ -186,19 +186,9 @@ div#course-warning {
     font-size: 0.8em;
 }
 
-body#landing-container {
+body#landing-container,
+body#error-container {
     background: var(--color-blue);
-}
-
-input#login-btn {
-    background-color: var(--color-orange);
-    color: white;
-    font-weight: 500;
-    border-radius: 100px;
-}
-
-input#login-btn:hover {
-    filter: brightness(107%);
 }
 
 form#login-btn-form {
@@ -259,4 +249,20 @@ div.search-results-card:hover {
 a.dashboard-course-link:hover {
     color: black;
     text-decoration: underline;
+}
+
+input#login-btn {
+    background-color: var(--color-orange);
+    color: white;
+    font-weight: 500;
+}
+
+input#login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+input#login-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
 }
