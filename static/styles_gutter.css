@@ -46,7 +46,7 @@ ul.navbar-nav {
     letter-spacing: 0.1em;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 991.98px) {
     div.container-fluid#nav-container {
         margin-top: -5px;
     }
@@ -202,7 +202,7 @@ input#login-btn:hover {
 }
 
 form#login-btn-form {
-    padding-top: 100px;
+    padding-top: 125px;
 }
 
 div#landing-auth-req {
@@ -217,8 +217,30 @@ p#landing-bottom-text {
     margin: auto;
 }
 
-svg#landing-splash {
-    /* padding-bottom: 80px; */
+@media (max-width: 575.98px) {
+    svg#landing-splash {
+        height: 300px;
+        margin-bottom: 100px;
+    }
+    form#login-btn-form {
+        padding-top: 20px;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 1399.98px) {
+    svg#landing-splash {
+        height: 400px;
+        margin-bottom: 100px;
+    }
+    form#login-btn-form {
+        padding-top: 20px;
+    }
+}
+
+@media (min-width: 1400px) {
+    svg#landing-splash {
+        height: 600px;
+    }
 }
 
 a.search-results-link {
