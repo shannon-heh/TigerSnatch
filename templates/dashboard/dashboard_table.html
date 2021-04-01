@@ -1,3 +1,16 @@
+{% if data.keys()|length == 0 %}
+
+<div class="container-fluid">
+    <div class="row text-center">
+        <p class="fs-4 px-0 pt-5">
+            Your waited-on sections are displayed here. <br />
+            Search to get started!
+        </p>
+    </div>
+</div>
+
+{% else %}
+
 <div class="table-responsive-xl">
     <table class="table table-hover table-striped">
         <thead>
@@ -14,7 +27,9 @@
             {% for classid in data.keys() %}
             <tr class="dashboard-course-row" data-courseid="{{data[classid].courseid}}">
                 <td>
-                    <a class="dashboard-course-link" href="/course?query={{last_query}}&courseid={{data[classid].courseid}}"
+                    <a
+                        class="dashboard-course-link"
+                        href="/course?query={{last_query}}&courseid={{data[classid].courseid}}"
                         >{{data[classid].displayname}}</a
                     >
                 </td>
@@ -44,4 +59,4 @@
         </tbody>
     </table>
 </div>
-{% include 'waitlist_modal.html' %}
+{% endif %} {% include 'waitlist_modal.html' %}
