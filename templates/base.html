@@ -3,7 +3,7 @@
     <head>
         {% block title %}{% endblock %} {% include 'common.html' %}
     </head>
-    <body style="padding-top: 4.2rem">
+    <body style='height: calc(100vh - 60px)'>
         {% include 'nav/nav.html' %} {% if loggedin %} {% include 'about.html' %} {% else %}
         <div id="main" class="container-fluid">
             <div class="row align-items-start">

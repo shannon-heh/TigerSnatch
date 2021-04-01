@@ -3,7 +3,7 @@
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* Standard */
-  font-size: 0.97rem;
+  font-size: 0.93rem;
 }
 
 :root {
@@ -126,7 +126,15 @@ div#course-header {
   margin-right: 0px;
 }
 
-div#dashboard-content,
+div#dashboard-content {
+  background: var(--color-blue);
+  margin-left: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-right: 0px;
+  padding: 30px;
+}
+
 div#course-content {
   background: var(--color-blue);
   margin-left: 10px;
@@ -136,14 +144,22 @@ div#course-content {
   padding: 30px 30px;
 }
 
-div#dashboard-table,
+div#dashboard-table {
+  background: white;
+  border-radius: 10px;
+  margin-left: 0px;
+  margin-right: 0px;
+  height: 19em;
+  overflow: scroll;
+}
+
 div#course-table {
   background: white;
   border-radius: 10px;
   margin-left: 0px;
   margin-right: 0px;
-  height: 35em;
-  overflow: auto;
+  height: 17em;
+  overflow: scroll;
 }
 
 div#dashboard-other,
@@ -265,4 +281,8 @@ input#login-btn:hover {
 input#login-btn:active {
   transform: translateY(-1px);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.subnav {
+  opacity: 1;
 }
