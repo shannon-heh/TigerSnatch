@@ -88,9 +88,10 @@ def dashboard():
 @app.route('/about', methods=['GET'])
 def about():
     if redirect_landing():
-        return redirect(url_for('landing'))
+        html = render_template('about.html', loggedin=False)
+        return make_response(html)
 
-    html = render_template('base.html', isAbout=True)
+    html = render_template('base.html', loggedin=True)
     return make_response(html)
 
 

@@ -1,0 +1,28 @@
+<nav id="nav" class="navbar navbar-expand-lg navbar-light">
+    <div id="nav-container" class="container-fluid">
+        <a id="nav-logo" class="navbar-brand fs-2" href="/dashboard">
+            <img src="/static/logo-alt.svg" width="50" height="50" alt="TigerSnatch logo"
+                class="d-inline-block align-text-center mx-2" />
+            TigerSnatch
+            <span class="badge bg-warning text-dark font-monospace px-2 py-0 ms-1 fs-3">BETA</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="true" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+    <div id="navbarNavAltMarkup" class="collapse navbar-collapse">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link ms-4 fs-5 fw-light hvr-underline-from-center active" href="/about">About</a>
+            </li>
+            <li>
+                <form class="d-flex mx-4" action="/login" method="get">
+                    <button id="login-btn" class="btn btn-warning text-dark fs-5 px-4 fw-light" type="submit">
+                        Login
+                    </button>
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
