@@ -1,13 +1,17 @@
-
-{% if isDashboard %} 
-    <form id="search-form" class="form-inline" action="/dashboard" method="get">
-        {% include 'search/search_form.html' %}
-        <input id="search-form-courseid" type="hidden" name="courseid" value="" />
-    </form>
-{% else %} 
-    <form id="search-form" class="form-inline" action="/course" method="get">
-        {% include 'search/search_form.html' %}
-        <input id="search-form-courseid" type="hidden" name="courseid" value="{{course_details.courseid}}" />
-    </form>
+{% if isDashboard %}
+<form id="search-form" class="form-inline" action="/dashboard" method="get">
+    {% include 'search/search_form.html' %}
+    <input id="search-form-courseid" type="hidden" name="courseid" value="" />
+</form>
+{% else %}
+<form id="search-form" class="form-inline" action="/course" method="get">
+    {% include 'search/search_form.html' %}
+    <input
+        id="search-form-courseid"
+        type="hidden"
+        name="courseid"
+        value="{{course_details.courseid}}"
+    />
+</form>
 {% endif %}
 <div id="search-results">{% include 'search/search_results.html' %}</div>
