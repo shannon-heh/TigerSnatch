@@ -4,13 +4,15 @@
 <title>TigerSnatch | {{course_details.displayname}}</title>
 {% endif %}
 
-<div id="course-header" class="row">{% include 'course/course_header.html' %}</div>
-<div id="course-content" class="row">
-    <div id="course-table" class="row px-4 py-3">{% include 'course/course_table.html' %}</div>
-    <div id="course-other" class="row px-0">
-        <div id="course-mss" class="col-xl px-4 py-3">{% include 'course/course_mss.html' %}</div>
-        <div id="course-guide" class="col-xl px-4 py-3">
-            {% include 'course/course_guide.html' %}
+<div class='d-flex flex-column h-100'>
+    <div id="course-header" class="row" style='height:20%'>{% include 'course/course_header.html' %}</div>
+    <div id="course-content" class="d-flex flex-column flex-grow-1" style='height:80%'>
+        <div id="course-table" class="row px-4 py-3 flex-shrink-1">{% include 'course/course_table.html' %}</div>
+        <div id="course-other" class="row px-0">
+            <div id="course-mss" class="col-xl px-4 py-3">{% include 'course/course_mss.html' %}</div>
+            <div id="course-guide" class="col-xl px-4 py-3">
+                {% include 'course/course_guide.html' %}
+            </div>
         </div>
     </div>
 </div>

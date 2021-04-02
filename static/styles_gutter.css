@@ -149,7 +149,7 @@ div#dashboard-table {
   border-radius: 10px;
   margin-left: 0px;
   margin-right: 0px;
-  height: 19em;
+  /* height: 20%; */
   overflow: scroll;
 }
 
@@ -158,7 +158,7 @@ div#course-table {
   border-radius: 10px;
   margin-left: 0px;
   margin-right: 0px;
-  height: 17em;
+  /* height: 17em; */
   overflow: scroll;
 }
 
