@@ -6,9 +6,6 @@
 from database import Database
 from monitor import Monitor
 
-_db = Database()
-_monitor = Monitor()
-
 
 # searches for course based on user query
 def do_search(query):
@@ -17,7 +14,7 @@ def do_search(query):
         res = None
     else:
         query = query.replace(' ', '')
-        res = _db.search_for_course(query)
+        res = Database().search_for_course(query)
 
     return res
 
@@ -26,13 +23,13 @@ def do_search(query):
 # course details and list with class info
 def pull_course(courseid):
 
-    if courseid is None or courseid == "" or _db.get_course(courseid) is None:
+    if courseid is None or courseid == "" or Database().get_course(courseid) is None:
         return None, None
 
     # updates course info if it has been 2 minutes since last update
-    _monitor.pull_course_updates(courseid)
+    Monitor().pull_course_updates(courseid)
 
-    course = _db.get_course_with_enrollment(courseid)
+    course = Database().get_course_with_enrollment(courseid)
 
     # split course data into basic course details, and list of classes
     # with enrollmemnt data

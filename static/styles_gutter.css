@@ -235,7 +235,7 @@ p#landing-bottom-text {
 
 @media (min-width: 576px) and (max-width: 1399.98px) {
     svg#landing-splash {
-        height: 400px;
+        height: 350px;
         margin-bottom: 100px;
     }
     form#login-btn-form {
@@ -245,7 +245,7 @@ p#landing-bottom-text {
 
 @media (min-width: 1400px) {
     svg#landing-splash {
-        height: 600px;
+        height: 550px;
     }
 }
 

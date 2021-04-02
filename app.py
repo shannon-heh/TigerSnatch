@@ -14,7 +14,6 @@ from app_helper import do_search, pull_course
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
 _CAS = CASClient()
-_db = Database()
 
 
 @app.errorhandler(Exception)
@@ -27,7 +26,7 @@ def handle_exception(e):
 # if user is not logged in with CAS
 # or if user is logged in with CAS, but doesn't have entry in DB
 def redirect_landing():
-    return not _CAS.is_logged_in() or not _db.is_user_created(_CAS.authenticate())
+    return not _CAS.is_logged_in() or not Database().is_user_created(_CAS.authenticate())
 
 
 @app.route('/', methods=['GET'])
@@ -45,6 +44,7 @@ def landing():
 
 @app.route('/login', methods=['GET'])
 def login():
+    _db = Database()
     netid = _CAS.authenticate()
     if not _db.is_user_created(netid):
         _db.create_user(netid)
@@ -57,6 +57,7 @@ def dashboard():
     if redirect_landing():
         return redirect(url_for('landing'))
 
+    _db = Database()
     netid = _CAS.authenticate()
 
     data = _db.get_dashboard_data(netid)
@@ -108,6 +109,8 @@ def get_search_results(query=''):
 @app.route('/courseinfo/<courseid>', methods=['POST'])
 def get_course_info(courseid):
     netid = _CAS.authenticate()
+    _db = Database()
+
     course_details, classes_list = pull_course(courseid)
     curr_waitlists = _db.get_user(netid)['waitlists']
     html = render_template('course/course.html',
@@ -124,6 +127,7 @@ def get_course():
         return redirect(url_for('landing'))
 
     netid = _CAS.authenticate()
+    _db = Database()
 
     courseid = request.args.get('courseid')
     query = request.args.get('query')
