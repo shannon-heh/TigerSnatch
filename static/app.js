@@ -1,5 +1,5 @@
 // listens for submission of search form
-let scrollTo = function (dest) {
+let scrollBottom = function (dest) {
     $(dest).animate(
         {
             scrollTop: $(dest)[0].scrollHeight - $(dest)[0].clientHeight,
@@ -86,7 +86,7 @@ let searchResultListener = function () {
         course_link = closest_a.attr("href");
         courseid = closest_a.attr("data-courseid");
 
-        scrollTo("#main");
+        scrollBottom("#main");
 
         // get course information
         $.post(`/courseinfo/${courseid}`, function (res) {
@@ -109,6 +109,7 @@ let searchResultListener = function () {
             filterFullListener();
             modalCancelListener();
             modalConfirmListener();
+            searchSkip();
         });
     });
 };
@@ -204,10 +205,18 @@ let pageBackListener = function () {
     });
 };
 
+// quick-skip to dashboard
 let dashboardSkip = function () {
     $("#dashboard-skip").on("click", function (e) {
         e.preventDefault();
-        scrollTo("#main");
+        scrollBottom("#main");
+    });
+};
+
+let searchSkip = function () {
+    $("#search-skip").on("click", function (e) {
+        e.preventDefault();
+        resetScroll("#main");
     });
 };
 
@@ -223,4 +232,5 @@ $(document).ready(function () {
     modalConfirmListener();
     pageBackListener();
     dashboardSkip();
+    searchSkip();
 });

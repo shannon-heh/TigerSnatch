@@ -289,7 +289,8 @@ input#login-btn:active {
 }
 
 @media (min-width: 992px) {
-    a#dashboard-skip {
+    a#dashboard-skip,
+    a#search-skip {
         display: none;
     }
 }
