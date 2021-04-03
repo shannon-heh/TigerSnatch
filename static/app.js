@@ -1,8 +1,17 @@
 // listens for submission of search form
-let scrollToContent = function () {
-    $("#main").animate(
+let scrollTo = function (dest) {
+    $(dest).animate(
         {
-            scrollTop: $("#main")[0].scrollHeight - $("#main")[0].clientHeight,
+            scrollTop: $(dest)[0].scrollHeight - $(dest)[0].clientHeight,
+        },
+        500
+    );
+};
+
+let resetScroll = function (dest) {
+    $(dest).animate(
+        {
+            scrollTop: 0,
         },
         500
     );
@@ -44,6 +53,7 @@ let searchFormListener = function () {
             );
             // adds listener to new search results
             searchResultListener();
+            resetScroll("#search-results");
             dashboardSkip();
         });
     });
@@ -73,7 +83,7 @@ let searchResultListener = function () {
         course_link = closest_a.attr("href");
         courseid = closest_a.attr("data-courseid");
 
-        scrollToContent();
+        scrollTo("#main");
 
         // get course information
         $.post(`/courseinfo/${courseid}`, function (res) {
@@ -194,12 +204,7 @@ let pageBackListener = function () {
 let dashboardSkip = function () {
     $("#dashboard-skip").on("click", function (e) {
         e.preventDefault();
-        $("#main").animate(
-            {
-                scrollTop: $("#main")[0].scrollHeight - $("#main")[0].clientHeight,
-            },
-            500
-        );
+        scrollTo("#main");
     });
 };
 

@@ -10,6 +10,7 @@ from config import DB_CONNECTION_STR, COLLECTIONS
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
+from datetime import datetime
 
 
 class Database:
@@ -17,7 +18,8 @@ class Database:
     # creates a reference to the TigerSnatch MongoDB database
 
     def __init__(self):
-        print('connecting to database', end='...')
+        print(
+            f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}: connecting to database', end='...')
         stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
                                serverSelectionTimeoutMS=5000)
