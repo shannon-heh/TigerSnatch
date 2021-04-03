@@ -21,6 +21,9 @@ let searchFormListener = function () {
     $("form#search-form").on("submit", function (e) {
         e.preventDefault();
 
+        // automatically close the keyboard on iOS
+        document.activeElement.blur();
+
         // get serach query
         query = $("#search-form-input").prop("value");
         // construct new URL
