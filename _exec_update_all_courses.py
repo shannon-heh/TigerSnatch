@@ -27,6 +27,7 @@ from time import time
 from multiprocess import Pool
 from mobileapp import MobileApp
 from update_all_courses_utils import get_all_dept_codes, process_dept_code
+from monitor_utils import get_latest_term
 
 if __name__ == '__main__':
     def process_args():
@@ -42,32 +43,24 @@ if __name__ == '__main__':
     terms = MobileApp().get_terms()
 
     # get current term code
-    try:
-        current_term_code = terms['term'][0]['code']
-
-        ######################### REMOVE LATER #########################
-        current_term_code = '1214'
-        ################################################################
-
-        current_term_date = terms['term'][0]['suffix']
-    except:
-        raise Exception('failed to get current term code')
-
-    print(
-        f'getting all courses in {current_term_date} (term code {current_term_code})')
+    current_term_code = get_latest_term()
+    print(f'getting all courses in term code {current_term_code}')
 
     DEPT_CODES = get_all_dept_codes(current_term_code)
 
     process_dept_code_args = []
     for n, code in enumerate(DEPT_CODES):
-        process_dept_code_args.append(
-            [code, n, current_term_code, True, hard_reset])
+        process_dept_code([code, n, current_term_code, True, hard_reset])
+        # the below code is for multiprocessing
+        # process_dept_code_args.append(
+        #     [code, n, current_term_code, True, hard_reset])
 
     # alleviate MobileApp bottleneck using multiprocessing
     # NOTE: setting cores to > 1 yields in different results every time
     # replace with cpu_count() if someone figures out why - it's not a
     # big issue though because this script is run only once per semester
-    with Pool(1) as pool:
-        pool.map(process_dept_code, process_dept_code_args)
+
+    # with Pool(1) as pool:
+    #     pool.map(process_dept_code, process_dept_code_args)
 
     print(f'success: approx. {round(time()-tic)} seconds')

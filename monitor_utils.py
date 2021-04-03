@@ -15,6 +15,9 @@ def get_latest_term():
     terms = _api.get_terms()
 
     try:
+        ######################### REMOVE LATER #########################
+        # return '1214'
+        ################################################################
         return terms['term'][0]['code']
     except:
         raise Exception('failed to get current term code')
