@@ -1,4 +1,4 @@
-// listens for submission of search form
+// scrolls to the bottom of id #dest
 let scrollBottom = function (dest) {
     $(dest).animate(
         {
@@ -8,6 +8,7 @@ let scrollBottom = function (dest) {
     );
 };
 
+// scrolls to the top of id #dest
 let resetScroll = function (dest) {
     $(dest).animate(
         {
@@ -17,6 +18,7 @@ let resetScroll = function (dest) {
     );
 };
 
+// listens for submission of search form
 let searchFormListener = function () {
     $("form#search-form").on("submit", function (e) {
         e.preventDefault();
@@ -213,6 +215,7 @@ let dashboardSkip = function () {
     });
 };
 
+// quick-skip to course search
 let searchSkip = function () {
     $("#search-skip").on("click", function (e) {
         e.preventDefault();
