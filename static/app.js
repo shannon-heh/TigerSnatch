@@ -57,7 +57,7 @@ let searchResultListener = function () {
 
         // background: #C0BDBD;
         // add gray background to selected course
-        closest_a.css("background-color", "#EDE9E9");
+        closest_a.css("background-color", "#ffe58a");
         closest_a.addClass("selected-course");
 
         course_link = closest_a.attr("href");
@@ -74,14 +74,14 @@ let searchResultListener = function () {
             $("#right-wrapper").css("filter", "");
             $("#right-wrapper").css("pointer", "");
             $("#right-wrapper").css("pointer-events", "");
-
-            console.log(course_link);
+            focusSearch();
 
             // update URL
             window.history.pushState({ restore: "right", html: res }, "", course_link);
 
             // add listener to new switches & modals
             switchListener();
+            filterFullListener();
             modalCancelListener();
             modalConfirmListener();
         });
@@ -146,6 +146,22 @@ let modalCancelListener = function () {
     });
 };
 
+let focusSearch = function () {
+    $("#search-form-input").focus();
+};
+
+let filterFullListener = function () {
+    $("#filter-full-check").on("click", function (e) {
+        if ($(this).prop("checked")) {
+            console.log("hi");
+            $(".available-section-row").addClass("d-none");
+        } else {
+            $(".available-section-row").removeClass("d-none");
+        }
+        // console.log('hi')
+    });
+};
+
 // listens for user to click back button on page
 let pageBackListener = function () {
     $(window).on("popstate", function () {
@@ -168,9 +184,11 @@ let pageBackListener = function () {
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
 $(document).ready(function () {
+    focusSearch();
     searchFormListener();
     searchResultListener();
     switchListener();
+    filterFullListener();
     modalCancelListener();
     modalConfirmListener();
     pageBackListener();

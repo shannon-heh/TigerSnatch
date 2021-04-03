@@ -38,7 +38,7 @@
             data-courseid="{{course.courseid}}"
             class="search-results-link selected-course"
             href="course?query={{last_query}}&courseid={{course.courseid}}"
-            style="background-color: #EDE9E9"
+            style="background-color: #ffe58a"
             >
         {% else %}
             <a
@@ -48,7 +48,7 @@
             >
         {% endif %}
         <div class="card-body">
-            <div class="search-results-displayname">{{course.displayname}}</div>
+            <strong class="search-results-displayname">{{course.displayname}}</strong>
             <div class="search-results-title">{{course.title}}</div>
         </div>
     </a>
