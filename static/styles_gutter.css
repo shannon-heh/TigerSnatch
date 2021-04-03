@@ -132,6 +132,7 @@ div#course-content {
     margin: 10px;
     margin-right: 0px;
     padding: 30px;
+    padding-top: 15px;
     overflow: auto;
     min-height: 50px;
 }
@@ -285,4 +286,10 @@ input#login-btn:active {
 
 .subnav {
     opacity: 1;
+}
+
+@media (min-width: 992px) {
+    a#dashboard-skip {
+        display: none;
+    }
 }

@@ -1,4 +1,13 @@
 // listens for submission of search form
+let scrollToContent = function () {
+    $("#main").animate(
+        {
+            scrollTop: $("#main")[0].scrollHeight - $("#main")[0].clientHeight,
+        },
+        500
+    );
+};
+
 let searchFormListener = function () {
     $("form#search-form").on("submit", function (e) {
         e.preventDefault();
@@ -35,6 +44,7 @@ let searchFormListener = function () {
             );
             // adds listener to new search results
             searchResultListener();
+            dashboardSkip();
         });
     });
 };
@@ -63,6 +73,8 @@ let searchResultListener = function () {
         course_link = closest_a.attr("href");
         courseid = closest_a.attr("data-courseid");
 
+        scrollToContent();
+
         // get course information
         $.post(`/courseinfo/${courseid}`, function (res) {
             // change search form to /course endpoint
@@ -74,7 +86,7 @@ let searchResultListener = function () {
             $("#right-wrapper").css("filter", "");
             $("#right-wrapper").css("pointer", "");
             $("#right-wrapper").css("pointer-events", "");
-            focusSearch();
+            // focusSearch();
 
             // update URL
             window.history.pushState({ restore: "right", html: res }, "", course_link);
@@ -153,12 +165,10 @@ let focusSearch = function () {
 let filterFullListener = function () {
     $("#filter-full-check").on("click", function (e) {
         if ($(this).prop("checked")) {
-            console.log("hi");
             $(".available-section-row").addClass("d-none");
         } else {
             $(".available-section-row").removeClass("d-none");
         }
-        // console.log('hi')
     });
 };
 
@@ -181,6 +191,18 @@ let pageBackListener = function () {
     });
 };
 
+let dashboardSkip = function () {
+    $("#dashboard-skip").on("click", function (e) {
+        e.preventDefault();
+        $("#main").animate(
+            {
+                scrollTop: $("#main")[0].scrollHeight - $("#main")[0].clientHeight,
+            },
+            500
+        );
+    });
+};
+
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
 $(document).ready(function () {
@@ -192,4 +214,5 @@ $(document).ready(function () {
     modalCancelListener();
     modalConfirmListener();
     pageBackListener();
+    dashboardSkip();
 });
