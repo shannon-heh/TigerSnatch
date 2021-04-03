@@ -22,7 +22,7 @@ let searchFormListener = function () {
         e.preventDefault();
 
         // automatically close the keyboard on iOS
-        document.activeElement.blur();
+        $("#search-form-input").blur();
 
         // get serach query
         query = $("#search-form-input").prop("value");
