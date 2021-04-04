@@ -61,7 +61,7 @@ def dashboard():
 
     _db = Database()
     netid = _CAS.authenticate()
-    print('user', netid.rstrip(), 'used dashboard')
+    print('user', netid.rstrip(), 'viewed dashboard')
 
     data = _db.get_dashboard_data(netid)
     email = _db.get_user(netid)['email']
@@ -134,8 +134,6 @@ def get_course():
 
     courseid = request.args.get('courseid')
     query = request.args.get('query')
-
-    print('user', netid.rstrip(), 'accessed courseid', courseid)
 
     if query is None:
         query = ""
