@@ -49,6 +49,8 @@ def login():
     if not _db.is_user_created(netid):
         _db.create_user(netid)
 
+    print('user', netid, 'logged in')
+
     return redirect(url_for('dashboard'))
 
 
@@ -59,6 +61,7 @@ def dashboard():
 
     _db = Database()
     netid = _CAS.authenticate()
+    print('user', netid, 'logged in')
 
     data = _db.get_dashboard_data(netid)
     email = _db.get_user(netid)['email']
@@ -131,6 +134,8 @@ def get_course():
 
     courseid = request.args.get('courseid')
     query = request.args.get('query')
+
+    print('user', netid, 'accessed courseid', courseid)
 
     if query is None:
         query = ""
