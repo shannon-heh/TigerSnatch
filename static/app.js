@@ -1,3 +1,47 @@
+const toastAdded = $(
+    $.parseHTML(`
+<div
+    id="toast-added"
+    class="toast align-items-center text-white bg-success border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+>
+    <div class="d-flex">
+        <div class="toast-body">Successfully added to waitlist!</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+const toastRemoved = $(
+    $.parseHTML(`
+<div
+    id="toast-removed"
+    class="toast align-items-center text-white bg-warning border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+>
+    <div class="d-flex">
+        <div class="toast-body">Successfully removed from waitlist!</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
 // scrolls to the bottom of id #dest
 let scrollBottom = function (dest) {
     $(dest).animate(
@@ -115,6 +159,8 @@ let searchResultListener = function () {
     });
 };
 
+i = 0; // dummy variable used for toast ids
+
 // listens for toggle of waitlist notification switch
 let switchListener = function () {
     $("input.waitlist-switch").change(function (e) {
@@ -130,13 +176,16 @@ let switchListener = function () {
             $.post(`/add_to_waitlist/${classid}`, function (res) {
                 // checks that user successfully added to waitlist on back-end
                 if (!res["isSuccess"]) {
-                    console.log(`Failed to add to waitlist for class ${classid}`);
+                    // console.log(`Failed to add to waitlist for class ${classid}`);
                     return;
                 }
                 $(switchid).attr("checked", true);
                 $(switchid).attr("data-bs-toggle", "modal");
                 $(switchid).attr("data-bs-target", "#confirm-remove-waitlist");
-                console.log(`Successfully added to waitlist for class ${classid}`);
+
+                $(".toast-container").prepend(toastAdded.clone().attr("id", "toast-added-" + ++i));
+                $("#toast-added-" + i).toast("show");
+                // console.log(`Successfully added to waitlist for class ${classid}`);
             });
         }
     });
@@ -151,7 +200,7 @@ let modalConfirmListener = function () {
         $.post(`/remove_from_waitlist/${classid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
-                console.log(`Failed to remove from waitlist for class ${classid}`);
+                // console.log(`Failed to remove from waitlist for class ${classid}`);
                 return;
             }
             $(`${switchid}.dashboard-switch`).closest("tr.dashboard-course-row").remove();
@@ -159,7 +208,9 @@ let modalConfirmListener = function () {
             $(switchid).removeAttr("data-bs-toggle");
             $(switchid).removeAttr("data-bs-target");
 
-            console.log(`Successfully removed from waitlist for class ${classid}`);
+            $(".toast-container").prepend(toastRemoved.clone().attr("id", "toast-removed-" + ++i));
+            $("#toast-removed-" + i).toast("show");
+            // console.log(`Successfully removed from waitlist for class ${classid}`);
         });
     });
 };
@@ -228,7 +279,6 @@ let initTooltipsToasts = function () {
     // let toastList = toastElList.map(function (toastEl) {
     //     return new bootstrap.Toast(toastEl, "show");
     // });
-    $(".toast").toast("show");
 };
 
 // jQuery 'on' only applies listeners to elements currently on DOM
