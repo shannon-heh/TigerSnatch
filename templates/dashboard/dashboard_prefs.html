@@ -21,7 +21,9 @@
             name="new_email"
             placeholder="{{ email }}"
             pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"
-            title="Change your email address"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="TigerSnatch will notify you at this email when a slot frees up!"
         />
         <button class="btn btn-warning" type="submit">Change</button>
     </div>

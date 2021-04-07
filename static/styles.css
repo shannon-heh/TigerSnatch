@@ -306,3 +306,7 @@ input#login-btn:active {
         display: none;
     }
 }
+
+.tooltip-inner {
+    max-width: 250px !important;
+}

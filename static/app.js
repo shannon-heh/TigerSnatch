@@ -101,7 +101,6 @@ let searchResultListener = function () {
             $("#right-wrapper").css("filter", "");
             $("#right-wrapper").css("pointer", "");
             $("#right-wrapper").css("pointer-events", "");
-            // focusSearch();
 
             // update URL
             window.history.pushState({ restore: "right", html: res }, "", course_link);
@@ -174,10 +173,6 @@ let modalCancelListener = function () {
     });
 };
 
-let focusSearch = function () {
-    $("#search-form-input").focus();
-};
-
 let filterFullListener = function () {
     $("#filter-full-check").on("click", function (e) {
         if ($(this).prop("checked")) {
@@ -223,10 +218,22 @@ let searchSkip = function () {
     });
 };
 
+// initialize all tooltips
+let initTooltipsToasts = function () {
+    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+    // let toastElList = [].slice.call(document.querySelectorAll(".toast"));
+    // let toastList = toastElList.map(function (toastEl) {
+    //     return new bootstrap.Toast(toastEl, "show");
+    // });
+    $(".toast").toast("show");
+};
+
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
 $(document).ready(function () {
-    focusSearch();
     searchFormListener();
     searchResultListener();
     switchListener();
@@ -236,4 +243,5 @@ $(document).ready(function () {
     pageBackListener();
     dashboardSkip();
     searchSkip();
+    initTooltipsToasts();
 });
