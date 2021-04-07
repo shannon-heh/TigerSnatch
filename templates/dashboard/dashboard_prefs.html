@@ -1,6 +1,6 @@
-<div id="contact-preferences-header" class="fs-5 pb-3">Contact Preferences</div>
+<div id="contact-preferences-header" class="fs-5 pb-1">Contact Preferences</div>
 <form id="new-email" action="/dashboard" method="post">
-    <div class="input-group mb-3">
+    <div class="input-group mb-2">
         <div class="input-group-text">
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -17,7 +17,7 @@
         </div>
 
         <input
-            class="form-control"
+            class="form-control form-control-md"
             name="new_email"
             placeholder="{{ email }}"
             pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"
@@ -28,7 +28,7 @@
 </form>
 
 <form id="new-phone">
-    <div class="input-group mt-2">
+    <div class="input-group">
         <div class="input-group-text">
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -46,7 +46,7 @@
         </div>
 
         <input
-            class="form-control"
+            class="form-control form-control-md"
             name="new_phone"
             placeholder="Texts coming soon!"
             pattern="^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$"

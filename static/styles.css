@@ -10,7 +10,7 @@
     --color-yellow: #ffe58a;
     --color-green: #51a451;
     --color-blue: #e3f3ff8c;
-    --color-orange: #e87722;
+    --color-orange: #e87822e7;
 }
 
 .vsc-initialized,
@@ -35,7 +35,7 @@ div.row.align-items-start {
 
 .navbar#nav {
     background-color: var(--color-yellow);
-    height: 4.2rem;
+    height: 4rem;
 }
 
 ul.navbar-nav {
@@ -44,12 +44,6 @@ ul.navbar-nav {
 
 .navbar-brand#nav-logo {
     letter-spacing: 0.1em;
-}
-
-@media (max-width: 991.98px) {
-    div.container-fluid#nav-container {
-        margin-top: -5px;
-    }
 }
 
 .form-check-input:checked {
@@ -70,7 +64,8 @@ div#search-results {
     overflow: scroll;
 }
 
-td {
+td,
+thead {
     white-space: nowrap !important;
 }
 
@@ -87,8 +82,9 @@ div.search-results-displayname {
 
 div#search-wrapper {
     background: var(--color-blue);
-    padding: 1rem;
+    padding: 10px;
     padding-top: 30px;
+    padding-bottom: 0px;
     height: 100%;
     overflow: scroll;
 }
@@ -124,6 +120,7 @@ div#course-header {
     font-weight: 500;
     margin-left: 10px;
     margin-right: 0px;
+    border-radius: 10px;
 }
 
 div#dashboard-content,
@@ -131,10 +128,14 @@ div#course-content {
     background: var(--color-blue);
     margin: 10px;
     margin-right: 0px;
-    padding: 30px;
-    padding-top: 15px;
+    padding: 20px;
     overflow: auto;
     min-height: 50px;
+    border-radius: 10px;
+}
+
+div#course-content {
+    padding-top: 10px;
 }
 
 div#dashboard-table,
@@ -159,7 +160,7 @@ div#dashboard-guide,
 div#course-mss,
 div#course-guide {
     background: white;
-    margin-top: 30px;
+    margin-top: 20px;
     border-radius: 10px;
 }
 
@@ -180,12 +181,12 @@ div#course-guide {
 @media (min-width: 1200px) {
     div#dashboard-prefs,
     div#course-mss {
-        margin-right: 15px;
+        margin-right: 10px;
     }
 
     div#dashboard-guide,
     div#course-guide {
-        margin-left: 15px;
+        margin-left: 10px;
     }
 }
 
@@ -209,7 +210,7 @@ body#error-container {
 }
 
 form#login-btn-form {
-    padding-top: 125px;
+    padding-top: 75px;
 }
 
 div#landing-auth-req {
@@ -251,7 +252,7 @@ p#landing-bottom-text {
 }
 
 a.search-results-link {
-    border-radius: 0.25em;
+    border-radius: 10px;
 }
 
 a.search-results-link:hover {
@@ -263,6 +264,10 @@ div.search-results-card:hover {
     transition: transform 0.3s;
 }
 
+.card {
+    border: none;
+}
+
 a.dashboard-course-link:hover {
     color: black;
     text-decoration: underline;
@@ -272,6 +277,13 @@ input#login-btn {
     background-color: var(--color-orange);
     color: white;
     font-weight: 500;
+}
+
+@media (max-width: 991.98px) {
+    button#login-btn,
+    button#logout-btn {
+        margin-bottom: 10px;
+    }
 }
 
 input#login-btn:hover {
