@@ -72,6 +72,9 @@ let searchFormListener = function () {
         // automatically close the keyboard on iOS
         $("#search-form-input").blur();
 
+        // close the tooltip if open
+        $("#search-form-input").tooltip("hide");
+
         // get serach query
         query = $("#search-form-input").prop("value");
         // construct new URL
@@ -277,10 +280,6 @@ let initTooltipsToasts = function () {
     let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
-    // let toastElList = [].slice.call(document.querySelectorAll(".toast"));
-    // let toastList = toastElList.map(function (toastEl) {
-    //     return new bootstrap.Toast(toastEl, "show");
-    // });
 };
 
 // jQuery 'on' only applies listeners to elements currently on DOM
