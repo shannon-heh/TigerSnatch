@@ -6,6 +6,7 @@ const toastAdded = $(
     role="alert"
     aria-live="assertive"
     aria-atomic="true"
+    data-bs-delay="3000"
 >
     <div class="d-flex">
         <div class="toast-body">Successfully added to waitlist!</div>
@@ -28,6 +29,7 @@ const toastRemoved = $(
     role="alert"
     aria-live="assertive"
     aria-atomic="true"
+    data-bs-delay="3000"
 >
     <div class="d-flex">
         <div class="toast-body">Successfully removed from waitlist!</div>
