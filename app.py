@@ -57,9 +57,15 @@ def login():
 
 @app.route('/tutorial', methods=['GET'])
 def tutorial():
+    # if redirect_landing():
+    #     return redirect(url_for('landing'))
+    # html = render_template('tutorial.html')
+    # return make_response(html)
     if redirect_landing():
-        return redirect(url_for('landing'))
-    html = render_template('tutorial.html')
+        html = render_template('tutorial.html', loggedin=False)
+        return make_response(html)
+
+    html = render_template('tutorial.html', loggedin=True)
     return make_response(html)
 
 

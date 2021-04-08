@@ -218,7 +218,7 @@ div#landing-auth-req {
 }
 
 strong#landing-tigersnatch-highlight {
-    background-color: #e8782276;
+    background-color: #ff990095;
 }
 
 p#landing-bottom-text {
@@ -332,4 +332,28 @@ input#login-btn:active {
 .tutorial-image {
     width: 60%;
     margin: auto;
+}
+
+@media (max-width: 1398.98px) {
+    .tutorial-image {
+        width: 90%;
+        margin: auto;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .tutorial-image {
+        width: 100%;
+        margin: auto;
+    }
+}
+@media (max-width: 575.98px) {
+    .tutorial-image {
+        width: 100%;
+        margin: auto;
+    }
+}
+
+.img-shadow {
+    box-shadow: 0px 12px 10px #8888888e;
 }
