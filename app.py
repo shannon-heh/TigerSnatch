@@ -153,16 +153,7 @@ def get_course():
 
     course_details, classes_list = pull_course(courseid)
     curr_waitlists = _db.get_user(netid)['waitlists']
-<<<<<<< HEAD
-    print(len(curr_waitlists))
-    # capacity_reached = False
-    # if len(curr_waitlists) >= 5:
-    #     capacity_reached = True
-
-    # print(capacity_reached)
-=======
     num_full = sum(class_data['isFull'] for class_data in classes_list)
->>>>>>> 74e73f1928005b48cb62d7a839ce065b887b5527
 
     # change to check if updateSearch == 'false'
     # if updateSearch is None:
