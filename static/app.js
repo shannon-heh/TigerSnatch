@@ -155,7 +155,8 @@ let searchResultListener = function () {
             // update URL
             window.history.pushState({ restore: "right", html: res }, "", course_link);
 
-            // add listener to new switches & modals
+            // add listener to new switches & modals, and re-initialize
+            // all tooltips and toasts
             switchListener();
             initTooltipsToasts();
             showAllListener();
