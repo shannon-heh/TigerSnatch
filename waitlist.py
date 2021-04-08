@@ -11,20 +11,23 @@ from sys import stderr
 class Waitlist:
 
     # pass-in netid for a user
-    
+
     def __init__(self, netid):
         self._netid = netid
         self._db = Database()
 
     # add user to waitlist for class with given classid
-
+    # status:
+    # 0 - user waitlist limit reached
+    # 1 - can enroll
+    # 2 - some error
     def add_to_waitlist(self, classid):
         try:
-            self._db.add_to_waitlist(self._netid, classid)
-            return True
+            status = self._db.add_to_waitlist(self._netid, classid)
+            return status
         except Exception as e:
             print(e, file=stderr)
-            return False
+            return 2
 
     # remove user from waitlist for class with given classid
 

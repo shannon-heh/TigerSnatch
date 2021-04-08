@@ -173,20 +173,32 @@ let switchListener = function () {
         classid = e.target.getAttribute("data-classid");
 
         $("#confirm-remove-waitlist").attr("data-classid", classid);
+        $("#close-waitlist-modal").attr("data-classid", classid);
 
         switchid = `#switch-${classid}`;
 
         // if user is not on waitlist for this class, then add them
         if (!$(switchid).attr("checked")) {
+            $(switchid).attr("disabled", true)
             $.post(`/add_to_waitlist/${classid}`, function (res) {
                 // checks that user successfully added to waitlist on back-end
-                if (!res["isSuccess"]) {
+                if (res["isSuccess"] === 2) {
                     // console.log(`Failed to add to waitlist for class ${classid}`);
+                    $(switchid).attr("disabled", false)
                     return;
+                }
+                if (res['isSuccess'] === 0) {
+                    console.log('youre full lol')
+                    $('#close-waitlist-modal').modal('show');
+                    $(switchid).attr("checked", false);
+                    $(switchid).prop("checked", false);
+                    $(switchid).attr("disabled", false)
+                    return
                 }
                 $(switchid).attr("checked", true);
                 $(switchid).attr("data-bs-toggle", "modal");
                 $(switchid).attr("data-bs-target", "#confirm-remove-waitlist");
+                $(switchid).attr("disabled", false)
 
                 $(".toast-container").prepend(toastAdded.clone().attr("id", "toast-added-" + ++i));
                 $("#toast-added-" + i).toast("show");
@@ -202,21 +214,25 @@ let modalConfirmListener = function () {
         e.preventDefault();
         classid = $("#confirm-remove-waitlist").attr("data-classid");
         switchid = `#switch-${classid}`;
+        $(switchid).attr("disabled", true)
         $.post(`/remove_from_waitlist/${classid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
                 // console.log(`Failed to remove from waitlist for class ${classid}`);
+                $(switchid).attr("disabled", false)
                 return;
             }
             $(`${switchid}.dashboard-switch`).closest("tr.dashboard-course-row").remove();
             $(switchid).removeAttr("checked");
             $(switchid).removeAttr("data-bs-toggle");
             $(switchid).removeAttr("data-bs-target");
+            $(switchid).attr("disabled", false)
 
             $(".toast-container").prepend(toastRemoved.clone().attr("id", "toast-removed-" + ++i));
             $("#toast-removed-" + i).toast("show");
             // console.log(`Successfully removed from waitlist for class ${classid}`);
         });
+
     });
 };
 
@@ -228,6 +244,15 @@ let modalCancelListener = function () {
         $(`#switch-${classid}`).prop("checked", true);
     });
 };
+
+// listens for "Close" from waitlist warning
+// let modalCloseListener = function () {
+//     $("#waitlist-modal-close").on("click", function (e) {
+//         e.preventDefault();
+//         classid = $("#close-waitlist-modal").attr("data-classid");
+//         $(`#switch-${classid}`).prop("checked", false);
+//     });
+// };
 
 let filterFullListener = function () {
     $("#filter-full-check").on("click", function (e) {
@@ -291,6 +316,7 @@ $(document).ready(function () {
     filterFullListener();
     modalCancelListener();
     modalConfirmListener();
+    // modalCloseListener();
     pageBackListener();
     dashboardSkip();
     searchSkip();
