@@ -248,22 +248,8 @@ let modalCancelListener = function () {
     });
 };
 
-<<<<<<< HEAD
-// listens for "Close" from waitlist warning
-// let modalCloseListener = function () {
-//     $("#waitlist-modal-close").on("click", function (e) {
-//         e.preventDefault();
-//         classid = $("#close-waitlist-modal").attr("data-classid");
-//         $(`#switch-${classid}`).prop("checked", false);
-//     });
-// };
-
-let filterFullListener = function () {
-    $("#filter-full-check").on("click", function (e) {
-=======
 let showAllListener = function () {
     $("#show-all-check").on("click", function (e) {
->>>>>>> 74e73f1928005b48cb62d7a839ce065b887b5527
         if ($(this).prop("checked")) {
             $(".available-section-row").removeClass("d-none");
             $("#no-full-message").addClass("d-none");
