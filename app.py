@@ -48,10 +48,19 @@ def login():
     netid = _CAS.authenticate()
     if not _db.is_user_created(netid):
         _db.create_user(netid)
+        return redirect(url_for('tutorial'))
 
     print('user', netid.rstrip(), 'logged in')
 
     return redirect(url_for('dashboard'))
+
+
+@app.route('/tutorial', methods=['GET'])
+def tutorial():
+    if redirect_landing():
+        return redirect(url_for('landing'))
+    html = render_template('tutorial.html')
+    return make_response(html)
 
 
 @app.route('/dashboard', methods=['GET', 'POST'])
@@ -78,13 +87,12 @@ def dashboard():
         return redirect(url_for('dashboard'))
 
     html = render_template('base.html',
-                           isDashboard=True,
+                           is_dashboard=True,
                            search_res=search_res,
                            last_query=query,
                            username=netid.rstrip(),
                            data=data,
-                           email=email,
-                           dashboard=True)
+                           email=email)
 
     return make_response(html)
 
@@ -116,10 +124,14 @@ def get_course_info(courseid):
 
     course_details, classes_list = pull_course(courseid)
     curr_waitlists = _db.get_user(netid)['waitlists']
+
+    num_full = sum(class_data['isFull'] for class_data in classes_list)
+
     html = render_template('course/course.html',
                            courseid=courseid,
                            course_details=course_details,
                            classes_list=classes_list,
+                           num_full=num_full,
                            curr_waitlists=curr_waitlists)
     return make_response(html)
 
@@ -141,23 +153,28 @@ def get_course():
 
     course_details, classes_list = pull_course(courseid)
     curr_waitlists = _db.get_user(netid)['waitlists']
+<<<<<<< HEAD
     print(len(curr_waitlists))
     # capacity_reached = False
     # if len(curr_waitlists) >= 5:
     #     capacity_reached = True
 
     # print(capacity_reached)
+=======
+    num_full = sum(class_data['isFull'] for class_data in classes_list)
+>>>>>>> 74e73f1928005b48cb62d7a839ce065b887b5527
 
     # change to check if updateSearch == 'false'
     # if updateSearch is None:
     html = render_template('base.html',
-                           isDashboard=False,
+                           is_dashboard=False,
                            netid=netid,
                            courseid=courseid,
                            course_details=course_details,
                            classes_list=classes_list,
                            curr_waitlists=curr_waitlists,
                            search_res=search_res,
+                           num_full=num_full,
                            last_query=query)
 
     return make_response(html)
