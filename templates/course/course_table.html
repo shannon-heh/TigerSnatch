@@ -9,7 +9,7 @@
 </div>
 {% else %}
 <div class="table-responsive-xl">
-    <table class="table table-hover table-striped">
+    <table class="table table-hover">
         <thead>
             <tr>
                 <th scope="col">Section</th>
@@ -42,12 +42,22 @@
                 {% include 'course/course_table_row.html' %}
             </tr>
             {% else %}
-            <tr class="available-section-row">
+            <tr class="available-section-row d-none">
                 {% include 'course/course_table_row.html' %}
             </tr>
             {% endif %} {% endfor %}
         </tbody>
     </table>
+    {% if num_full == 0 %}
+        <div id="no-full-message" class="container-fluid">
+            <div class="row text-center">
+                <p class="fs-4 px-0 py-5">
+                    This course has no full sections. </br>
+                    Search for another course!
+                </p>
+            </div>
+        </div>
+    {% endif %}
 </div>
 <br />
 

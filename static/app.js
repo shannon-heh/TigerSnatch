@@ -119,8 +119,8 @@ let searchResultListener = function () {
         e.preventDefault();
 
         // blur frame while loadidng
-        $("#right-wrapper").css("pointer-events", "none");
-        $("#right-wrapper").css("pointer", "wait");
+        $("*").css("pointer-events", "none");
+        $("*").css("cursor", "wait");
         $("#right-wrapper").css("filter", "blur(2px)");
 
         // remove gray background from currently selected course entry
@@ -145,18 +145,20 @@ let searchResultListener = function () {
             $("form#search-form").attr("action", "/course");
             $("input#search-form-courseid").attr("value", courseid);
             $("#right-wrapper").html(res);
+            restripeTables();
 
             // unblur frame
             $("#right-wrapper").css("filter", "");
-            $("#right-wrapper").css("pointer", "");
-            $("#right-wrapper").css("pointer-events", "");
+            $("*").css("cursor", "");
+            $("*").css("pointer-events", "");
 
             // update URL
             window.history.pushState({ restore: "right", html: res }, "", course_link);
 
             // add listener to new switches & modals
             switchListener();
-            filterFullListener();
+            initTooltipsToasts();
+            showAllListener();
             modalCancelListener();
             modalConfirmListener();
             searchSkip();
@@ -229,12 +231,14 @@ let modalCancelListener = function () {
     });
 };
 
-let filterFullListener = function () {
-    $("#filter-full-check").on("click", function (e) {
+let showAllListener = function () {
+    $("#show-all-check").on("click", function (e) {
         if ($(this).prop("checked")) {
-            $(".available-section-row").addClass("d-none");
-        } else {
             $(".available-section-row").removeClass("d-none");
+            $("#no-full-message").addClass("d-none");
+        } else {
+            $(".available-section-row").addClass("d-none");
+            $("#no-full-message").removeClass("d-none");
         }
     });
 };
@@ -282,17 +286,30 @@ let initTooltipsToasts = function () {
     });
 };
 
+let restripeTables = function() {
+    // $("tr:visible").each( function(index, obj) {
+    //     if (index % 2) {
+    //         $(this).addClass('visible-odd').removeClass('visible-even');
+    //     } else {
+    //         $(this).addClass('visible-even').removeClass('visible-odd');
+    //     }
+    // });
+
+    // $("table").removeAttr('--bs-table-striped-bg')
+}
+
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
 $(document).ready(function () {
     searchFormListener();
     searchResultListener();
     switchListener();
-    filterFullListener();
+    showAllListener();
     modalCancelListener();
     modalConfirmListener();
     pageBackListener();
     dashboardSkip();
     searchSkip();
     initTooltipsToasts();
+    restripeTables();
 });

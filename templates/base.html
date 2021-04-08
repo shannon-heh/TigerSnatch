@@ -9,7 +9,7 @@
             <div class="row align-items-start">
                 <div id="search-wrapper" class="col-lg-4">{% include 'search/search.html' %}</div>
                 <div id="right-wrapper" class="col-lg-8 px-0">
-                    {% if isDashboard %} {% include 'dashboard/dashboard.html' %} {% else %} {%
+                    {% if is_dashboard %} {% include 'dashboard/dashboard.html' %} {% else %} {%
                     include 'course/course.html' %} {% endif %}
                 </div>
             </div>

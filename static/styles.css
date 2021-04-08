@@ -310,3 +310,26 @@ input#login-btn:active {
 .tooltip-inner {
     max-width: 250px !important;
 }
+
+.table-striped tbody tr.visible-odd {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table-striped tbody tr.visible-even {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.table-hover tbody tr.visible-even:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.p-text {
+    text-align: center;
+    width: 50%;
+    margin: auto;
+}
+
+.tutorial-image {
+    width: 60%;
+    margin: auto;
+}
