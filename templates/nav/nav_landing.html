@@ -1,15 +1,17 @@
 <nav id="nav" class="navbar navbar-expand-lg navbar-light sticky-top">
     <div id="nav-container" class="container-fluid">
-        <a id="nav-logo" class="navbar-brand fs-2" href="/dashboard">
+        <a id="nav-logo" class="navbar-brand fs-3" href="/dashboard">
             <img
                 src="/static/logo-alt.svg"
-                width="50"
-                height="50"
+                width="40"
+                height="40"
                 alt="TigerSnatch logo"
                 class="d-inline-block align-text-center mx-2"
             />
             TigerSnatch
-            <span class="badge bg-warning text-dark font-monospace px-2 py-0 ms-1 fs-3">BETA</span>
+            <span class="badge bg-warning text-dark font-monospace pe-1 ps-2 py-0 ms-1 fs-4"
+                >ALPHA</span
+            >
         </a>
         <button
             class="navbar-toggler"
@@ -36,7 +38,7 @@
                 <form class="d-flex mx-4" action="/login" method="get">
                     <button
                         id="login-btn"
-                        class="btn btn-warning text-dark fs-5 px-4 fw-light mb-1"
+                        class="btn btn-warning text-dark fs-5 px-4 fw-light"
                         type="submit"
                     >
                         Login
@@ -50,7 +52,10 @@
 <nav id="nav" class="navbar navbar-expand-lg navbar-light fixed-bottom">
     <div class="container-fluid">
         <p id="landing-bottom-text" class="mb-0">
-            TigerSnatch is a COS333 project by sheh@, ntyp@, and zishuoz@.
+            TigerSnatch is a COS333 project by
+            <span class="badge bg-warning text-dark font-monospace px-1 py-1">sheh@</span>,
+            <span class="badge bg-warning text-dark font-monospace px-1 py-1">ntyp@</span>, and
+            <span class="badge bg-warning text-dark font-monospace px-1 py-1">zishuoz@</span>.
         </p>
     </div>
 </nav>

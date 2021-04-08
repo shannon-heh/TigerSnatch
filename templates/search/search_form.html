@@ -4,9 +4,17 @@
         class="form-control form-control-lg"
         type="text"
         name="query"
-        placeholder="e.g. COS333"
-        title="Search by course name or number!"
+        placeholder="Search for a course"
         value="{{ last_query }}"
+        pattern="^[a-zA-Z0-9-: ]+$"
+        maxlength="150"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        data-bs-trigger="hover"
+        title="Search by course code, crosslisting, or title!"
+        autofocus
+        autocomplete="off"
+        autocapitalize="off"
     />
     <button class="btn btn-warning px-4" type="submit">
         <svg

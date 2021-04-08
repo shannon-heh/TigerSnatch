@@ -4,15 +4,27 @@
 <title>TigerSnatch | {{course_details.displayname}}</title>
 {% endif %}
 
-<div class='d-flex flex-column h-100'>
-    <div id="course-header" class="row" style='height:20%'>{% include 'course/course_header.html' %}</div>
-    <div id="course-content" class="d-flex flex-column flex-grow-1" style='height:80%'>
-        <div id="course-table" class="row px-4 py-3 flex-shrink-1">{% include 'course/course_table.html' %}</div>
+<div class="d-flex flex-column h-100">
+    <div id="course-header">{% include 'course/course_header.html' %}</div>
+    <div id="course-content" class="d-flex flex-column flex-grow-1">
+        <div id="filter-full-wrapper" class="form-check fw-bold">
+            <input class="form-check-input" type="checkbox" value="" id="filter-full-check" />
+            <label class="form-check-label" for="filter-full-check">
+                Show only full sections
+            </label>
+        </div>
+        <div id="course-table" class="row px-3 py-2 flex-grow-1">
+            {% include 'course/course_table.html' %}
+        </div>
         <div id="course-other" class="row px-0">
-            <div id="course-mss" class="col-xl px-4 py-3">{% include 'course/course_mss.html' %}</div>
-            <div id="course-guide" class="col-xl px-4 py-3">
+            <div id="course-mss" class="col-xl px-3 py-2 flex-grow-1">
+                {% include 'course/course_mss.html' %}
+            </div>
+            <div id="course-guide" class="col-xl px-3 pt-2 flex-grow-1">
                 {% include 'course/course_guide.html' %}
             </div>
         </div>
     </div>
 </div>
+
+{% include 'utils/waitlist_toast.html' %}

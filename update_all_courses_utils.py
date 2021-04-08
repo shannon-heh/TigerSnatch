@@ -86,15 +86,23 @@ def process_dept_code(args):
 
                     classid = class_['class_number']
 
+                    # in the (very) occurrence that a class does not have any meetings...
+                    start_time_ = 'Unknown' if 'start_time' not in meetings else meetings[
+                        'start_time']
+                    end_time_ = 'Unknown' if 'end_time' not in meetings else meetings[
+                        'end_time']
+                    days_ = ['Unknown'] if len(
+                        meetings['days']) == 0 else meetings['days']
+
                     # new_class will contain a single lecture, precept,
                     # etc. for a given course
                     new_class = {
                         'classid': classid,
                         'section': section,
                         'type_name': class_['type_name'],
-                        'start_time': meetings['start_time'],
-                        'end_time': meetings['end_time'],
-                        'days': ' '.join(meetings['days'])
+                        'start_time': start_time_,
+                        'end_time': end_time_,
+                        'days': ' '.join(days_)
                     }
 
                     # new_class_enrollment will contain enrollment and
@@ -127,15 +135,15 @@ def process_dept_code(args):
 
                     # randomly add waitlists for testing purposes
                     rand = random()
-                    if dummy_waitlists and rand < 0.0025:
+                    if dummy_waitlists and rand < 0.005:
                         print('> inserting', classid, 'into waitlists')
                         db.add_to_waitlist(
                             'sheh', classid, disable_checks=True)
-                    elif dummy_waitlists and 0.0025 <= rand < 0.005:
+                    elif dummy_waitlists and 0.005 <= rand < 0.01:
                         print('> inserting', classid, 'into waitlists')
                         db.add_to_waitlist(
                             'ntyp', classid, disable_checks=True)
-                    if dummy_waitlists and 0.005 <= rand < 0.0075:
+                    elif dummy_waitlists and 0.01 <= rand < 0.015:
                         print('> inserting', classid, 'into waitlists')
                         db.add_to_waitlist(
                             'zishuoz', classid, disable_checks=True)
@@ -151,4 +159,5 @@ def process_dept_code(args):
         print()
 
     except Exception as e:
-        print(e, file=stderr)
+        print(
+            f'failed on code {args[0]} with exception message {e}', file=stderr)
