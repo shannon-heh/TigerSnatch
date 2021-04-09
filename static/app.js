@@ -145,7 +145,6 @@ let searchResultListener = function () {
             $("form#search-form").attr("action", "/course");
             $("input#search-form-courseid").attr("value", courseid);
             $("#right-wrapper").html(res);
-            restripeTables();
 
             // unblur frame
             $("#right-wrapper").css("filter", "");
