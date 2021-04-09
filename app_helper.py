@@ -28,8 +28,8 @@ def pull_course(courseid):
 
     # updates course info if it has been 2 minutes since last update
     Monitor().pull_course_updates(courseid)
-
-    course = Database().get_course_with_enrollment(courseid)
+    db = Database()
+    course = db.get_course_with_enrollment(courseid)
 
     # split course data into basic course details, and list of classes
     # with enrollmemnt data
@@ -37,7 +37,14 @@ def pull_course(courseid):
     classes_list = []
     for key in course.keys():
         if key.startswith('class_'):
-            classes_list.append(course[key])
+            curr_class = course[key]
+            try:
+                waitlist_count = db.get_class_waitlist_size(
+                    curr_class['classid'])
+            except Exception as e:
+                waitlist_count = 0
+            curr_class['wl_size'] = waitlist_count
+            classes_list.append(curr_class)
         else:
             course_details[key] = course[key]
 

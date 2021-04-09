@@ -11,13 +11,13 @@
 
 {% else %}
 
-<div class="table-responsive-xl">
-    <table class="table table-hover">
-        <thead>
+<!-- <div class="table-responsive-xl"> -->
+    <table class="table table-hover mt-2">
+        <thead class='table-white'>
             <tr>
-                <th scope="col">Course</th>
-                <th scope="col">Section</th>
-                <th scope="col">
+                <th class='sticky-top' scope="col">Course</th>
+                <th class='sticky-top' scope="col">Section</th>
+                <th class='sticky-top' scope="col">
                     Notify Me
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -35,9 +35,9 @@
                         />
                     </svg>
                 </th>
-                <th scope="col">Waitlist Position</th>
-                <th scope="col">Time</th>
-                <th scope="col">Days</th>
+                <th class='sticky-top' scope="col">Waitlist Position</th>
+                <th class='sticky-top' scope="col">Time</th>
+                <th class='sticky-top' scope="col">Days</th>
             </tr>
         </thead>
         <tbody>
@@ -75,5 +75,5 @@
             {%endfor%}
         </tbody>
     </table>
-</div>
+<!-- </div> -->
 {% endif %} {% include 'utils/waitlist_modal.html' %}
