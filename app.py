@@ -9,7 +9,7 @@ from database import Database
 from CASClient import CASClient
 from config import APP_SECRET_KEY
 from waitlist import Waitlist
-from app_helper import do_search, pull_course
+from app_helper import do_search, pull_course, validate_query
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
@@ -149,6 +149,7 @@ def get_course():
 
     if query is None:
         query = ""
+
     search_res = do_search(query)
 
     course_details, classes_list = pull_course(courseid)

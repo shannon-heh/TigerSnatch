@@ -5,6 +5,16 @@
 
 from database import Database
 from monitor import Monitor
+import re
+
+
+MAX_QUERY_LENGTH = 150
+
+
+def validate_query(query):
+    if len(query) > MAX_QUERY_LENGTH:
+        return False
+    return re.match('^[^0-9a-zA-Z ]+$', query)
 
 
 # searches for course based on user query
