@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     process_dept_code_args = []
     for n, code in enumerate(DEPT_CODES):
-        process_dept_code([code, n, current_term_code, True, hard_reset])
+        process_dept_code([code, n, current_term_code, False, hard_reset])
         # the below code is for multiprocessing
         # process_dept_code_args.append(
         #     [code, n, current_term_code, True, hard_reset])
