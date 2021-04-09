@@ -211,11 +211,7 @@ body#error-container {
     background: var(--color-blue);
 }
 
-<<<<<<< HEAD ======= form#login-btn-form {
-    padding-top: 75px;
-}
-
->>>>>>>c3c8bc4317e7d9be83c5527baea6a7d07bed3e51 div#landing-auth-req {
+div#landing-auth-req {
     color: var(--color-orange);
 }
 
