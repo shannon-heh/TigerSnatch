@@ -1,5 +1,4 @@
 <td>{{class.section}}</td>
-<td>{{class.enrollment}} / {{class.capacity}}</td>
 {% if class.isFull %} {% if class.classid in curr_waitlists %}
 <td>
     <div class="form-check form-switch">
@@ -27,7 +26,9 @@
 </td>
 {% endif %} {% else %}
 <td></td>
-{% endif %} {% if class.end_time == "" %}
+{% endif %}
+<td>{{class.enrollment}} / {{class.capacity}}</td>
+{% if class.end_time == "" %}
 <td>{{class.start_time}}</td>
 {% else %}
 <td>{{class.start_time}} - {{class.end_time}}</td>

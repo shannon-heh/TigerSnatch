@@ -55,8 +55,10 @@ ul.navbar-nav {
     margin-left: 0.4em;
 }
 
-.waitlist-switch {
+.form-check-input.waitlist-switch {
     transform: scale(1.4);
+    width: 40px;
+    margin-left: -2.25em;
 }
 
 div#search-results {
@@ -209,10 +211,6 @@ body#error-container {
     background: var(--color-blue);
 }
 
-form#login-btn-form {
-    padding-top: 75px;
-}
-
 div#landing-auth-req {
     color: var(--color-orange);
 }
@@ -228,7 +226,7 @@ p#landing-bottom-text {
 @media (max-width: 575.98px) {
     svg#landing-splash {
         height: 300px;
-        margin-bottom: 100px;
+        margin-bottom: 50px;
     }
     form#login-btn-form {
         padding-top: 20px;
@@ -238,7 +236,7 @@ p#landing-bottom-text {
 @media (min-width: 576px) and (max-width: 1399.98px) {
     svg#landing-splash {
         height: 350px;
-        margin-bottom: 100px;
+        margin-bottom: 50px;
     }
     form#login-btn-form {
         padding-top: 20px;
@@ -248,6 +246,7 @@ p#landing-bottom-text {
 @media (min-width: 1400px) {
     svg#landing-splash {
         height: 550px;
+        margin-bottom: 20px;
     }
 }
 
