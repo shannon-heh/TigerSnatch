@@ -26,8 +26,11 @@
     </div>
 </td>
 {% endif %} {% else %}
-<td></td>
-{% endif %} {% if class.end_time == "" %}
+<!-- <td></td> -->
+{% endif %}
+<td>{{class.wl_size}}</td>
+<!-- <td></td> -->
+{% if class.end_time == "" %}
 <td>{{class.start_time}}</td>
 {% else %}
 <td>{{class.start_time}} - {{class.end_time}}</td>
