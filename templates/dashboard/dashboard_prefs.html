@@ -19,6 +19,7 @@
                 </div>
 
                 <input
+                    id="new-email-input"
                     class="form-control form-control-md"
                     name="new_email"
                     placeholder="{{ email }}"
@@ -26,8 +27,11 @@
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="TigerSnatch will notify you at this email when a slot frees up!"
+                    required
                 />
-                <button class="btn btn-warning" type="submit">Change</button>
+                <button id="new-email-submit-btn" class="btn btn-warning" type="submit">
+                    Change
+                </button>
             </div>
         </form>
     </div>

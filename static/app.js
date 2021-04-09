@@ -302,17 +302,6 @@ let initTooltipsToasts = function () {
     });
 };
 
-let restripeTables = function () {
-    // $("tr:visible").each( function(index, obj) {
-    //     if (index % 2) {
-    //         $(this).addClass('visible-odd').removeClass('visible-even');
-    //     } else {
-    //         $(this).addClass('visible-even').removeClass('visible-odd');
-    //     }
-    // });
-    // $("table").removeAttr('--bs-table-striped-bg')
-};
-
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
 $(document).ready(function () {
@@ -327,5 +316,4 @@ $(document).ready(function () {
     dashboardSkip();
     searchSkip();
     initTooltipsToasts();
-    restripeTables();
 });
