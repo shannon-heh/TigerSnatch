@@ -9,7 +9,7 @@ from database import Database
 from CASClient import CASClient
 from config import APP_SECRET_KEY
 from waitlist import Waitlist
-from app_helper import do_search, pull_course, construct_user_logs
+from app_helper import do_search, pull_course
 from urllib.parse import quote_plus
 
 app = Flask(__name__, template_folder='./templates')
@@ -94,7 +94,7 @@ def dashboard():
         _db.update_user(netid, new_email.strip())
         return redirect(url_for('dashboard'))
 
-    user_logs = construct_user_logs()
+    user_logs = _db.get_user_log(netid)
 
     html = render_template('base.html',
                            is_dashboard=True,

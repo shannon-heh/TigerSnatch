@@ -208,6 +208,11 @@ div#logs-content {
     font-size: 0.9em;
 }
 
+div#logs-content {
+    max-height: 80px;
+    overflow: auto;
+}
+
 div#course-warning {
     font-size: 0.8em;
 }

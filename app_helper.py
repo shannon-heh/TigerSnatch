@@ -59,19 +59,3 @@ def pull_course(courseid):
             course_details[key] = course[key]
 
     return course_details, classes_list
-
-
-# parses through user's logs and constructs formatted strings
-def construct_user_logs(netid):
-    _db = Database()
-    log_strs = _db.get_user_log(netid)
-    user_logs = []
-    for log in log_strs:
-        log_details = log.split(",")
-        time = log_details[0]
-        deptnum = log_details[1]
-        sectionname = log_details[2]
-        n_new_spots = log_details[3]
-        log_str = f"{time}: {n_new_spots} available in {sectionname} of {deptnum}"
-        user_logs.append(log_str)
-    return user_logs
