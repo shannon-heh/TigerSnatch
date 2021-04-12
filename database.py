@@ -6,7 +6,7 @@
 
 from sys import exit, stdout, stderr
 import re
-from config import DB_CONNECTION_STR, COLLECTIONS
+from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -43,6 +43,28 @@ class Database:
 
     def update_current_term_code(self, code):
         self._db.admin.update_one({}, {'$set': {'current_term_code': code}})
+
+    # update user netid's log - string must be formatted:
+    # "datetime,department_number,section_name,new_slots_count"
+
+    def update_user_log(self, netid, entry):
+        if len(entry.split(',')) != 4:
+            raise Exception('invalid log entry format')
+
+        user_info = self.get_user(netid)
+        log = user_info['log']
+
+        log.append(entry)
+        if len(log) > MAX_LOG_LENGTH:
+            log.pop(0)
+
+        self._db.users.update_one({'netid': netid}, {'$set': {'log': log}})
+        print(f'log for user {netid} successfully updated with entry {entry}')
+
+    # gets user netid's log in array-of-strings format
+
+    def get_user_log(self, netid):
+        return self.get_user(netid)['log']
 
     # returns user data given netid
 
@@ -124,7 +146,6 @@ class Database:
             courseid = self._db.enrollments.find_one(
                 {'classid': classid})['courseid']
         except:
-
             raise RuntimeError(f'classid {classid} not found in enrollments')
 
         try:
@@ -189,7 +210,11 @@ class Database:
             return
         netid = netid.rstrip()
         self._db.users.insert_one(
-            {'netid': netid, 'email': f'{netid}@princeton.edu', 'phone': '', 'waitlists': []})
+            {'netid': netid,
+             'email': f'{netid}@princeton.edu',
+             'phone': '',
+             'waitlists': [],
+             'log': []})
         print(f'successfully created user {netid}')
 
     # adds user of given netid to waitlist for class classid
@@ -222,7 +247,7 @@ class Database:
         user_info = self.get_user(netid)
         user_waitlists = user_info['waitlists']
         try:
-            if len(user_waitlists) >= 7:
+            if len(user_waitlists) >= MAX_WAITLIST_SIZE:
                 return 0
         except Exception as e:
             print(e)
@@ -512,7 +537,8 @@ if __name__ == '__main__':
     db = Database()
     # print(db)
     # db.reset_db()
-    db.update_current_term_code('1222')
-    print(db.get_current_term_code())
+    db.update_user_log('ntyp', '2,3,4,5')
+    # db.update_current_term_code('1222')
+    # print(db.get_current_term_code())
     # print(db.classid_to_course_deptnum('41974'))
     # print(list(db.get_waited_classes()))
