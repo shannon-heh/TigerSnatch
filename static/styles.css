@@ -160,7 +160,8 @@ div#course-other {
 div#dashboard-prefs,
 div#dashboard-guide,
 div#course-mss,
-div#course-guide {
+div#course-guide,
+div#course-links {
     background: white;
     margin-top: 20px;
     border-radius: 10px;
@@ -194,11 +195,13 @@ div#course-guide {
 
 div#contact-preferences-header,
 div#guide-header,
-div#mss-header {
+div#mss-header,
+div#links-header {
     font-weight: 500;
 }
 
-div#guide-content {
+div#guide-content,
+div#links-content {
     font-size: 0.9em;
 }
 
@@ -297,6 +300,10 @@ input#login-btn:active {
 
 .subnav {
     opacity: 1;
+}
+
+.course-quick-link {
+    text-decoration: underline;
 }
 
 @media (min-width: 992px) {

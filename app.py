@@ -137,12 +137,14 @@ def get_course_info(courseid):
     curr_waitlists = _db.get_user(netid)['waitlists']
 
     num_full = sum(class_data['isFull'] for class_data in classes_list)
+    term_code = _db.get_current_term_code()
 
     html = render_template('course/course.html',
                            courseid=courseid,
                            course_details=course_details,
                            classes_list=classes_list,
                            num_full=num_full,
+                           term_code=term_code,
                            curr_waitlists=curr_waitlists)
     return make_response(html)
 
@@ -166,6 +168,7 @@ def get_course():
     course_details, classes_list = pull_course(courseid)
     curr_waitlists = _db.get_user(netid)['waitlists']
     num_full = sum(class_data['isFull'] for class_data in classes_list)
+    term_code = _db.get_current_term_code()
 
     # change to check if updateSearch == 'false'
     # if updateSearch is None:
@@ -178,6 +181,7 @@ def get_course():
                            curr_waitlists=curr_waitlists,
                            search_res=search_res,
                            num_full=num_full,
+                           term_code=term_code,
                            last_query=quote_plus(query))
 
     return make_response(html)
