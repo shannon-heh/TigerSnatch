@@ -46,10 +46,11 @@ class Notify:
         msg.add_alternative(f"""\
         <html>
         <head></head>
-        <body>
-            <p>Dear srijam,</p>
+        <body style='font-size:1.3em'>
+            <p>Dear {self._netid},</p>
             <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> has a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.</p>
             <p>Please head over to <a href="https://phubprod.princeton.edu/psp/phubprod/?cmd=start">Tigerhub</a> to register for your course!</p>
+            <p>If you wish to re-add yourself to this waitlist, please go to <a href="https://tigersnatch.herokuapp.com">TigerSnatch</a>.</p>
             <p>Best,<br>Tigersnatch Team</p>
         </body>
         </html>
@@ -103,5 +104,5 @@ class Notify:
 
 
 if __name__ == '__main__':
-    n = Notify('41283')
+    n = Notify('43474')
     n.send_email_html()

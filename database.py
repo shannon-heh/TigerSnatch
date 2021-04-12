@@ -211,6 +211,12 @@ class Database:
         # add classid to user's waitlist
         user_info = self.get_user(netid)
         user_waitlists = user_info['waitlists']
+        try:
+            if len(user_waitlists) >= 7:
+                return 0
+        except Exception as e:
+            print(e)
+
         user_waitlists.append(classid)
         self._db.users.update_one({'netid': netid}, {
             '$set': {'waitlists': user_waitlists}})
@@ -228,6 +234,7 @@ class Database:
             '$set': {'waitlist': class_waitlist}})
 
         print(f'user {netid} successfully added to waitlist for class {classid}')
+        return 1
 
     # removes user of given netid to waitlist for class classid
     # if waitlist for class is empty now, delete entry from waitlists collection

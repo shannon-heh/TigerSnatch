@@ -6,10 +6,14 @@
     </head>
     <body id="landing-container">
         {% include 'nav/nav_landing.html' %}
-        <div class="container-fluid" style="padding-bottom: 57px">
-            <div class="row">
-                <div class="col-xxl-4 px-5">{% include 'landing/landing_left.html' %}</div>
-                <div class="col-xxl-8">{% include 'landing/landing_right.html' %}</div>
+        <div class="d-flex flex-column" style="height: calc(100vh - 8rem)">
+            <div class="px-3 py-2 row flex-grow-1">
+                <div class="col-xxl justify-content-center align-self-center">
+                    {% include 'landing/landing_left.html' %}
+                </div>
+                <div class="col-xxl justify-content-center align-self-center">
+                    {% include 'landing/landing_right.html' %}
+                </div>
             </div>
         </div>
 
