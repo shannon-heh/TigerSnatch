@@ -122,7 +122,6 @@ def about():
 @app.route('/searchresults/<query>', methods=['POST'])
 def get_search_results(query=''):
     res = do_search(query)
-    print('last query', quote_plus(query))
     html = render_template('search/search_results.html',
                            last_query=quote_plus(query),
                            search_res=res)

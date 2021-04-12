@@ -102,7 +102,9 @@ def process_dept_code(args):
                         'type_name': class_['type_name'],
                         'start_time': start_time_,
                         'end_time': end_time_,
-                        'days': ' '.join(days_)
+                        'days': ' '.join(days_),
+                        'enrollment': int(class_['enrollment']),
+                        'capacity': int(class_['capacity'])
                     }
 
                     # new_class_enrollment will contain enrollment and
