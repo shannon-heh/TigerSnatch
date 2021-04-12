@@ -9,6 +9,7 @@ from email.message import EmailMessage
 from email.utils import make_msgid
 from sys import stderr
 from config import TS_EMAIL, TS_PASSWORD
+from datetime import datetime
 
 
 class Notify:
@@ -16,17 +17,21 @@ class Notify:
     # to format and send an email to the first student on the waitlist
     # for that classid
 
-    def __init__(self, classid, i, swap=False):
+    def __init__(self, classid, i, n_new_slots, swap=False):
         db = Database()
         self._classid = classid
         try:
-            self._coursename, self._sectionname = db.classid_to_classinfo(
+            self._deptnum, self._title, self._sectionname = db.classid_to_classinfo(
                 classid)
+            self._coursename = f"{self._deptnum}: {self._title}"
             self._netid = db.get_class_waitlist(classid)['waitlist'][i]
         except:
             raise Exception(
                 f'waitlist element {i} for class {classid} does not exist; user probably removed themself')
         self._email = db.get_user(self._netid)['email']
+
+        user_log = f"{datetime.now().strftime('%Y-%m-%d %H:%M')},{self._deptnum},{self._sectionname},{n_new_slots}"
+        db.update_user_log(self._netid, user_log)
 
         self._swap = swap
         if swap:

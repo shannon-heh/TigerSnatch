@@ -29,6 +29,8 @@ if __name__ == '__main__':
 
     total = 0
     for classid, n_new_slots in new_slots.items():
+        if n_new_slots == 0:
+            continue
         try:
             # n_notifs = min(db.get_class_waitlist_size(classid), n_new_slots)
             n_notifs = db.get_class_waitlist_size(classid)
@@ -38,7 +40,7 @@ if __name__ == '__main__':
 
         for i in range(n_notifs):
             try:
-                notify = Notify(classid, i)
+                notify = Notify(classid, i, n_new_slots)
 
                 print(notify)
                 print('sending email to', notify.get_netid(), end='...')

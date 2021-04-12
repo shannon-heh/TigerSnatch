@@ -159,6 +159,7 @@ div#course-other {
 
 div#dashboard-prefs,
 div#dashboard-guide,
+div#dashboard-logs,
 div#course-mss,
 div#course-guide,
 div#course-links {
@@ -196,12 +197,14 @@ div#course-links {
 div#contact-preferences-header,
 div#guide-header,
 div#mss-header,
-div#links-header {
+div#links-header,
+div#logs-header {
     font-weight: 500;
 }
 
 div#guide-content,
-div#links-content {
+div#links-content,
+div#logs-content {
     font-size: 0.9em;
 }
 

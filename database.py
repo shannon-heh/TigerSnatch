@@ -156,7 +156,7 @@ class Database:
             raise Exception(f'courseid {courseid} cannot be found')
 
         dept_num = displayname.split('/')[0]
-        return f'{dept_num}: {title}', sectionname
+        return dept_num, title, sectionname
 
     # returns all classes to which there are waitlisted students
 
