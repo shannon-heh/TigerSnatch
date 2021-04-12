@@ -320,6 +320,10 @@ input#login-btn:active {
     max-width: 250px !important;
 }
 
+tr {
+    vertical-align: middle;
+}
+
 .table-striped tbody tr.visible-odd {
     background-color: rgba(0, 0, 0, 0.05);
 }

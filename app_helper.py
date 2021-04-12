@@ -51,7 +51,7 @@ def pull_course(courseid):
             try:
                 waitlist_count = db.get_class_waitlist_size(
                     curr_class['classid'])
-            except Exception as e:
+            except Exception:
                 waitlist_count = 0
             curr_class['wl_size'] = waitlist_count
             classes_list.append(curr_class)
