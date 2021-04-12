@@ -16,15 +16,16 @@ class Notify:
     # to format and send an email to the first student on the waitlist
     # for that classid
 
-    def __init__(self, classid, swap=False):
+    def __init__(self, classid, i, swap=False):
         db = Database()
         self._classid = classid
         try:
             self._coursename, self._sectionname = db.classid_to_classinfo(
                 classid)
-            self._netid = db.get_class_waitlist(classid)['waitlist'][0]
+            self._netid = db.get_class_waitlist(classid)['waitlist'][i]
         except:
-            raise Exception(f'waitlist for class {classid} does not exist')
+            raise Exception(
+                f'waitlist element {i} for class {classid} does not exist; user probably removed themself')
         self._email = db.get_user(self._netid)['email']
 
         self._swap = swap
@@ -48,13 +49,25 @@ class Notify:
         <head></head>
         <body style='font-size:1.3em'>
             <p>Dear {self._netid},</p>
-            <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> has a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.</p>
-            <p>Please head over to <a href="https://phubprod.princeton.edu/psp/phubprod/?cmd=start">Tigerhub</a> to register for your course!</p>
-            <p>If you wish to re-add yourself to this waitlist, please go to <a href="https://tigersnatch.herokuapp.com">TigerSnatch</a>.</p>
-            <p>Best,<br>Tigersnatch Team</p>
+            <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> has one or more spots open!</p>
+            <p>Head over to <a href="https://phubprod.princeton.edu/psp/phubprod/?cmd=start">Tigerhub</a> to Snatch your spot!</p>
+            <p>You'll continue to receive notifications for this section every 5 minutes if spots are still available. To unsubscribe from notifications for this section, please visit <a href="https://tigersnatch.herokuapp.com">TigerSnatch</a>.</p>
+            <p>Best,<br>Tigersnatch Team <3</p>
         </body>
         </html>
         """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
+        # msg.add_alternative(f"""\
+        # <html>
+        # <head></head>
+        # <body style='font-size:1.3em'>
+        #     <p>Dear {self._netid},</p>
+        #     <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> has a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.</p>
+        #     <p>Please head over to <a href="https://phubprod.princeton.edu/psp/phubprod/?cmd=start">Tigerhub</a> to register for your course!</p>
+        #     <p>If you wish to re-add yourself to this waitlist, please go to <a href="https://tigersnatch.herokuapp.com">TigerSnatch</a>.</p>
+        #     <p>Best,<br>Tigersnatch Team</p>
+        # </body>
+        # </html>
+        # """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
 
         if self._swap:
             msg.add_alternative(f"""\

@@ -34,6 +34,16 @@ class Database:
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
+    # gets current term code from admin collection
+
+    def get_current_term_code(self):
+        return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
+
+    # updates current term code from admin collection
+
+    def update_current_term_code(self, code):
+        self._db.admin.update_one({}, {'$set': {'current_term_code': code}})
+
     # returns user data given netid
 
     def get_user(self, netid):
@@ -501,6 +511,8 @@ class Database:
 if __name__ == '__main__':
     db = Database()
     # print(db)
-    db.reset_db()
+    # db.reset_db()
+    db.update_current_term_code('1222')
+    print(db.get_current_term_code())
     # print(db.classid_to_course_deptnum('41974'))
     # print(list(db.get_waited_classes()))

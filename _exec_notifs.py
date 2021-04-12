@@ -30,14 +30,15 @@ if __name__ == '__main__':
     total = 0
     for classid, n_new_slots in new_slots.items():
         try:
-            n_notifs = min(db.get_class_waitlist_size(classid), n_new_slots)
+            # n_notifs = min(db.get_class_waitlist_size(classid), n_new_slots)
+            n_notifs = db.get_class_waitlist_size(classid)
         except Exception as e:
             print(e, file=stderr)
             continue
 
         for i in range(n_notifs):
             try:
-                notify = Notify(classid)
+                notify = Notify(classid, i)
 
                 print(notify)
                 print('sending email to', notify.get_netid(), end='...')
@@ -48,7 +49,7 @@ if __name__ == '__main__':
                     print('success')
                     print(i+1, '/', n_notifs, 'emails sent for this class')
                     total += 1
-                    db.remove_from_waitlist(notify.get_netid(), classid)
+                    # db.remove_from_waitlist(notify.get_netid(), classid)
                 else:
                     print('failed to send email')
             except Exception as e:
