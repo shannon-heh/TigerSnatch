@@ -24,6 +24,7 @@ def do_search(query):
         res = None
     else:
         query = query.replace(' ', '')
+        # print('ajsdfkljdsalkfjddasfadls: ', query)
         res = Database().search_for_course(query)
 
     return res

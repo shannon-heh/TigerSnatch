@@ -10,8 +10,10 @@ from CASClient import CASClient
 from config import APP_SECRET_KEY
 from waitlist import Waitlist
 from app_helper import do_search, pull_course, validate_query
+from urllib.parse import quote_plus
 
 app = Flask(__name__, template_folder='./templates')
+app.jinja_env.filters['quote_plus'] = lambda u: quote_plus(u)
 app.secret_key = APP_SECRET_KEY
 _CAS = CASClient()
 
@@ -92,10 +94,12 @@ def dashboard():
         _db.update_user(netid, new_email.strip())
         return redirect(url_for('dashboard'))
 
+    print('asjdfklsd', query)
+    print('asjdfldjsakl;f', quote_plus(query))
     html = render_template('base.html',
                            is_dashboard=True,
                            search_res=search_res,
-                           last_query=query,
+                           last_query=quote_plus(query),
                            username=netid.rstrip(),
                            data=data,
                            email=email)
@@ -117,8 +121,9 @@ def about():
 @app.route('/searchresults/<query>', methods=['POST'])
 def get_search_results(query=''):
     res = do_search(query)
+    print('last query', quote_plus(query))
     html = render_template('search/search_results.html',
-                           last_query=query,
+                           last_query=quote_plus(query),
                            search_res=res)
     return make_response(html)
 
@@ -173,7 +178,7 @@ def get_course():
                            curr_waitlists=curr_waitlists,
                            search_res=search_res,
                            num_full=num_full,
-                           last_query=query)
+                           last_query=quote_plus(query))
 
     return make_response(html)
 

@@ -76,7 +76,8 @@ let searchFormListener = function () {
         $("#search-form-input").tooltip("hide");
 
         // get serach query
-        query = $("#search-form-input").prop("value");
+        query = encodeURIComponent($("#search-form-input").prop("value"));
+
         // construct new URL
         params = location.search;
         curr_path = location.pathname;
@@ -118,7 +119,7 @@ let searchResultListener = function () {
     $(".search-results-link").on("click", function (e) {
         e.preventDefault();
 
-        // blur frame while loadidng
+        // blur frame while loading
         $("*").css("pointer-events", "none");
         $("*").css("cursor", "wait");
         $("#right-wrapper").css("filter", "blur(2px)");
@@ -165,6 +166,16 @@ let searchResultListener = function () {
         });
     });
 };
+
+// listens for when user clicks on course in dashboard 
+// to navigate to its course page
+let dashboardCourseSelectListener = function() {
+    $('.dashboard-course-link').on("click", function (e) {
+        // blur frame while loadidng
+        $("*").css("pointer-events", "none");
+        $("#right-wrapper").css("filter", "blur(2px)");
+    });
+}
 
 i = 0; // dummy variable used for toast ids
 
@@ -263,17 +274,6 @@ let pageBackListener = function () {
     $(window).on("popstate", function () {
         // for now, just reloads
         location.reload();
-
-        // html = window.history.state['html'];
-        // restore = window.history.state['restore'];
-        // if (restore === 'right') {
-        //     $("#right-wrapper").html(html);
-        // }
-        // else if (restore === 'search') {
-        //     $("div#search-results").html(html);
-        // }
-        // else {
-        // }
     });
 };
 
@@ -310,6 +310,7 @@ $(document).ready(function () {
     showAllListener();
     modalCancelListener();
     modalConfirmListener();
+    dashboardCourseSelectListener();
     // modalCloseListener();
     pageBackListener();
     dashboardSkip();
