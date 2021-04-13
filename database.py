@@ -27,12 +27,51 @@ class Database:
         try:
             self._db.admin.command('ismaster')
         except ConnectionFailure:
-            print('failed (server not available)')
-            exit(1)
+            print('failed (server not available)', file=stderr)
+            raise Exception('server unavailable')
 
         print('success')
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
+
+    # clears and removes users from all waitlists
+
+    def clear_all_waitlists(self):
+        print('clearing waitlists in users')
+        self._db.users.update_many(
+            {},
+            {'$set': {'waitlists': []}}
+        )
+
+        print('clearing waitlists')
+        self._db['waitlists'].delete_many({})
+
+    # clears and removes users from the waitlist for class classid
+
+    def clear_class_waitlist(self, classid):
+        try:
+            class_waitlist = self.get_class_waitlist(classid)['waitlist']
+            print('removing users', class_waitlist, 'from class', classid)
+
+            self._db.users.update_many({'netid': {'$in': class_waitlist}},
+                                       {'$pull': {'waitlists': classid}})
+            self._db.waitlists.delete_one({'classid': classid})
+        except:
+            print('waitlist for class', classid, 'does not exist - skipping')
+
+    # clears and removes users from all waitlists for class classid
+
+    def clear_course_waitlists(self, courseid):
+        try:
+            course_data = self.get_course(courseid)
+            classids = [i.split('_')[1]
+                        for i in course_data.keys() if i.startswith('class_')]
+            print('clearing waitlists for course', courseid)
+
+            for classid in classids:
+                self.clear_class_waitlist(classid)
+        except:
+            print('failed to clear waitlists for course', courseid, file=stderr)
 
     # gets current term code from admin collection
 
@@ -184,7 +223,10 @@ class Database:
     # returns a specific classid's waitlist document
 
     def get_class_waitlist(self, classid):
-        return self._db.waitlists.find_one({'classid': classid})
+        try:
+            return self._db.waitlists.find_one({'classid': classid})
+        except:
+            raise Exception(f'classid {classid} does not exist')
 
     # returns a specific classid's waitlist size
 
@@ -245,9 +287,11 @@ class Database:
         user_waitlists = user_info['waitlists']
         try:
             if len(user_waitlists) >= MAX_WAITLIST_SIZE:
+                print('user', netid, 'exceeded the waitlist limit of',
+                      MAX_WAITLIST_SIZE, file=stderr)
                 return 0
         except Exception as e:
-            print(e)
+            print(e, file=stderr)
 
         user_waitlists.append(classid)
         self._db.users.update_one({'netid': netid}, {
@@ -321,7 +365,7 @@ class Database:
 
     def get_course(self, courseid):
         return self._db.courses.find_one(
-            {'courseid': courseid}, {'_id': False})
+            {'courseid': courseid}, {'_id': 0})
 
     # get dictionary for class with given classid in courses
     def get_class(self, courseid, classid):
@@ -347,7 +391,7 @@ class Database:
     # returns capacity and enrollment for course with given classid
 
     def get_class_enrollment(self, classid):
-        return self._db.enrollments.find_one({'classid': classid}, {'_id': False})
+        return self._db.enrollments.find_one({'classid': classid}, {'_id': 0})
 
     # returns dictionary with basic course details AND enrollment,
     # capacity, and boolean isFull field for each class
@@ -532,10 +576,4 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
-    # print(db)
-    # db.reset_db()
-    db.update_user_log('ntyp', '2,3,4,5')
-    # db.update_current_term_code('1222')
-    # print(db.get_current_term_code())
-    # print(db.classid_to_course_deptnum('41974'))
-    # print(list(db.get_waited_classes()))
+    db.clear_all_waitlists()
