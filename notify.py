@@ -30,7 +30,7 @@ class Notify:
                 f'waitlist element {i} for class {classid} does not exist; user probably removed themself')
         self._email = db.get_user(self._netid)['email']
 
-        user_log = f"{datetime.now().strftime('%Y-%m-%d %H:%M')},{self._deptnum},{self._sectionname},{n_new_slots}"
+        user_log = f"{datetime.now().strftime('%b %-m, %Y @ %-I:%M %p')} \u2192 {n_new_slots} spots available in {self._deptnum} {self._sectionname}"
         db.update_user_log(self._netid, user_log)
 
         self._swap = swap

@@ -14,6 +14,7 @@ from notify import Notify
 from monitor import Monitor
 from database import Database
 from sys import stdout, stderr
+from random import shuffle
 from time import time
 from datetime import datetime
 
@@ -38,7 +39,11 @@ if __name__ == '__main__':
             print(e, file=stderr)
             continue
 
-        for i in range(n_notifs):
+        # randomly iterate through lists to ensure fairness
+        ordering = list(range(n_notifs))
+        shuffle(ordering)
+
+        for i in ordering:
             try:
                 notify = Notify(classid, i, n_new_slots)
 

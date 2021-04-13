@@ -167,15 +167,15 @@ let searchResultListener = function () {
     });
 };
 
-// listens for when user clicks on course in dashboard 
+// listens for when user clicks on course in dashboard
 // to navigate to its course page
-let dashboardCourseSelectListener = function() {
-    $('.dashboard-course-link').on("click", function (e) {
+let dashboardCourseSelectListener = function () {
+    $(".dashboard-course-link").on("click", function (e) {
         // blur frame while loadidng
         $("*").css("pointer-events", "none");
         $("#right-wrapper").css("filter", "blur(2px)");
     });
-}
+};
 
 i = 0; // dummy variable used for toast ids
 
@@ -301,6 +301,16 @@ let initTooltipsToasts = function () {
     });
 };
 
+let navbarAutoclose = function () {
+    $(document).click(function (event) {
+        var click = $(event.target);
+        var _open = $(".navbar-collapse").hasClass("show");
+        if (_open && !click.hasClass("navbar-toggler")) {
+            $(".navbar-toggler").click();
+        }
+    });
+};
+
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
 $(document).ready(function () {
@@ -316,4 +326,5 @@ $(document).ready(function () {
     dashboardSkip();
     searchSkip();
     initTooltipsToasts();
+    navbarAutoclose();
 });

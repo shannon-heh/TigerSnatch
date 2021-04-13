@@ -94,7 +94,9 @@ def get_course_in_mobileapp(term, course_, curr_time):
                     'type_name': class_['type_name'],
                     'start_time': meetings['start_time'],
                     'end_time': meetings['end_time'],
-                    'days': ' '.join(meetings['days'])
+                    'days': ' '.join(meetings['days']),
+                    'enrollment': int(class_['enrollment']),
+                    'capacity': int(class_['capacity'])
                 }
 
                 new_enroll[classid] = int(class_['enrollment'])

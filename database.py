@@ -48,15 +48,12 @@ class Database:
     # "datetime,department_number,section_name,new_slots_count"
 
     def update_user_log(self, netid, entry):
-        if len(entry.split(',')) != 4:
-            raise Exception('invalid log entry format')
-
         user_info = self.get_user(netid)
         log = user_info['log']
 
-        log.append(entry)
+        log.insert(0, entry)
         if len(log) > MAX_LOG_LENGTH:
-            log.pop(0)
+            log.pop(-1)
 
         self._db.users.update_one({'netid': netid}, {'$set': {'log': log}})
         print(f'log for user {netid} successfully updated with entry {entry}')
