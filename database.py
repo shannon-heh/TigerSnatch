@@ -4,7 +4,7 @@
 # database.
 # ----------------------------------------------------------------------
 
-from sys import exit, stdout, stderr
+from sys import stdout, stderr
 import re
 from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
@@ -515,7 +515,7 @@ class Database:
                                                   'capacity': new_cap}})
 
     # returns list of blacklisted netids
-    def get_blacklist(self, netid):
+    def get_blacklist(self):
         return self._db.admin.find_one(
             {}, {'blacklist': 1, '_id': 0})['blacklist']
 
@@ -548,7 +548,7 @@ class Database:
                     {}, {'$set': {'blacklist': blacklist}})
                 print('user', netid,
                       'added to app blacklist and removed from database')
-        except Exception as e:
+        except Exception:
             print(f'Error in adding {netid} to blacklist', file=stderr)
 
     # remove netid from app blacklist
