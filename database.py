@@ -522,7 +522,7 @@ class Database:
     # returns True if netid is on app blacklist
     def is_blacklisted(self, netid):
         try:
-            blacklist = self.get_blacklist(netid)
+            blacklist = self.get_blacklist()
             return netid in blacklist
         except Exception:
             print(f'Error in checking if {netid} is on blacklist', file=stderr)
@@ -538,7 +538,7 @@ class Database:
             self._db.users.delete_one({'netid': netid})
 
         try:
-            blacklist = self.get_blacklist(netid)
+            blacklist = self.get_blacklist()
             if netid in blacklist:
                 print('user', netid, 'already on app blacklist')
             else:
@@ -554,7 +554,7 @@ class Database:
     # remove netid from app blacklist
     def remove_from_blacklist(self, netid):
         try:
-            blacklist = self.get_blacklist(netid)
+            blacklist = self.get_blacklist()
             if netid not in blacklist:
                 print('user', netid, 'is not on app blacklist')
             else:
@@ -627,3 +627,4 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
+    db.remove_from_blacklist('sheh')
