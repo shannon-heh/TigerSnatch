@@ -11,6 +11,7 @@ from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SC
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from datetime import datetime
+from os import system
 
 
 class Database:
@@ -33,6 +34,28 @@ class Database:
         print('success')
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
+
+    # sets notification script status to either True (on) or False (off)
+
+    def set_cron_notification_status(self, status):
+        if not isinstance(status, bool):
+            raise Exception('status must be a boolean')
+
+        print(
+            f'notification cron script status set to {"on" if status else "off"}')
+        cmd = f'heroku ps:scale clock={1 if status else 0}'
+        print('executing', cmd, end=' ...')
+        stdout.flush()
+        system(cmd)
+        self._db.admin.update_one({}, {'$set': {'notifications_on': status}})
+
+    # sets notification script status; either True (on) or False (off)
+
+    def get_cron_notification_status(self):
+        try:
+            return self._db.admin.find_one({})['notifications_on']
+        except:
+            raise Exception('notifications_on attribute missing', file=stderr)
 
     # clears and removes users from all waitlists
 
@@ -627,4 +650,3 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
-    db.remove_from_blacklist('sheh')
