@@ -24,7 +24,7 @@ def handle_exception(e):
     return render_template('error.html')
 
 
-# private method that redirects to landinage page
+# private method that redirects to landing page
 # if user is not logged in with CAS
 # or if user is logged in with CAS, but doesn't have entry in DB
 def redirect_landing():
@@ -47,7 +47,11 @@ def landing():
 @app.route('/login', methods=['GET'])
 def login():
     _db = Database()
+
     netid = _CAS.authenticate()
+    if _db.is_blacklisted(netid):
+        return make_response(render_template('blacklisted.html'))
+
     if not _db.is_user_created(netid):
         _db.create_user(netid)
         return redirect(url_for('tutorial'))

@@ -473,6 +473,12 @@ class Database:
                                         {'$set': {'enrollment': new_enroll,
                                                   'capacity': new_cap}})
 
+    # returns True if netid is on app blacklist
+    def is_blacklisted(self, netid):
+        blacklist = self._db.admin.find_one(
+            {}, {'blacklist': 1, '_id': 0})['blacklist']
+        return netid in blacklist
+
     # does the following:
     #   * clears all "waitlists" lists for each user
     #   * deletes all documents from mappings
@@ -537,7 +543,7 @@ if __name__ == '__main__':
     db = Database()
     # print(db)
     # db.reset_db()
-    db.update_user_log('ntyp', '2,3,4,5')
+    # db.update_user_log('ntyp', '2,3,4,5')
     # db.update_current_term_code('1222')
     # print(db.get_current_term_code())
     # print(db.classid_to_course_deptnum('41974'))
