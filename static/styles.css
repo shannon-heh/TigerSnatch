@@ -84,11 +84,8 @@ div.search-results-displayname {
 
 div#search-wrapper {
     background: var(--color-blue);
-    padding: 10px;
-    padding-top: 30px;
-    padding-bottom: 0px;
+    padding: 30px 10px 10px;
     height: 100%;
-    overflow: scroll;
 }
 
 form#search-form {
