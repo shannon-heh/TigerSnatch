@@ -18,12 +18,14 @@ from random import shuffle
 from time import time
 from datetime import datetime
 
-if __name__ == '__main__':
+
+def cronjob():
     tic = time()
     monitor = Monitor()
     db = Database()
 
     print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    print('starting notification cron job')
 
     # get all class openings (for waited-on classes) from MobileApp
     new_slots = monitor.get_classes_with_changed_enrollments()
@@ -66,3 +68,8 @@ if __name__ == '__main__':
 
     print('done: sent a total of', total,
           'emails in approx.', round(time()-tic), 'seconds')
+
+
+if __name__ == '__main__':
+    # can function via single file execution, but this is not the intent
+    cronjob()
