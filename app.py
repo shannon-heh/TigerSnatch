@@ -24,7 +24,7 @@ def handle_exception(e):
     return render_template('error.html')
 
 
-# private method that redirects to landinage page
+# private method that redirects to landing page
 # if user is not logged in with CAS
 # or if user is logged in with CAS, but doesn't have entry in DB
 def redirect_landing():
@@ -47,12 +47,18 @@ def landing():
 @app.route('/login', methods=['GET'])
 def login():
     _db = Database()
+
     netid = _CAS.authenticate()
+    netid = netid.rstrip()
+    if _db.is_blacklisted(netid):
+        print('blacklisted user ', netid, ' attempted to access the app')
+        return make_response(render_template('blacklisted.html'))
+
     if not _db.is_user_created(netid):
         _db.create_user(netid)
         return redirect(url_for('tutorial'))
 
-    print('user', netid.rstrip(), 'logged in')
+    print('user', netid, 'logged in')
 
     return redirect(url_for('dashboard'))
 
@@ -78,7 +84,11 @@ def dashboard():
 
     _db = Database()
     netid = _CAS.authenticate()
-    print('user', netid.rstrip(), 'viewed dashboard')
+    netid = netid.rstrip()
+    if _db.is_blacklisted(netid):
+        print('blacklisted user ', netid, ' attempted to access the app')
+        return make_response(render_template('blacklisted.html'))
+    print('user', netid, 'viewed dashboard')
 
     data = _db.get_dashboard_data(netid)
     email = _db.get_user(netid)['email']
@@ -130,8 +140,8 @@ def get_search_results(query=''):
 
 @app.route('/courseinfo/<courseid>', methods=['POST'])
 def get_course_info(courseid):
-    netid = _CAS.authenticate()
     _db = Database()
+    netid = _CAS.authenticate()
 
     course_details, classes_list = pull_course(courseid)
     curr_waitlists = _db.get_user(netid)['waitlists']
@@ -154,8 +164,13 @@ def get_course():
     if not _CAS.is_logged_in():
         return redirect(url_for('landing'))
 
-    netid = _CAS.authenticate()
     _db = Database()
+
+    netid = _CAS.authenticate()
+    netid = netid.rstrip()
+    if _db.is_blacklisted(netid):
+        print('blacklisted user', netid, 'attempted to access the app')
+        return make_response(render_template('blacklisted.html'))
 
     courseid = request.args.get('courseid')
     query = request.args.get('query')

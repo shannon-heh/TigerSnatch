@@ -514,6 +514,57 @@ class Database:
                                         {'$set': {'enrollment': new_enroll,
                                                   'capacity': new_cap}})
 
+    # returns list of blacklisted netids
+    def get_blacklist(self, netid):
+        return self._db.admin.find_one(
+            {}, {'blacklist': 1, '_id': 0})['blacklist']
+
+    # returns True if netid is on app blacklist
+    def is_blacklisted(self, netid):
+        try:
+            blacklist = self.get_blacklist(netid)
+            return netid in blacklist
+        except Exception:
+            print(f'Error in checking if {netid} is on blacklist', file=stderr)
+
+    # adds netid to app blacklist
+    def add_to_blacklist(self, netid):
+        # removes user profile from users collection
+        # removes user from any waitlists
+        def remove_user(netid):
+            classids = self._db.users.find_one({'netid': netid})['waitlists']
+            for classid in classids:
+                self.remove_from_waitlist(netid, classid)
+            self._db.users.delete_one({'netid': netid})
+
+        try:
+            blacklist = self.get_blacklist(netid)
+            if netid in blacklist:
+                print('user', netid, 'already on app blacklist')
+            else:
+                remove_user(netid)
+                blacklist.append(netid)
+                self._db.admin.update_one(
+                    {}, {'$set': {'blacklist': blacklist}})
+                print('user', netid,
+                      'added to app blacklist and removed from database')
+        except Exception as e:
+            print(f'Error in adding {netid} to blacklist', file=stderr)
+
+    # remove netid from app blacklist
+    def remove_from_blacklist(self, netid):
+        try:
+            blacklist = self.get_blacklist(netid)
+            if netid not in blacklist:
+                print('user', netid, 'is not on app blacklist')
+            else:
+                blacklist.remove(netid)
+                self._db.admin.update_one(
+                    {}, {'$set': {'blacklist': blacklist}})
+                print('user', netid, 'removed from app blacklist')
+        except Exception:
+            print(f'Error in removing {netid} from blacklist', file=stderr)
+
     # does the following:
     #   * clears all "waitlists" lists for each user
     #   * deletes all documents from mappings
@@ -576,4 +627,3 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
-    db.clear_all_waitlists()
