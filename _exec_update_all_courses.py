@@ -47,8 +47,8 @@ if __name__ == '__main__':
         current_term_code = terms['term'][0]['code']
         Database().update_current_term_code(current_term_code)
         ######################### REMOVE LATER #########################
-        current_term_code = '1214'
-        Database().update_current_term_code('1214')
+        # current_term_code = '1214'
+        # Database().update_current_term_code('1214')
         ################################################################
     except:
         raise Exception('failed to get current term code')
