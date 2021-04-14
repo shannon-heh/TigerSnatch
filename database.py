@@ -35,11 +35,16 @@ class Database:
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
+# ----------------------------------------------------------------------
+# ADMIN PANEL METHODS
+# ----------------------------------------------------------------------
+
     # prints log and adds log to admin collection to track admin activity
+
     def _add_admin_log(self, log):
         print(log)
         logs = self._db.admin.find_one({}, {'logs': 1, '_id': 0})['logs']
-        log = f"{datetime.now().strftime('%b %d, %Y @ %-I:%M %p')} | {log}"
+        log = f"{datetime.now().strftime('%b %d, %Y @ %-I:%M %p')} \u2192 {log}"
         logs.insert(0, log)
 
         if len(logs) > MAX_ADMIN_LOG_LENGTH:
@@ -47,15 +52,18 @@ class Database:
 
         self._db.admin.update_one({}, {'$set': {'logs': logs}})
 
-    # returns 20 most recent admin logs
+    # returns MAX_ADMIN_LOG_LENGTH most recent admin logs
+
     def get_admin_logs(self):
         return self._db.admin.find_one({}, {'logs': 1, '_id': 0})
 
     # returns dictionary with all admin data (excluding logs)
+
     def get_admin_data(self):
         return self._db.admin.find_one({}, {'logs': 0, '_id': 0})
 
     # returns dictionary with app-related data
+
     def get_app_data(self):
         num_users = self._db.users.count_documents({})
         num_users_on_waitlists = self._db.waitlists.count_documents(
@@ -68,29 +76,6 @@ class Database:
             'num_courses_in_db': num_courses_in_db,
             'num_sections_with_waitlists': num_sections_with_waitlists
         }
-
-    # connects to Heroku and returns app variable so you can do
-    # operations with Heroku
-
-    def _connect_to_heroku(self):
-        heroku_conn = heroku3.from_key(HEROKU_API_KEY)
-        app = heroku_conn.apps()['tigersnatch']
-        return app
-
-    # turn Heroku maintenance mode ON (True) or OFF (False)
-
-    def set_maintenance_status(self, status):
-        if not isinstance(status, bool):
-            raise Exception('status must be a boolean')
-
-        app = self._connect_to_heroku()
-        if status:
-            app.enable_maintenance_mode()
-        else:
-            app.disable_maintenance_mode()
-
-        self._add_admin_log(
-            f'heroku maintenance mode is now {"on" if status else "off"}')
 
     # sets notification script status to either True (on) or False (off)
 
@@ -156,15 +141,112 @@ class Database:
             self._add_admin_log('failed to clear waitlists for course',
                                 courseid, file=stderr)
 
-    # gets current term code from admin collection
+# ----------------------------------------------------------------------
+# BLACKLIST METHODS
+# ----------------------------------------------------------------------
 
-    def get_current_term_code(self):
-        return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
+    # returns list of blacklisted netids
 
-    # updates current term code from admin collection
+    def get_blacklist(self):
+        return self._db.admin.find_one(
+            {}, {'blacklist': 1, '_id': 0})['blacklist']
 
-    def update_current_term_code(self, code):
-        self._db.admin.update_one({}, {'$set': {'current_term_code': code}})
+    # returns True if netid is on app blacklist
+
+    def is_blacklisted(self, netid):
+        try:
+            blacklist = self.get_blacklist()
+            return netid in blacklist
+        except Exception:
+            print(f'error in checking if {netid} is on blacklist', file=stderr)
+
+    # adds netid to app blacklist
+
+    def add_to_blacklist(self, netid):
+        # removes user profile from users collection
+        # removes user from any waitlists
+        def remove_user(netid):
+            classids = self._db.users.find_one({'netid': netid})['waitlists']
+            for classid in classids:
+                self.remove_from_waitlist(netid, classid)
+            self._db.users.delete_one({'netid': netid})
+
+        try:
+            blacklist = self.get_blacklist()
+
+            # check if user is already in blacklist
+            if netid in blacklist:
+                self._add_admin_log(
+                    f'user {netid} already on app blacklist - not added')
+                return
+
+            if self.is_user_created(netid):
+                remove_user(netid)
+
+            blacklist.append(netid)
+            self._db.admin.update_one(
+                {}, {'$set': {'blacklist': blacklist}})
+            self._add_admin_log(
+                f'user {netid} added to app blacklist and removed from database')
+
+        except Exception:
+            print(f'error in adding {netid} to blacklist', file=stderr)
+
+    # remove netid from app blacklist
+
+    def remove_from_blacklist(self, netid):
+        try:
+            blacklist = self.get_blacklist()
+            if netid not in blacklist:
+                self._add_admin_log(
+                    f'user {netid} is not on app blacklist - not removed')
+                return
+
+            blacklist.remove(netid)
+            self._db.admin.update_one(
+                {}, {'$set': {'blacklist': blacklist}})
+            self._add_admin_log(f'user {netid} removed from app blacklist')
+        except Exception:
+            print(f'Error in removing {netid} from blacklist', file=stderr)
+
+    # turn Heroku maintenance mode ON (True) or OFF (False)
+
+    def set_maintenance_status(self, status):
+        if not isinstance(status, bool):
+            raise Exception('status must be a boolean')
+
+        app = self._connect_to_heroku()
+        if status:
+            app.enable_maintenance_mode()
+        else:
+            app.disable_maintenance_mode()
+
+        self._add_admin_log(
+            f'heroku maintenance mode is now {"on" if status else "off"}')
+
+# ----------------------------------------------------------------------
+# USER METHODS
+# ----------------------------------------------------------------------
+
+    # checks if user exists in users collection
+
+    def is_user_created(self, netid):
+        return self._db.users.find_one({'netid': netid.rstrip()}, {'netid': 1}) is not None
+
+    # creates user entry in users collection
+
+    def create_user(self, netid):
+        if self.is_user_created(netid):
+            print(f'user {netid} already exists', file=stderr)
+            return
+        netid = netid.rstrip()
+        self._db.users.insert_one(
+            {'netid': netid,
+             'email': f'{netid}@princeton.edu',
+             'phone': '',
+             'waitlists': [],
+             'log': []})
+        print(f'successfully created user {netid}')
 
     # update user netid's log - string must be formatted:
     # "datetime,department_number,section_name,new_slots_count"
@@ -239,13 +321,32 @@ class Database:
 
         return dashboard_data
 
-        # returns course displayname corresponding to courseid
+    # returns course displayname corresponding to courseid
+
     def update_user(self, netid, email):
         try:
             self._db.users.update_one({'netid': netid.rstrip()}, {
                 '$set': {'email': email}})
         except:
             raise RuntimeError(f'attempt to update email for {netid} failed')
+
+# ----------------------------------------------------------------------
+# TERM METHODS
+# ----------------------------------------------------------------------
+
+    # gets current term code from admin collection
+
+    def get_current_term_code(self):
+        return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
+
+    # updates current term code from admin collection
+
+    def update_current_term_code(self, code):
+        self._db.admin.update_one({}, {'$set': {'current_term_code': code}})
+
+# ----------------------------------------------------------------------
+# COURSE METHODS
+# ----------------------------------------------------------------------
 
     # returns course displayname corresponding to courseid
 
@@ -257,6 +358,81 @@ class Database:
             raise RuntimeError(f'courseid {courseid} not found in courses')
 
         return displayname.split('/')[0]
+
+    # return basic course details for course with given courseid
+
+    def get_course(self, courseid):
+        return self._db.courses.find_one(
+            {'courseid': courseid}, {'_id': 0})
+
+    # return list of class ids for a course
+
+    def get_classes_in_course(self, courseid):
+        classid_list = []
+        course_dict = self.get_course(courseid)
+        for key in course_dict.keys():
+            if key.startswith('class_'):
+                classid_list.append(course_dict[key]['classid'])
+        return classid_list
+
+    # returns dictionary with basic course details AND enrollment,
+    # capacity, and boolean isFull field for each class
+    # for the given courseid
+
+    def get_course_with_enrollment(self, courseid):
+        course_info = self.get_course(courseid)
+        for key in course_info.keys():
+            if key.startswith('class_'):
+                class_dict = course_info[key]
+                classid = class_dict['classid']
+                class_data = self.get_class_enrollment(classid)
+                class_dict['enrollment'] = class_data['enrollment']
+                class_dict['capacity'] = class_data['capacity']
+                class_dict['isFull'] = (
+                    class_dict['capacity'] > 0 and class_dict['enrollment'] >= class_dict['capacity'])
+        return course_info
+
+    # updates time that a course page was last updated
+
+    def update_course_time(self, courseid, curr_time):
+        try:
+            self._db.mappings.update_one({'courseid': courseid}, {
+                                         '$set': {'time': curr_time}})
+        except:
+            raise RuntimeError(f'courseid {courseid} not found in courses')
+
+    # returns time that a course page was last updated
+
+    def get_course_time_updated(self, courseid):
+        try:
+            time = self._db.mappings.find_one(
+                {'courseid': courseid})['time']
+        except:
+            raise RuntimeError(f'courseid {courseid} not found in courses')
+        return time
+
+    # checks if the courses collection contains a course with the
+    # passed-in courseid
+
+    def courses_contains_courseid(self, courseid):
+        return self._db.courses.find_one({'courseid': courseid}) is not None
+
+    # returns list of results whose title and displayname
+    # contain user query string
+
+    def search_for_course(self, query):
+        query = re.compile(query, re.IGNORECASE)
+
+        res = list(self._db.mappings.find({'$or': [
+            {'displayname': {'$regex': query}},
+            {'title': {'$regex': query}}
+        ]}))
+
+        return res
+
+# ----------------------------------------------------------------------
+# CLASS METHODS
+# ----------------------------------------------------------------------
 
     # returns the corresponding course displayname for a given classid
 
@@ -298,6 +474,34 @@ class Database:
         dept_num = displayname.split('/')[0]
         return dept_num, title, sectionname
 
+    # get dictionary for class with given classid in courses
+
+    def get_class(self, courseid, classid):
+        try:
+            course_data = self.get_course(courseid)
+        except:
+            raise RuntimeError(f'courseid {courseid} not found in courses')
+        try:
+            return course_data[f'class_{classid}']
+        except:
+            raise RuntimeError(f'class {classid} not found in courses')
+
+    # returns capacity and enrollment for course with given classid
+
+    def get_class_enrollment(self, classid):
+        return self._db.enrollments.find_one({'classid': classid}, {'_id': 0})
+
+    # updates the enrollment and capacity for class classid
+
+    def update_enrollment(self, classid, new_enroll, new_cap):
+        self._db.enrollments.update_one({'classid': classid},
+                                        {'$set': {'enrollment': new_enroll,
+                                                  'capacity': new_cap}})
+
+# ----------------------------------------------------------------------
+# WAITLIST METHODS
+# ----------------------------------------------------------------------
+
     # returns all classes to which there are waitlisted students
 
     def get_waited_classes(self):
@@ -318,26 +522,6 @@ class Database:
             return len(self.get_class_waitlist(classid)['waitlist'])
         except:
             raise Exception(f'classid {classid} does not exist')
-
-    # checks if user exists in users collection
-
-    def is_user_created(self, netid):
-        return self._db.users.find_one({'netid': netid.rstrip()}, {'netid': 1}) is not None
-
-    # creates user entry in users collection
-
-    def create_user(self, netid):
-        if self.is_user_created(netid):
-            print(f'user {netid} already exists', file=stderr)
-            return
-        netid = netid.rstrip()
-        self._db.users.insert_one(
-            {'netid': netid,
-             'email': f'{netid}@princeton.edu',
-             'phone': '',
-             'waitlists': [],
-             'log': []})
-        print(f'successfully created user {netid}')
 
     # adds user of given netid to waitlist for class classid
 
@@ -431,91 +615,9 @@ class Database:
         print(
             f'user {netid} successfully removed from waitlist for class {classid}')
 
-   # returns list of results whose title and displayname
-   # contain user query string
-
-    def search_for_course(self, query):
-        query = re.compile(query, re.IGNORECASE)
-
-        res = list(self._db.mappings.find({'$or': [
-            {'displayname': {'$regex': query}},
-            {'title': {'$regex': query}}
-        ]}))
-
-        return res
-
-    # return basic course details for course with given courseid
-
-    def get_course(self, courseid):
-        return self._db.courses.find_one(
-            {'courseid': courseid}, {'_id': 0})
-
-    # get dictionary for class with given classid in courses
-    def get_class(self, courseid, classid):
-        try:
-            course_data = self.get_course(courseid)
-        except:
-            raise RuntimeError(f'courseid {courseid} not found in courses')
-        try:
-            return course_data[f'class_{classid}']
-        except:
-            raise RuntimeError(f'class {classid} not found in courses')
-
-    # return list of class ids for a course
-
-    def get_classes_in_course(self, courseid):
-        classid_list = []
-        course_dict = self.get_course(courseid)
-        for key in course_dict.keys():
-            if key.startswith('class_'):
-                classid_list.append(course_dict[key]['classid'])
-        return classid_list
-
-    # returns capacity and enrollment for course with given classid
-
-    def get_class_enrollment(self, classid):
-        return self._db.enrollments.find_one({'classid': classid}, {'_id': 0})
-
-    # returns dictionary with basic course details AND enrollment,
-    # capacity, and boolean isFull field for each class
-    # for the given courseid
-
-    def get_course_with_enrollment(self, courseid):
-        course_info = self.get_course(courseid)
-        for key in course_info.keys():
-            if key.startswith('class_'):
-                class_dict = course_info[key]
-                classid = class_dict['classid']
-                class_data = self.get_class_enrollment(classid)
-                class_dict['enrollment'] = class_data['enrollment']
-                class_dict['capacity'] = class_data['capacity']
-                class_dict['isFull'] = (
-                    class_dict['capacity'] > 0 and class_dict['enrollment'] >= class_dict['capacity'])
-        return course_info
-
-    # updates time that a course page was last updated
-
-    def update_course_time(self, courseid, curr_time):
-        try:
-            self._db.mappings.update_one({'courseid': courseid}, {
-                                         '$set': {'time': curr_time}})
-        except:
-            raise RuntimeError(f'courseid {courseid} not found in courses')
-
-    # returns time that a course page was last updated
-    def get_course_time_updated(self, courseid):
-        try:
-            time = self._db.mappings.find_one(
-                {'courseid': courseid})['time']
-        except:
-            raise RuntimeError(f'courseid {courseid} not found in courses')
-        return time
-
-    # checks if the courses collection contains a course with the
-    # passed-in courseid
-
-    def courses_contains_courseid(self, courseid):
-        return self._db.courses.find_one({'courseid': courseid}) is not None
+# ----------------------------------------------------------------------
+# DATABASE POPULATION METHODS
+# ----------------------------------------------------------------------
 
     # adds a document containing course data to the courses collection
     # (see Technical Documentation for schema)
@@ -590,72 +692,9 @@ class Database:
         validate(data)
         self._db.enrollments.insert_one(data)
 
-    # updates the enrollment and capacity for class classid
-
-    def update_enrollment(self, classid, new_enroll, new_cap):
-        self._db.enrollments.update_one({'classid': classid},
-                                        {'$set': {'enrollment': new_enroll,
-                                                  'capacity': new_cap}})
-
-    # returns list of blacklisted netids
-    def get_blacklist(self):
-        return self._db.admin.find_one(
-            {}, {'blacklist': 1, '_id': 0})['blacklist']
-
-    # returns True if netid is on app blacklist
-    def is_blacklisted(self, netid):
-        try:
-            blacklist = self.get_blacklist()
-            return netid in blacklist
-        except Exception:
-            print(f'error in checking if {netid} is on blacklist', file=stderr)
-
-    # adds netid to app blacklist
-    def add_to_blacklist(self, netid):
-        # removes user profile from users collection
-        # removes user from any waitlists
-        def remove_user(netid):
-            classids = self._db.users.find_one({'netid': netid})['waitlists']
-            for classid in classids:
-                self.remove_from_waitlist(netid, classid)
-            self._db.users.delete_one({'netid': netid})
-
-        try:
-            blacklist = self.get_blacklist()
-
-            # check if user is already in blacklist
-            if netid in blacklist:
-                self._add_admin_log(
-                    f'user {netid} already on app blacklist - not added')
-                return
-
-            if self.is_user_created(netid):
-                remove_user(netid)
-
-            blacklist.append(netid)
-            self._db.admin.update_one(
-                {}, {'$set': {'blacklist': blacklist}})
-            self._add_admin_log(
-                f'user {netid} added to app blacklist and removed from database')
-
-        except Exception:
-            print(f'error in adding {netid} to blacklist', file=stderr)
-
-    # remove netid from app blacklist
-    def remove_from_blacklist(self, netid):
-        try:
-            blacklist = self.get_blacklist()
-            if netid not in blacklist:
-                self._add_admin_log(
-                    f'user {netid} is not on app blacklist - not removed')
-                return
-
-            blacklist.remove(netid)
-            self._db.admin.update_one(
-                {}, {'$set': {'blacklist': blacklist}})
-            self._add_admin_log(f'user {netid} removed from app blacklist')
-        except Exception:
-            print(f'Error in removing {netid} from blacklist', file=stderr)
+# ----------------------------------------------------------------------
+# DATABASE RESET METHODS
+# ----------------------------------------------------------------------
 
     # does the following:
     #   * clears all "waitlists" lists for each user
@@ -697,6 +736,10 @@ class Database:
         clear_coll('courses')
         clear_coll('enrollments')
 
+# ----------------------------------------------------------------------
+# UTILITY METHODS
+# ----------------------------------------------------------------------
+
     # checks that all required collections are available in self._db;
     # raises a RuntimeError if not
 
@@ -704,6 +747,14 @@ class Database:
         if COLLECTIONS != set(self._db.list_collection_names()):
             raise RuntimeError(
                 'one or more database collections is misnamed and/or missing')
+
+    # connects to Heroku and returns app variable so you can do
+    # operations with Heroku
+
+    def _connect_to_heroku(self):
+        heroku_conn = heroku3.from_key(HEROKU_API_KEY)
+        app = heroku_conn.apps()['tigersnatch']
+        return app
 
     # prints database name, its collections, and the number of documents
     # in each collection
@@ -719,9 +770,4 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
-    db.add_to_blacklist('ntyp')
-    # print(db.get_admin_logs())
-    # print(db.get_admin_data())
-    # print(db.get_app_data())
-    # db.set_maintenance_status(True)
-    # db.set_maintenance_status(False)
+    db.remove_from_blacklist('ntyp')
