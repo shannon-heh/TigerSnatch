@@ -6,7 +6,7 @@
 
 from sys import stdout, stderr
 import re
-from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, HEROKU_API_KEY
+from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, HEROKU_API_KEY
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -36,9 +36,25 @@ class Database:
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
-    # returns dictionary with all admin data
+    # prints log and adds log to admin collection to track admin activity
+    def _add_admin_log(self, log):
+        print(log)
+        logs = self._db.admin.find_one({}, {'logs': 1, '_id': 0})['logs']
+        log = f"{datetime.now().strftime('%b %d, %Y @ %-I:%M %p')} | {log}"
+        logs.insert(0, log)
+
+        if len(logs) > MAX_ADMIN_LOG_LENGTH:
+            logs.pop(-1)
+
+        self._db.admin.update_one({}, {'$set': {'logs': logs}})
+
+    # returns 20 most recent admin logs
+    def get_admin_logs(self):
+        return self._db.admin.find_one({}, {'logs': 1, '_id': 0})
+
+    # returns dictionary with all admin data (excluding logs)
     def get_admin_data(self):
-        return self._db.admin.find_one({}, {'_id': 0})
+        return self._db.admin.find_one({}, {'logs': 0, '_id': 0})
 
     # returns dictionary with app-related data
     def get_app_data(self):
@@ -71,7 +87,8 @@ class Database:
         else:
             app.disable_maintenance_mode()
 
-        print(f'heroku maintenance mode is now {"on" if status else "off"}')
+        self._add_admin_log(
+            f'heroku maintenance mode is now {"on" if status else "off"}')
 
     # sets notification script status to either True (on) or False (off)
 
@@ -79,7 +96,7 @@ class Database:
         if not isinstance(status, bool):
             raise Exception('status must be a boolean')
 
-        print(
+        self._add_admin_log(
             f'notification cron script status set to {"on" if status else "off"}')
         cmd = f'heroku ps:scale clock={1 if status else 0}'
         print('executing', cmd, end=' ...')
@@ -93,18 +110,19 @@ class Database:
         try:
             return self._db.admin.find_one({})['notifications_on']
         except:
-            raise Exception('notifications_on attribute missing', file=stderr)
+            raise Exception(
+                'notifications_on attribute missing', file=stderr)
 
     # clears and removes users from all waitlists
 
     def clear_all_waitlists(self):
-        print('clearing waitlists in users')
+        self._add_admin_log('clearing waitlists in users collection')
         self._db.users.update_many(
             {},
             {'$set': {'waitlists': []}}
         )
 
-        print('clearing waitlists')
+        self._add_admin_log('clearing waitlists in waitlists collection')
         self._db['waitlists'].delete_many({})
 
     # clears and removes users from the waitlist for class classid
@@ -112,13 +130,15 @@ class Database:
     def clear_class_waitlist(self, classid):
         try:
             class_waitlist = self.get_class_waitlist(classid)['waitlist']
-            print('removing users', class_waitlist, 'from class', classid)
+            self._add_admin_log('removing users', class_waitlist,
+                                'from class', classid)
 
             self._db.users.update_many({'netid': {'$in': class_waitlist}},
                                        {'$pull': {'waitlists': classid}})
             self._db.waitlists.delete_one({'classid': classid})
         except:
-            print('waitlist for class', classid, 'does not exist - skipping')
+            self._add_admin_log('waitlist for class', classid,
+                                'does not exist - skipping')
 
     # clears and removes users from all waitlists for class classid
 
@@ -127,12 +147,13 @@ class Database:
             course_data = self.get_course(courseid)
             classids = [i.split('_')[1]
                         for i in course_data.keys() if i.startswith('class_')]
-            print('clearing waitlists for course', courseid)
+            self._add_admin_log('clearing waitlists for course', courseid)
 
             for classid in classids:
                 self.clear_class_waitlist(classid)
         except:
-            print('failed to clear waitlists for course', courseid, file=stderr)
+            self._add_admin_log('failed to clear waitlists for course',
+                                courseid, file=stderr)
 
     # gets current term code from admin collection
 
@@ -300,7 +321,7 @@ class Database:
     # checks if user exists in users collection
 
     def is_user_created(self, netid):
-        return self.get_user(netid) is not None
+        return self._db.users.find_one({'netid': netid.rstrip()}, {'netid': 1}) is not None
 
     # creates user entry in users collection
 
@@ -586,7 +607,7 @@ class Database:
             blacklist = self.get_blacklist()
             return netid in blacklist
         except Exception:
-            print(f'Error in checking if {netid} is on blacklist', file=stderr)
+            print(f'error in checking if {netid} is on blacklist', file=stderr)
 
     # adds netid to app blacklist
     def add_to_blacklist(self, netid):
@@ -600,29 +621,38 @@ class Database:
 
         try:
             blacklist = self.get_blacklist()
+
+            # check if user is already in blacklist
             if netid in blacklist:
-                print('user', netid, 'already on app blacklist')
-            else:
+                self._add_admin_log(
+                    f'user {netid} already on app blacklist - not added')
+                return
+
+            if self.is_user_created(netid):
                 remove_user(netid)
-                blacklist.append(netid)
-                self._db.admin.update_one(
-                    {}, {'$set': {'blacklist': blacklist}})
-                print('user', netid,
-                      'added to app blacklist and removed from database')
+
+            blacklist.append(netid)
+            self._db.admin.update_one(
+                {}, {'$set': {'blacklist': blacklist}})
+            self._add_admin_log(
+                f'user {netid} added to app blacklist and removed from database')
+
         except Exception:
-            print(f'Error in adding {netid} to blacklist', file=stderr)
+            print(f'error in adding {netid} to blacklist', file=stderr)
 
     # remove netid from app blacklist
     def remove_from_blacklist(self, netid):
         try:
             blacklist = self.get_blacklist()
             if netid not in blacklist:
-                print('user', netid, 'is not on app blacklist')
-            else:
-                blacklist.remove(netid)
-                self._db.admin.update_one(
-                    {}, {'$set': {'blacklist': blacklist}})
-                print('user', netid, 'removed from app blacklist')
+                self._add_admin_log(
+                    f'user {netid} is not on app blacklist - not removed')
+                return
+
+            blacklist.remove(netid)
+            self._db.admin.update_one(
+                {}, {'$set': {'blacklist': blacklist}})
+            self._add_admin_log(f'user {netid} removed from app blacklist')
         except Exception:
             print(f'Error in removing {netid} from blacklist', file=stderr)
 
@@ -688,7 +718,9 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
-    print(db.get_admin_data())
-    print(db.get_app_data())
+    db.add_to_blacklist('ntyp')
+    # print(db.get_admin_logs())
+    # print(db.get_admin_data())
+    # print(db.get_app_data())
     # db.set_maintenance_status(True)
     # db.set_maintenance_status(False)
