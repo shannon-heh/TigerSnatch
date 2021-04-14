@@ -91,7 +91,7 @@ class Notify:
         you = self._email  # receiver
         pwd = TS_PASSWORD  # see config.py
 
-        msg['Subject'] = f'A spot opened in {self._sectionname} {self._coursename}'
+        msg['Subject'] = f'A spot opened in {self._coursename} {self._sectionname}'
         msg['From'] = me
         msg['To'] = you
         s = smtplib.SMTP('smtp.office365.com', 587)
