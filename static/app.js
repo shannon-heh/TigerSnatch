@@ -299,6 +299,9 @@ let initTooltipsToasts = function () {
     let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+    $("#status-indicator").on("click", function (e) {
+        e.preventDefault();
+    });
 };
 
 let navbarAutoclose = function () {

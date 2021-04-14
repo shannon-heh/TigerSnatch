@@ -2,6 +2,7 @@
     <div id="nav-container" class="container-fluid">
         <a id="nav-logo" class="navbar-brand fs-3" href="/dashboard">
             <img
+                id="tigersnatch-icon"
                 src="/static/logo-alt.svg"
                 width="40"
                 height="40"
@@ -9,10 +10,12 @@
                 class="d-inline-block align-text-center mx-2"
             />
             TigerSnatch
-            <span class="badge bg-warning text-dark font-monospace pe-1 ps-2 py-0 ms-1 fs-4"
+            <span
+                id="tigersnatch-beta"
+                class="badge bg-warning text-dark font-monospace pe-1 ps-2 py-0 ms-1 fs-4"
                 >BETA</span
             >
-            <span class="fs-6 ms-3"
+            <span id="status-indicator" class="fs-6 ms-3"
                 >active:
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -22,10 +25,9 @@
                     class="bi bi-circle-fill"
                     viewBox="0 0 16 16"
                 >
-                    <circle cx="8" cy="8" r="8" /></svg
-            ></span>
-            <span class="fs-6"
-                ><svg
+                    <circle cx="8" cy="8" r="8" />
+                </svg>
+                <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
                     height="16"

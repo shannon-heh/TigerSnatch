@@ -38,6 +38,18 @@ div.row.align-items-start {
     height: 4rem;
 }
 
+#status-tooltip,
+#status-indicator {
+    cursor: default;
+}
+
+@media (max-width: 575.98px) {
+    img#tigersnatch-icon,
+    span#tigersnatch-beta {
+        display: none !important;
+    }
+}
+
 ul.navbar-nav {
     background: #ffe68ad4;
 }
