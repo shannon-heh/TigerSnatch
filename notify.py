@@ -6,7 +6,8 @@
 from database import Database
 import smtplib
 from email.message import EmailMessage
-from email.utils import make_msgid
+from email.header import Header
+from email.utils import make_msgid, formataddr
 from sys import stderr
 from config import TS_EMAIL, TS_PASSWORD
 from datetime import datetime, timedelta
@@ -87,7 +88,7 @@ class Notify:
             </html>
             """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
 
-        me = TS_EMAIL
+        me = formataddr((str(Header('TigerSnatch', 'utf-8')), TS_EMAIL))
         you = self._email  # receiver
         pwd = TS_PASSWORD  # see config.py
 
