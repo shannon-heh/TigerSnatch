@@ -689,6 +689,6 @@ if __name__ == '__main__':
     db = Database()
     # print(db.get_admin_data())
     # print(db.get_app_data())
-    print(db.set_cron_notification_status(False))
+    # db.set_cron_notification_status(True)
     # db.set_maintenance_status(True)
     # db.set_maintenance_status(False)
