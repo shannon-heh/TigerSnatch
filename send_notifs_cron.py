@@ -1,10 +1,8 @@
 # ----------------------------------------------------------------------
-# cron_notifs.py
+# send_notifs_cron.py
 # Manages regular execution of the email notification script using a
-# cron wrapper.
+# cron wrapper. Disable/enable using admin panel or _set_cron_status.py.
 #
-# Enable with:                          heroku ps:scale clock=1
-# Disable with:                         heroku ps:scale clock=0
 # Set execution interval in config:     NOTIFS_INTERVAL_MINS
 # ----------------------------------------------------------------------
 

@@ -39,16 +39,19 @@ if __name__ == '__main__':
 
     tic = time()
     hard_reset = process_args()
+    db = Database()
+    db.set_maintenance_status(True)
+    db.set_cron_notification_status(False)
 
     # get current term code
     terms = MobileApp().get_terms()
 
     try:
         current_term_code = terms['term'][0]['code']
-        Database().update_current_term_code(current_term_code)
+        db.update_current_term_code(current_term_code)
         ######################### REMOVE LATER #########################
         # current_term_code = '1214'
-        # Database().update_current_term_code('1214')
+        # db.update_current_term_code('1214')
         ################################################################
     except:
         raise Exception('failed to get current term code')
@@ -71,5 +74,8 @@ if __name__ == '__main__':
 
     # with Pool(1) as pool:
     #     pool.map(process_dept_code, process_dept_code_args)
+
+    db.set_maintenance_status(False)
+    db.set_cron_notification_status(True)
 
     print(f'success: approx. {round(time()-tic)} seconds')

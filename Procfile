@@ -1,2 +1,2 @@
 web: gunicorn app:app
-clock: python _cron_notifs.py
+notifs: python send_notifs_cron.py

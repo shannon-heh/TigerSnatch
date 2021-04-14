@@ -11,7 +11,6 @@ from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SC
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from datetime import datetime
-from os import system
 import heroku3
 
 
@@ -70,18 +69,21 @@ class Database:
             'num_sections_with_waitlists': num_sections_with_waitlists
         }
 
-    # connects to heroku and returns app variable so you can do operations with heroku
-    def connect_to_heroku(self):
+    # connects to Heroku and returns app variable so you can do
+    # operations with Heroku
+
+    def _connect_to_heroku(self):
         heroku_conn = heroku3.from_key(HEROKU_API_KEY)
         app = heroku_conn.apps()['tigersnatch']
         return app
 
     # turn Heroku maintenance mode ON (True) or OFF (False)
+
     def set_maintenance_status(self, status):
         if not isinstance(status, bool):
             raise Exception('status must be a boolean')
 
-        app = self.connect_to_heroku()
+        app = self._connect_to_heroku()
         if status:
             app.enable_maintenance_mode()
         else:
@@ -96,13 +98,12 @@ class Database:
         if not isinstance(status, bool):
             raise Exception('status must be a boolean')
 
-        self._add_admin_log(
-            f'notification cron script status set to {"on" if status else "off"}')
-        cmd = f'heroku ps:scale clock={1 if status else 0}'
-        print('executing', cmd, end=' ...')
-        stdout.flush()
-        system(cmd)
+        app = self._connect_to_heroku()
+        app.process_formation()['notifs'].scale(1 if status else 0)
         self._db.admin.update_one({}, {'$set': {'notifications_on': status}})
+
+        self._add_admin_log(
+            f'notification cron script is now {"on" if status else "off"}')
 
     # sets notification script status; either True (on) or False (off)
 
