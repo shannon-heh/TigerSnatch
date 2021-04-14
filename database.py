@@ -36,7 +36,25 @@ class Database:
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
-    # conncts to heroku and returns app variable so you can do operations with heroku
+    # returns dictionary with all admin data
+    def get_admin_data(self):
+        return self._db.admin.find_one({}, {'_id': 0})
+
+    # returns dictionary with app-related data
+    def get_app_data(self):
+        num_users = self._db.users.count_documents({})
+        num_users_on_waitlists = self._db.waitlists.count_documents(
+            {'waitlists': {'$not': {'$size': 0}}})
+        num_courses_in_db = self._db.mappings.count_documents({})
+        num_sections_with_waitlists = self._db.waitlists.count_documents({})
+        return {
+            'num_users': num_users,
+            'num_users_on_waitlists': num_users_on_waitlists,
+            'num_courses_in_db': num_courses_in_db,
+            'num_sections_with_waitlists': num_sections_with_waitlists
+        }
+
+    # connects to heroku and returns app variable so you can do operations with heroku
     def connect_to_heroku(self):
         heroku_conn = heroku3.from_key(HEROKU_API_KEY)
         app = heroku_conn.apps()['tigersnatch']
@@ -670,5 +688,7 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
+    print(db.get_admin_data())
+    print(db.get_app_data())
     # db.set_maintenance_status(True)
     # db.set_maintenance_status(False)
