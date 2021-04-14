@@ -73,7 +73,9 @@ def tutorial():
         html = render_template('tutorial.html', loggedin=False)
         return make_response(html)
 
-    html = render_template('tutorial.html', loggedin=True)
+    html = render_template('tutorial.html',
+                           loggedin=True,
+                           notifs_online=Database().get_cron_notification_status())
     return make_response(html)
 
 
@@ -125,7 +127,9 @@ def about():
         html = render_template('about.html', loggedin=False)
         return make_response(html)
 
-    html = render_template('base.html', loggedin=True)
+    html = render_template('base.html',
+                           loggedin=True,
+                           notifs_online=Database().get_cron_notification_status())
     return make_response(html)
 
 
