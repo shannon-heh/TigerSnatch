@@ -9,7 +9,7 @@ from email.message import EmailMessage
 from email.utils import make_msgid
 from sys import stderr
 from config import TS_EMAIL, TS_PASSWORD
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Notify:
@@ -30,7 +30,7 @@ class Notify:
                 f'waitlist element {i} for class {classid} does not exist; user probably removed themself')
         self._email = db.get_user(self._netid)['email']
 
-        user_log = f"{datetime.now().strftime('%b %d, %Y @ %-I:%M %p')} \u2192 {n_new_slots} spots available in {self._deptnum} {self._sectionname}"
+        user_log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {n_new_slots} spots available in {self._deptnum} {self._sectionname}"
         db.update_user_log(self._netid, user_log)
 
         self._swap = swap

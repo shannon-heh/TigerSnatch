@@ -10,7 +10,7 @@ from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-from datetime import datetime
+from datetime import datetime, timedelta
 import heroku3
 
 
@@ -20,7 +20,7 @@ class Database:
 
     def __init__(self):
         print(
-            f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}: connecting to database', end='...')
+            f'{(datetime.now()-timedelta(hours=4)).strftime("%Y-%m-%d %H:%M:%S ET")}: connecting to database', end='...')
         stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
                                serverSelectionTimeoutMS=5000)
@@ -44,7 +44,7 @@ class Database:
     def _add_admin_log(self, log):
         print(log)
         logs = self._db.admin.find_one({}, {'logs': 1, '_id': 0})['logs']
-        log = f"{datetime.now().strftime('%b %d, %Y @ %-I:%M %p')} \u2192 {log}"
+        log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {log}"
         logs.insert(0, log)
 
         if len(logs) > MAX_ADMIN_LOG_LENGTH:

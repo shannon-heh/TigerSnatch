@@ -14,7 +14,7 @@ from database import Database
 from sys import stdout, stderr
 from random import shuffle
 from time import time
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def cronjob():
@@ -22,7 +22,7 @@ def cronjob():
     monitor = Monitor()
     db = Database()
 
-    print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    print((datetime.now()-timedelta(hours=4)).strftime('%Y-%m-%d %H:%M:%S ET'))
     print('starting notification cron job')
 
     # get all class openings (for waited-on classes) from MobileApp
