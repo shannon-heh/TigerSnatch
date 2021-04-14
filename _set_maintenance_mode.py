@@ -1,10 +1,10 @@
 # ----------------------------------------------------------------------
 # _set_maintenance_mode.py
-# Simple script to enable or disable the cron notification script.
+# Simple script to enable or disable maintenance mode.
 #
 # Specify one of the following flags:
-#   --on: Enables maintenance mode.
-#	--off: Disables maintenance mode.
+#   --on: Enables maintenance mode
+#	--off: Disables maintenance mode
 #
 # Example: python _set_maintenance_mode.py --on
 # ----------------------------------------------------------------------
