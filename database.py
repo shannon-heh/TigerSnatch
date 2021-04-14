@@ -11,7 +11,6 @@ from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SC
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from datetime import datetime
-from os import system
 import heroku3
 
 
@@ -36,10 +35,28 @@ class Database:
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
+    # returns dictionary with all admin data
+    def get_admin_data(self):
+        return self._db.admin.find_one({}, {'_id': 0})
+
+    # returns dictionary with app-related data
+    def get_app_data(self):
+        num_users = self._db.users.count_documents({})
+        num_users_on_waitlists = self._db.waitlists.count_documents(
+            {'waitlists': {'$not': {'$size': 0}}})
+        num_courses_in_db = self._db.mappings.count_documents({})
+        num_sections_with_waitlists = self._db.waitlists.count_documents({})
+        return {
+            'num_users': num_users,
+            'num_users_on_waitlists': num_users_on_waitlists,
+            'num_courses_in_db': num_courses_in_db,
+            'num_sections_with_waitlists': num_sections_with_waitlists
+        }
+
     # connects to Heroku and returns app variable so you can do
     # operations with Heroku
 
-    def connect_to_heroku(self):
+    def _connect_to_heroku(self):
         heroku_conn = heroku3.from_key(HEROKU_API_KEY)
         app = heroku_conn.apps()['tigersnatch']
         return app
@@ -50,7 +67,7 @@ class Database:
         if not isinstance(status, bool):
             raise Exception('status must be a boolean')
 
-        app = self.connect_to_heroku()
+        app = self._connect_to_heroku()
         if status:
             app.enable_maintenance_mode()
         else:
@@ -64,13 +81,10 @@ class Database:
         if not isinstance(status, bool):
             raise Exception('status must be a boolean')
 
-        print(
-            f'notification cron script status set to {"on" if status else "off"}')
-        cmd = f'heroku ps:scale clock={1 if status else 0}'
-        print('executing', cmd, end=' ...')
-        stdout.flush()
-        system(cmd)
-        self._db.admin.update_one({}, {'$set': {'notifications_on': status}})
+        app = self._connect_to_heroku()
+        app.process_formation()['notifs'].scale(1 if status else 0)
+
+        print(f'notification cron script is now {"on" if status else "off"}')
 
     # sets notification script status; either True (on) or False (off)
 
@@ -673,5 +687,8 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
+    # print(db.get_admin_data())
+    # print(db.get_app_data())
+    print(db.set_cron_notification_status(False))
     # db.set_maintenance_status(True)
     # db.set_maintenance_status(False)
