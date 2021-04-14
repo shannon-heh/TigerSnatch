@@ -36,13 +36,16 @@ class Database:
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
-    # conncts to heroku and returns app variable so you can do operations with heroku
+    # connects to Heroku and returns app variable so you can do
+    # operations with Heroku
+
     def connect_to_heroku(self):
         heroku_conn = heroku3.from_key(HEROKU_API_KEY)
         app = heroku_conn.apps()['tigersnatch']
         return app
 
     # turn Heroku maintenance mode ON (True) or OFF (False)
+
     def set_maintenance_status(self, status):
         if not isinstance(status, bool):
             raise Exception('status must be a boolean')
