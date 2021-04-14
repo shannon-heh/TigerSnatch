@@ -160,7 +160,8 @@ def get_course_info(courseid):
                            classes_list=classes_list,
                            num_full=num_full,
                            term_code=term_code,
-                           curr_waitlists=curr_waitlists)
+                           curr_waitlists=curr_waitlists,
+                           notifs_online=_db.get_cron_notification_status())
     return make_response(html)
 
 
@@ -202,7 +203,8 @@ def get_course():
                            search_res=search_res,
                            num_full=num_full,
                            term_code=term_code,
-                           last_query=quote_plus(query))
+                           last_query=quote_plus(query),
+                           notifs_online=_db.get_cron_notification_status())
 
     return make_response(html)
 
