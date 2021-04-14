@@ -113,7 +113,8 @@ def dashboard():
                            username=netid.rstrip(),
                            data=data,
                            email=email,
-                           user_logs=user_logs)
+                           user_logs=user_logs,
+                           notifs_online=_db.get_cron_notification_status())
 
     return make_response(html)
 

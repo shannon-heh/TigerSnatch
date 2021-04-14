@@ -64,8 +64,11 @@ def cronjob():
 
             print()
 
-    print('done: sent a total of', total,
-          'emails in approx.', round(time()-tic), 'seconds')
+    print(total, 'emails sent in approx.', round(time()-tic), 'seconds')
+
+    if total > 0:
+        db._add_admin_log(
+            f'sent {total} emails in {round(time()-tic)} seconds')
 
 
 if __name__ == '__main__':

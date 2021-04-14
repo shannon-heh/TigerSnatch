@@ -12,6 +12,21 @@
             <span class="badge bg-warning text-dark font-monospace pe-1 ps-2 py-0 ms-1 fs-4"
                 >BETA</span
             >
+            <span class="fs-5 ms-4"
+                >status:
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="{{ '#51a451' if notifs_online else '#dc3545'}}"
+                    class="bi bi-circle-fill"
+                    viewBox="0 0 16 16"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="{{'ONLINE: every 2 minutes, TigerSnatch will check for open spots and send emails!' if notifs_online else 'OFFLINE: TigerSnatch is not currently checking for open spots.'}}"
+                >
+                    <circle cx="8" cy="8" r="8" /></svg
+            ></span>
         </a>
         <button
             class="navbar-toggler"
