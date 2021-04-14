@@ -6,12 +6,13 @@
 
 from sys import stdout, stderr
 import re
-from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE
+from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, HEROKU_API_KEY
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from datetime import datetime
 from os import system
+import heroku3
 
 
 class Database:
@@ -34,6 +35,25 @@ class Database:
         print('success')
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
+
+    # conncts to heroku and returns app variable so you can do operations with heroku
+    def connect_to_heroku(self):
+        heroku_conn = heroku3.from_key(HEROKU_API_KEY)
+        app = heroku_conn.apps()['tigersnatch']
+        return app
+
+    # turn Heroku maintenance mode ON (True) or OFF (False)
+    def set_maintenance_status(self, status):
+        if not isinstance(status, bool):
+            raise Exception('status must be a boolean')
+
+        app = self.connect_to_heroku()
+        if status:
+            app.enable_maintenance_mode()
+        else:
+            app.disable_maintenance_mode()
+
+        print(f'heroku maintenance mode is now {"on" if status else "off"}')
 
     # sets notification script status to either True (on) or False (off)
 
@@ -650,3 +670,5 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
+    # db.set_maintenance_status(True)
+    # db.set_maintenance_status(False)
