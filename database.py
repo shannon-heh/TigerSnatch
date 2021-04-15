@@ -141,25 +141,6 @@ class Database:
             self._add_admin_log('failed to clear waitlists for course',
                                 courseid, file=stderr)
 
-# ----------------------------------------------------------------------
-# BLACKLIST METHODS
-# ----------------------------------------------------------------------
-
-    # returns list of blacklisted netids
-
-    def get_blacklist(self):
-        return self._db.admin.find_one(
-            {}, {'blacklist': 1, '_id': 0})['blacklist']
-
-    # returns True if netid is on app blacklist
-
-    def is_blacklisted(self, netid):
-        try:
-            blacklist = self.get_blacklist()
-            return netid in blacklist
-        except Exception:
-            print(f'error in checking if {netid} is on blacklist', file=stderr)
-
     # adds netid to app blacklist
 
     def add_to_blacklist(self, netid):
@@ -209,20 +190,24 @@ class Database:
         except Exception:
             print(f'Error in removing {netid} from blacklist', file=stderr)
 
-    # turn Heroku maintenance mode ON (True) or OFF (False)
+    # returns list of blacklisted netids
 
-    def set_maintenance_status(self, status):
-        if not isinstance(status, bool):
-            raise Exception('status must be a boolean')
+    def get_blacklist(self):
+        return self._db.admin.find_one(
+            {}, {'blacklist': 1, '_id': 0})['blacklist']
 
-        app = self._connect_to_heroku()
-        if status:
-            app.enable_maintenance_mode()
-        else:
-            app.disable_maintenance_mode()
+# ----------------------------------------------------------------------
+# BLACKLIST UTILITY METHODS
+# ----------------------------------------------------------------------
 
-        self._add_admin_log(
-            f'heroku maintenance mode is now {"on" if status else "off"}')
+    # returns True if netid is on app blacklist
+
+    def is_blacklisted(self, netid):
+        try:
+            blacklist = self.get_blacklist()
+            return netid in blacklist
+        except Exception:
+            print(f'error in checking if {netid} is on blacklist', file=stderr)
 
 # ----------------------------------------------------------------------
 # USER METHODS
@@ -747,6 +732,21 @@ class Database:
         if COLLECTIONS != set(self._db.list_collection_names()):
             raise RuntimeError(
                 'one or more database collections is misnamed and/or missing')
+
+    # turn Heroku maintenance mode ON (True) or OFF (False)
+
+    def set_maintenance_status(self, status):
+        if not isinstance(status, bool):
+            raise Exception('status must be a boolean')
+
+        app = self._connect_to_heroku()
+        if status:
+            app.enable_maintenance_mode()
+        else:
+            app.disable_maintenance_mode()
+
+        self._add_admin_log(
+            f'heroku maintenance mode is now {"on" if status else "off"}')
 
     # connects to Heroku and returns app variable so you can do
     # operations with Heroku
