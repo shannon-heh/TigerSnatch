@@ -6,8 +6,7 @@
 from database import Database
 import smtplib
 from email.message import EmailMessage
-from email.header import Header
-from email.utils import make_msgid, formataddr
+from email.utils import make_msgid
 from sys import stderr
 from config import TS_EMAIL, TS_PASSWORD
 from datetime import datetime, timedelta
@@ -88,11 +87,11 @@ class Notify:
             </html>
             """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
 
-        me = formataddr((str(Header('TigerSnatch', 'utf-8')), TS_EMAIL))
+        me = TS_EMAIL
         you = self._email  # receiver
         pwd = TS_PASSWORD  # see config.py
 
-        msg['Subject'] = f'A spot opened in {self._coursename} {self._sectionname}'
+        msg['Subject'] = f'TigerSnatch: a spot opened in {self._coursename} {self._sectionname}'
         msg['From'] = me
         msg['To'] = you
         s = smtplib.SMTP('smtp.office365.com', 587)
