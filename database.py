@@ -85,19 +85,19 @@ class Database:
 
         app = self._connect_to_heroku()
         app.process_formation()['notifs'].scale(1 if status else 0)
-        self._db.admin.update_one({}, {'$set': {'notifications_on': status}})
 
         self._add_admin_log(
-            f'notification cron script is now {"on" if status else "off"}')
+            f'notification script is now {"on" if status else "off"}')
 
     # sets notification script status; either True (on) or False (off)
 
     def get_cron_notification_status(self):
         try:
-            return self._db.admin.find_one({})['notifications_on']
+            app = self._connect_to_heroku()
+            return 'notifs' in app.dynos()
         except:
             raise Exception(
-                'notifications_on attribute missing', file=stderr)
+                'something is badly wrong - check heroku website', file=stderr)
 
     # clears and removes users from all waitlists
 
