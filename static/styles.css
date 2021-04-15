@@ -43,6 +43,13 @@ div.row.align-items-start {
     cursor: default;
 }
 
+@media (max-width: 349.98px) {
+    #status-tooltip,
+    #status-indicator {
+        display: none;
+    }
+}
+
 @media (max-width: 575.98px) {
     img#tigersnatch-icon,
     span#tigersnatch-beta {
@@ -74,7 +81,6 @@ ul.navbar-nav {
 }
 
 div#search-results {
-    height: calc(100% - 4.5rem);
     overflow: scroll;
 }
 
@@ -246,14 +252,14 @@ p#landing-bottom-text {
 @media (max-width: 575.98px) {
     svg#landing-splash {
         height: 300px;
-        margin-bottom: 50px;
+        margin-bottom: 20px;
     }
 }
 
 @media (min-width: 576px) and (max-width: 1399.98px) {
     svg#landing-splash {
         height: 350px;
-        margin-bottom: 50px;
+        margin-bottom: 20px;
     }
 }
 
