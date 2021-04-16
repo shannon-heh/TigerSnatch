@@ -51,7 +51,8 @@ def login():
     netid = _CAS.authenticate()
     netid = netid.rstrip()
     if _db.is_blacklisted(netid):
-        print('blacklisted user ', netid, ' attempted to access the app')
+        _db._add_admin_log('blacklisted user', netid,
+                           'attempted to access the app')
         return make_response(render_template('blacklisted.html'))
 
     if not _db.is_user_created(netid):
@@ -88,7 +89,8 @@ def dashboard():
     netid = _CAS.authenticate()
     netid = netid.rstrip()
     if _db.is_blacklisted(netid):
-        print('blacklisted user ', netid, ' attempted to access the app')
+        _db._add_admin_log('blacklisted user', netid,
+                           'attempted to access the app')
         return make_response(render_template('blacklisted.html'))
     print('user', netid, 'viewed dashboard')
 
@@ -175,7 +177,8 @@ def get_course():
     netid = _CAS.authenticate()
     netid = netid.rstrip()
     if _db.is_blacklisted(netid):
-        print('blacklisted user', netid, 'attempted to access the app')
+        _db._add_admin_log('blacklisted user', netid,
+                           'attempted to access the app')
         return make_response(render_template('blacklisted.html'))
 
     courseid = request.args.get('courseid')
