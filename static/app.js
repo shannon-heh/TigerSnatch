@@ -196,12 +196,10 @@ let switchListener = function () {
             $.post(`/add_to_waitlist/${classid}`, function (res) {
                 // checks that user successfully added to waitlist on back-end
                 if (res["isSuccess"] === 2) {
-                    // console.log(`Failed to add to waitlist for class ${classid}`);
                     $(switchid).attr("disabled", false);
                     return;
                 }
                 if (res["isSuccess"] === 0) {
-                    console.log("youre full lol");
                     $("#close-waitlist-modal").modal("show");
                     $(switchid).attr("checked", false);
                     $(switchid).prop("checked", false);
@@ -215,7 +213,6 @@ let switchListener = function () {
 
                 $(".toast-container").prepend(toastAdded.clone().attr("id", "toast-added-" + ++i));
                 $("#toast-added-" + i).toast("show");
-                // console.log(`Successfully added to waitlist for class ${classid}`);
             });
         }
     });
@@ -231,7 +228,6 @@ let modalConfirmListener = function () {
         $.post(`/remove_from_waitlist/${classid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
-                // console.log(`Failed to remove from waitlist for class ${classid}`);
                 $(switchid).attr("disabled", false);
                 return;
             }
@@ -243,7 +239,6 @@ let modalConfirmListener = function () {
 
             $(".toast-container").prepend(toastRemoved.clone().attr("id", "toast-removed-" + ++i));
             $("#toast-removed-" + i).toast("show");
-            // console.log(`Successfully removed from waitlist for class ${classid}`);
         });
     });
 };
@@ -319,37 +314,35 @@ let blacklistListener = function () {
     $("button.btn-blacklist").on("click", function (e) {
         e.preventDefault();
         netid = e.target.getAttribute("data-netid");
-        console.log(netid)
         switchid = `#button-${netid}`;
         $(switchid).attr("disabled", true);
         $.post(`/add_to_blacklist/${netid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
-                // console.log(`Failed to remove from waitlist for class ${classid}`);
                 $(switchid).html("Failed");
                 return;
             }
             $(`#admin-results-${netid}`).remove();
-            $("#blacklisted").append(`<tr id='button-removal-${netid}' class='dashboard-course-row'><td>
+            $(
+                "#blacklisted"
+            ).append(`<tr id='button-removal-${netid}' class='dashboard-course-row'><td>
                     ${netid}
                 </td>
                 <td>
                     <button type='button' id='button-remove-${netid}' data-netid=${netid} class='btn btn-sm btn-warning btn-blacklist-removal'>remove</button>
                 </td>    
             </tr>`);
-            $(document).on('click', `#button-remove-${netid}`, function (e) {
+            $(document).on("click", `#button-remove-${netid}`, function (e) {
                 e.preventDefault();
                 netid = e.target.getAttribute("data-netid");
-                console.log(netid)
                 $(`#button-remove-${netid}`).attr("disabled", true);
                 $.post(`/remove_from_blacklist/${netid}`, function (res) {
                     // checks that user successfully removed from waitlist on back-end
                     if (!res["isSuccess"]) {
-                        // console.log(`Failed to remove from waitlist for class ${classid}`);
                         $(`#button-remove-${netid}`).attr("disabled", false);
                         return;
                     }
-                    $(`#button-removal-${netid}`).remove()
+                    $(`#button-removal-${netid}`).remove();
                 });
             });
         });
@@ -361,17 +354,15 @@ let blacklistRemovalListener = function () {
     $("button.btn-blacklist-removal").on("click", function (e) {
         e.preventDefault();
         netid = e.target.getAttribute("data-netid");
-        console.log(netid)
         switchid = `#button-remove-${netid}`;
         $(switchid).attr("disabled", true);
         $.post(`/remove_from_blacklist/${netid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
-                // console.log(`Failed to remove from waitlist for class ${classid}`);
                 $(switchid).attr("disabled", false);
                 return;
             }
-            $(`#button-removal-${netid}`).remove()
+            $(`#button-removal-${netid}`).remove();
         });
     });
 };
@@ -382,7 +373,7 @@ let enableAdminFunction = function () {
     $("#classid-clear-submit").attr("disabled", false);
     $("#courseid-clear-input").attr("disabled", false);
     $("#courseid-clear-submit").attr("disabled", false);
-}
+};
 
 let disableAdminFunction = function () {
     $("#clear-all").attr("disabled", true);
@@ -390,21 +381,24 @@ let disableAdminFunction = function () {
     $("#classid-clear-submit").attr("disabled", true);
     $("#courseid-clear-input").attr("disabled", true);
     $("#courseid-clear-submit").attr("disabled", true);
-}
+};
 
 // listens for "Confirm" removal from waitlist
 let clearAllWaitlistListener = function () {
     $("#clear-all").on("click", function (e) {
         e.preventDefault();
+
+        if (!confirm("Are you sure you want to clear all waitlists? This action is irreversible."))
+            return;
+
         disableAdminFunction();
         $.post(`/clear_all_waitlists`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
-                // console.log(`Failed to remove from waitlist for class ${classid}`);
-                enableAdminFunction()
+                enableAdminFunction();
                 return;
             }
-        enableAdminFunction();
+            enableAdminFunction();
         });
     });
 };
@@ -413,12 +407,11 @@ let clearAllWaitlistListener = function () {
 let clearClassWaitlistListener = function () {
     $("#classid-clear").on("submit", function (e) {
         e.preventDefault();
-        classid = $("#classid-clear-input").val()
+        classid = $("#classid-clear-input").val();
         disableAdminFunction();
         $.post(`/clear_by_class/${classid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
-                // console.log(`Failed to remove from waitlist for class ${classid}`);
                 enableAdminFunction();
             }
             enableAdminFunction();
@@ -430,12 +423,11 @@ let clearClassWaitlistListener = function () {
 let clearCourseWaitlistListener = function () {
     $("#courseid-clear").on("submit", function (e) {
         e.preventDefault();
-        courseid = $("#courseid-clear-input").val()
+        courseid = $("#courseid-clear-input").val();
         disableAdminFunction();
         $.post(`/clear_by_course/${courseid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
-                // console.log(`Failed to remove from waitlist for class ${classid}`);
                 enableAdminFunction();
                 return;
             }

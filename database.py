@@ -6,7 +6,7 @@
 
 from sys import stdout, stderr
 import re
-from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, HEROKU_API_KEY, ADMIN_NETIDS
+from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, HEROKU_API_KEY
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -51,6 +51,11 @@ class Database:
             logs.pop(-1)
 
         self._db.admin.update_one({}, {'$set': {'logs': logs}})
+
+    # check if netid is an admin is defined in the database
+
+    def is_admin(self, netid):
+        return netid in self._db.admin.find_one({}, {'admins': 1, '_id': 0})['admins']
 
     # returns MAX_ADMIN_LOG_LENGTH most recent admin logs
 
@@ -117,7 +122,7 @@ class Database:
 
     # clears and removes users from the waitlist for class classid
 
-    def clear_class_waitlist(self, classid):
+    def clear_class_waitlist(self, classid, log_classid_skip=True):
         try:
             class_waitlist = self.get_class_waitlist(classid)['waitlist']
             self._add_admin_log(
@@ -128,8 +133,9 @@ class Database:
             self._db.waitlists.delete_one({'classid': classid})
             return True
         except:
-            self._add_admin_log(
-                f'waitlist for class {classid} does not exist - skipping')
+            if log_classid_skip:
+                self._add_admin_log(
+                    f'waitlist for class {classid} does not exist - skipping')
             return False
 
     # clears and removes users from all waitlists for class classid
@@ -142,7 +148,7 @@ class Database:
             self._add_admin_log(f'clearing waitlists for course {courseid}')
 
             for classid in classids:
-                self.clear_class_waitlist(classid)
+                self.clear_class_waitlist(classid, log_classid_skip=False)
             return True
         except:
             self._add_admin_log(
@@ -161,7 +167,7 @@ class Database:
             self._db.users.delete_one({'netid': netid})
 
         try:
-            if netid in ADMIN_NETIDS:
+            if self.is_admin(netid):
                 self._add_admin_log(
                     f'user {netid} is an admin - cannot be added to blacklist')
                 return
@@ -798,4 +804,5 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
-    db.remove_from_blacklist('sheh')
+    # db.remove_from_blacklist('sheh')
+    print(db.is_admin('ntyp'))

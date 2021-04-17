@@ -6,7 +6,6 @@
 from database import Database
 from monitor import Monitor
 import re
-from config import ADMIN_NETIDS
 
 
 MAX_QUERY_LENGTH = 150
@@ -65,7 +64,7 @@ def pull_course(courseid):
 
 
 def is_admin(netid):
-    return netid.rstrip() in ADMIN_NETIDS
+    return Database().is_admin(netid.rstrip())
 
 
 if __name__ == '__main__':

@@ -4,61 +4,58 @@
             <tr>
                 <th scope="col">Description</th>
                 <th scope="col">Inputs</th>
-                <th scopt='col'>Action</th>
+                <th scopt="col">Action</th>
             </tr>
         </thead>
         <tbody>
-            <!-- <tr class="dashboard-course-row">
-                <td>
-                    Set.
-                </td>
-                <td>
-                    -
-                </td>
-                <td>
-                    <button id='clear-all' type='button' class='btn btn-warning'>Clear</button>
-                </td>
-            
-            </tr> -->
             <tr class="dashboard-course-row">
+                <td>Clear all waitlists</td>
+                <td>-</td>
                 <td>
-                    Clear all waitlists
+                    <button id="clear-all" type="button" class="btn btn-warning">Clear</button>
                 </td>
-                <td>
-                    -
-                </td>
-                <td>
-                    <button id='clear-all' type='button' class='btn btn-warning'>Clear</button>
-                </td>
-
             </tr>
             <tr class="dashboard-course-row">
-                <td>
-                    Clear waitlist for a class
-                </td>
-                <form id='classid-clear'>
+                <td>Clear waitlist for a section</td>
+                <form id="classid-clear">
                     <td>
-                        <input id='classid-clear-input' class='form-control' type='text' placeholder="Enter a 5-digit classid (e.g. 24890)" minlength="5" maxlength="5" required>
+                        <input
+                            id="classid-clear-input"
+                            class="form-control"
+                            type="text"
+                            placeholder="Enter a 5-digit classid (e.g. 24890)"
+                            minlength="5"
+                            maxlength="5"
+                            required
+                        />
                     </td>
                     <td>
-                        <button id='classid-clear-submit' type='submit' class='btn btn-warning'>Clear</button>
+                        <button id="classid-clear-submit" type="submit" class="btn btn-warning">
+                            Clear
+                        </button>
                     </td>
                 </form>
-
             </tr>
             <tr class="dashboard-course-row">
-                <td>
-                    Clear waitlist for a course
-                </td>
+                <td>Clear waitlist for a course</td>
                 <form id="courseid-clear">
-                <td>
-                    <input id='courseid-clear-input' class='form-control' type='text' placeholder="Enter a 6-digit courseid (e.g. 021580)" minlength="6" maxlength="6" required>
-                </td>
-                <td>
-                    <button id='courseid-clear-submit' type='submit' class='btn btn-warning'>Clear</button>
-                </td>
+                    <td>
+                        <input
+                            id="courseid-clear-input"
+                            class="form-control"
+                            type="text"
+                            placeholder="Enter a 6-digit courseid (e.g. 021580)"
+                            minlength="6"
+                            maxlength="6"
+                            required
+                        />
+                    </td>
+                    <td>
+                        <button id="courseid-clear-submit" type="submit" class="btn btn-warning">
+                            Clear
+                        </button>
+                    </td>
                 </form>
-
             </tr>
         </tbody>
     </table>

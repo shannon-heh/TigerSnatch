@@ -300,7 +300,7 @@ def remove_from_blacklist(user):
     return jsonify({"isSuccess": Database().remove_from_blacklist(user)})
 
 
-@app.route('/clear_all_waitlists/', methods=['POST'])
+@app.route('/clear_all_waitlists', methods=['POST'])
 def clear_all_waitlists():
     netid = _CAS.authenticate()
 
@@ -336,4 +336,4 @@ def clear_by_course(courseid):
     except:
         return redirect(url_for(''))
 
-    return jsonify({"isSuccess": Database().clear_class_waitlist(courseid)})
+    return jsonify({"isSuccess": Database().clear_course_waitlists(courseid)})
