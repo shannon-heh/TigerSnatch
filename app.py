@@ -75,6 +75,7 @@ def tutorial():
         return make_response(html)
 
     html = render_template('tutorial.html',
+                           user_is_admin=is_admin(CASClient().authenticate()),
                            loggedin=True,
                            notifs_online=Database().get_cron_notification_status())
     return make_response(html)
@@ -113,6 +114,7 @@ def dashboard():
     html = render_template('base.html',
                            is_dashboard=True,
                            is_admin=False,
+                           user_is_admin=is_admin(netid),
                            search_res=search_res,
                            last_query=quote_plus(query),
                            username=netid.rstrip(),
@@ -131,6 +133,7 @@ def about():
         return make_response(html)
 
     html = render_template('base.html',
+                           user_is_admin=is_admin(CASClient().authenticate()),
                            loggedin=True,
                            notifs_online=Database().get_cron_notification_status())
     return make_response(html)
@@ -158,6 +161,7 @@ def get_course_info(courseid):
     term_code = _db.get_current_term_code()
 
     html = render_template('course/course.html',
+                           user_is_admin=is_admin(netid),
                            courseid=courseid,
                            course_details=course_details,
                            classes_list=classes_list,
@@ -200,6 +204,7 @@ def get_course():
     html = render_template('base.html',
                            is_dashboard=False,
                            is_admin=False,
+                           user_is_admin=is_admin(netid),
                            netid=netid,
                            courseid=courseid,
                            course_details=course_details,
@@ -258,6 +263,7 @@ def admin():
     html = render_template('base.html',
                            is_dashboard=False,
                            is_admin=True,
+                           user_is_admin=True,
                            search_res=search_res,
                            last_query=quote_plus(query),
                            username=netid.rstrip(),
