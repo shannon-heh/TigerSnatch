@@ -272,14 +272,14 @@ p#landing-bottom-text {
 @media (max-width: 575.98px) {
     svg#landing-splash {
         height: 300px;
-        margin-bottom: 20px;
+        /* margin-bottom: 20px; */
     }
 }
 
 @media (min-width: 576px) and (max-width: 1399.98px) {
     svg#landing-splash {
         height: 350px;
-        margin-bottom: 20px;
+        /* margin-bottom: 20px; */
     }
 }
 
