@@ -76,7 +76,8 @@ let searchFormListener = function () {
         $("#search-form-input").tooltip("hide");
 
         // get serach query
-        query = $("#search-form-input").prop("value");
+        query = encodeURIComponent($("#search-form-input").prop("value"));
+
         // construct new URL
         params = location.search;
         curr_path = location.pathname;
@@ -118,7 +119,7 @@ let searchResultListener = function () {
     $(".search-results-link").on("click", function (e) {
         e.preventDefault();
 
-        // blur frame while loadidng
+        // blur frame while loading
         $("*").css("pointer-events", "none");
         $("*").css("cursor", "wait");
         $("#right-wrapper").css("filter", "blur(2px)");
@@ -163,6 +164,16 @@ let searchResultListener = function () {
             modalConfirmListener();
             searchSkip();
         });
+    });
+};
+
+// listens for when user clicks on course in dashboard
+// to navigate to its course page
+let dashboardCourseSelectListener = function () {
+    $(".dashboard-course-link").on("click", function (e) {
+        // blur frame while loadidng
+        $("*").css("pointer-events", "none");
+        $("#right-wrapper").css("filter", "blur(2px)");
     });
 };
 
@@ -263,17 +274,6 @@ let pageBackListener = function () {
     $(window).on("popstate", function () {
         // for now, just reloads
         location.reload();
-
-        // html = window.history.state['html'];
-        // restore = window.history.state['restore'];
-        // if (restore === 'right') {
-        //     $("#right-wrapper").html(html);
-        // }
-        // else if (restore === 'search') {
-        //     $("div#search-results").html(html);
-        // }
-        // else {
-        // }
     });
 };
 
@@ -299,6 +299,149 @@ let initTooltipsToasts = function () {
     let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+    $("#status-indicator").on("click", function (e) {
+        e.preventDefault();
+    });
+};
+
+let navbarAutoclose = function () {
+    $(document).click(function (event) {
+        var click = $(event.target);
+        var _open = $(".navbar-collapse").hasClass("show");
+        if (_open && !click.hasClass("navbar-toggler")) {
+            $(".navbar-toggler").click();
+        }
+    });
+};
+
+// listens for "Confirm" removal from waitlist
+let blacklistListener = function () {
+    $("button.btn-blacklist").on("click", function (e) {
+        e.preventDefault();
+        netid = e.target.getAttribute("data-netid");
+        console.log(netid)
+        switchid = `#button-${netid}`;
+        $(switchid).attr("disabled", true);
+        $.post(`/add_to_blacklist/${netid}`, function (res) {
+            // checks that user successfully removed from waitlist on back-end
+            if (!res["isSuccess"]) {
+                // console.log(`Failed to remove from waitlist for class ${classid}`);
+                $(switchid).html("Failed");
+                return;
+            }
+            $(`#admin-results-${netid}`).remove();
+            $("#blacklisted").append(`<tr id='button-removal-${netid}' class='dashboard-course-row'><td>
+                    ${netid}
+                </td>
+                <td>
+                    <button type='button' id='button-remove-${netid}' data-netid=${netid} class='btn btn-sm btn-warning btn-blacklist-removal'>remove</button>
+                </td>    
+            </tr>`);
+            $(document).on('click', `#button-remove-${netid}`, function (e) {
+                e.preventDefault();
+                netid = e.target.getAttribute("data-netid");
+                console.log(netid)
+                $(`#button-remove-${netid}`).attr("disabled", true);
+                $.post(`/remove_from_blacklist/${netid}`, function (res) {
+                    // checks that user successfully removed from waitlist on back-end
+                    if (!res["isSuccess"]) {
+                        // console.log(`Failed to remove from waitlist for class ${classid}`);
+                        $(`#button-remove-${netid}`).attr("disabled", false);
+                        return;
+                    }
+                    $(`#button-removal-${netid}`).remove()
+                });
+            });
+        });
+    });
+};
+
+// listens for "Confirm" removal from waitlist
+let blacklistRemovalListener = function () {
+    $("button.btn-blacklist-removal").on("click", function (e) {
+        e.preventDefault();
+        netid = e.target.getAttribute("data-netid");
+        console.log(netid)
+        switchid = `#button-remove-${netid}`;
+        $(switchid).attr("disabled", true);
+        $.post(`/remove_from_blacklist/${netid}`, function (res) {
+            // checks that user successfully removed from waitlist on back-end
+            if (!res["isSuccess"]) {
+                // console.log(`Failed to remove from waitlist for class ${classid}`);
+                $(switchid).attr("disabled", false);
+                return;
+            }
+            $(`#button-removal-${netid}`).remove()
+        });
+    });
+};
+
+let enableAdminFunction = function () {
+    $("#clear-all").attr("disabled", false);
+    $("#classid-clear-input").attr("disabled", false);
+    $("#classid-clear-submit").attr("disabled", false);
+    $("#courseid-clear-input").attr("disabled", false);
+    $("#courseid-clear-submit").attr("disabled", false);
+}
+
+let disableAdminFunction = function () {
+    $("#clear-all").attr("disabled", true);
+    $("#classid-clear-input").attr("disabled", true);
+    $("#classid-clear-submit").attr("disabled", true);
+    $("#courseid-clear-input").attr("disabled", true);
+    $("#courseid-clear-submit").attr("disabled", true);
+}
+
+// listens for "Confirm" removal from waitlist
+let clearAllWaitlistListener = function () {
+    $("#clear-all").on("click", function (e) {
+        e.preventDefault();
+        disableAdminFunction();
+        $.post(`/clear_all_waitlists`, function (res) {
+            // checks that user successfully removed from waitlist on back-end
+            if (!res["isSuccess"]) {
+                // console.log(`Failed to remove from waitlist for class ${classid}`);
+                enableAdminFunction()
+                return;
+            }
+        enableAdminFunction();
+        });
+    });
+};
+
+// listens for "Confirm" removal from waitlist
+let clearClassWaitlistListener = function () {
+    $("#classid-clear").on("submit", function (e) {
+        e.preventDefault();
+        classid = $("#classid-clear-input").val()
+        disableAdminFunction();
+        $.post(`/clear_by_class/${classid}`, function (res) {
+            // checks that user successfully removed from waitlist on back-end
+            if (!res["isSuccess"]) {
+                // console.log(`Failed to remove from waitlist for class ${classid}`);
+                enableAdminFunction();
+            }
+            enableAdminFunction();
+        });
+    });
+};
+
+// listens for "Confirm" removal from waitlist
+let clearCourseWaitlistListener = function () {
+    $("#courseid-clear").on("submit", function (e) {
+        e.preventDefault();
+        courseid = $("#courseid-clear-input").val()
+        disableAdminFunction();
+        $.post(`/clear_by_course/${courseid}`, function (res) {
+            // checks that user successfully removed from waitlist on back-end
+            if (!res["isSuccess"]) {
+                // console.log(`Failed to remove from waitlist for class ${classid}`);
+                enableAdminFunction();
+                return;
+            }
+            enableAdminFunction();
+        });
+    });
 };
 
 // jQuery 'on' only applies listeners to elements currently on DOM
@@ -310,9 +453,16 @@ $(document).ready(function () {
     showAllListener();
     modalCancelListener();
     modalConfirmListener();
+    dashboardCourseSelectListener();
     // modalCloseListener();
     pageBackListener();
     dashboardSkip();
     searchSkip();
     initTooltipsToasts();
+    navbarAutoclose();
+    blacklistListener();
+    blacklistRemovalListener();
+    clearAllWaitlistListener();
+    clearClassWaitlistListener();
+    clearCourseWaitlistListener();
 });

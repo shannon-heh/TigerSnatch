@@ -1,28 +1,24 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>TigerSnatch | Error</title>
+        <title>TigerSnatch</title>
         {% include 'common.html' %}
     </head>
     <body id="error-container">
         <div class="container-fluid">
             <div class="row text-center">
-                <p class="fs-1 px-0 pt-5">Oops! Something went wrong.</p>
+                <p class="fs-3 px-0 pt-5">You have been blocked from accessing TigerSnatch.</p>
+                <p class="fs-5 px-0 pt-2">
+                    If you believe this is a mistake, please contact the TigerSnatch admins
+                    (tigersnatch@princeton.edu).
+                </p>
                 <img
-                    src="/static/error.svg"
+                    src="/static/forbidden.svg"
                     width="200"
                     height="200"
-                    alt="TigerSnatch error"
+                    alt="TigerSnatch blocked"
                     class="d-inline-block align-text-center mb-5 mt-3"
                 />
-                <form action="/dashboard" class="px-0">
-                    <input
-                        class="btn btn-warning text-dark fs-2 px-5 py-3"
-                        type="submit"
-                        value="Go to Dashboard &#8594;"
-                        style="border-radius: 100px"
-                    />
-                </form>
             </div>
         </div>
 

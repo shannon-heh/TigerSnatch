@@ -5,17 +5,30 @@
 
 from database import Database
 from monitor import Monitor
+import re
+from config import ADMIN_NETIDS
+
+
+MAX_QUERY_LENGTH = 150
+
+
+def validate_query(query):
+    if len(query) > MAX_QUERY_LENGTH:
+        return False
+    return re.match('^[^0-9a-zA-Z ]+$', query)
 
 
 # searches for course based on user query
-def do_search(query):
+def do_search(query, search_netid=False):
     res = []
     if query.strip() == "":
         res = None
     else:
         query = query.replace(' ', '')
-        res = Database().search_for_course(query)
-
+        if search_netid:
+            res = Database().search_for_user(query)
+        else:
+            res = Database().search_for_course(query)
     return res
 
 
@@ -41,7 +54,7 @@ def pull_course(courseid):
             try:
                 waitlist_count = db.get_class_waitlist_size(
                     curr_class['classid'])
-            except Exception as e:
+            except Exception:
                 waitlist_count = 0
             curr_class['wl_size'] = waitlist_count
             classes_list.append(curr_class)
@@ -49,3 +62,12 @@ def pull_course(courseid):
             course_details[key] = course[key]
 
     return course_details, classes_list
+
+
+def is_admin(netid):
+    return netid.rstrip() in ADMIN_NETIDS
+
+
+if __name__ == '__main__':
+    res = do_search('zishuoz', search_netid=True)
+    print(res)

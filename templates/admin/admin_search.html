@@ -1,0 +1,8 @@
+<form id="search-form-admin" class="form-inline my-0" action="/admin" method="get">
+    {% include 'admin/admin_search_form.html' %}
+    <!-- <input id="search-form-courseid" type="hidden" name="courseid" value="" /> -->
+</form>
+
+<div id="search-results-admin" class="d-flex flex-column my-2">
+    {% include 'admin/admin_search_results.html' %}
+</div>

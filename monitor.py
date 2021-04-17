@@ -100,7 +100,6 @@ class Monitor:
 
         self._changed_enrollments = data
         print(f'success: approx. {round(time()-tic)} seconds')
-        print('enrollments data has been cached; re-call this method to retrieve the cached version')
         return self._changed_enrollments
 
     # updates all course data if it has been 2 minutes since last update

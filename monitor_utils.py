@@ -4,6 +4,7 @@
 # multiprocessing (top-level functions required).
 # ----------------------------------------------------------------------
 
+from database import Database
 from mobileapp import MobileApp
 from coursewrapper import CourseWrapper
 
@@ -12,15 +13,7 @@ _api = MobileApp()
 
 # gets the latest term code
 def get_latest_term():
-    terms = _api.get_terms()
-
-    try:
-        ######################### REMOVE LATER #########################
-        return '1214'
-        ################################################################
-        return terms['term'][0]['code']
-    except:
-        raise Exception('failed to get current term code')
+    return Database().get_current_term_code()
 
 
 # returns two dictionaries: one containing new class enrollments, one
@@ -101,7 +94,9 @@ def get_course_in_mobileapp(term, course_, curr_time):
                     'type_name': class_['type_name'],
                     'start_time': meetings['start_time'],
                     'end_time': meetings['end_time'],
-                    'days': ' '.join(meetings['days'])
+                    'days': ' '.join(meetings['days']),
+                    'enrollment': int(class_['enrollment']),
+                    'capacity': int(class_['capacity'])
                 }
 
                 new_enroll[classid] = int(class_['enrollment'])

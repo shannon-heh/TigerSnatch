@@ -22,12 +22,11 @@
 # Example: python _exec_update_all_courses.py --soft
 # ----------------------------------------------------------------------
 
+from mobileapp import MobileApp
+from database import Database
 from sys import argv, exit
 from time import time
-from multiprocess import Pool
-from mobileapp import MobileApp
 from update_all_courses_utils import get_all_dept_codes, process_dept_code
-from monitor_utils import get_latest_term
 
 if __name__ == '__main__':
     def process_args():
@@ -40,10 +39,23 @@ if __name__ == '__main__':
 
     tic = time()
     hard_reset = process_args()
-    terms = MobileApp().get_terms()
+    db = Database()
+    db.set_maintenance_status(True)
+    db.set_cron_notification_status(False)
 
     # get current term code
-    current_term_code = get_latest_term()
+    terms = MobileApp().get_terms()
+
+    try:
+        current_term_code = terms['term'][0]['code']
+        db.update_current_term_code(current_term_code)
+        ######################### REMOVE LATER #########################
+        # current_term_code = '1214'
+        # db.update_current_term_code('1214')
+        ################################################################
+    except:
+        raise Exception('failed to get current term code')
+
     print(f'getting all courses in term code {current_term_code}')
 
     DEPT_CODES = get_all_dept_codes(current_term_code)
@@ -62,5 +74,11 @@ if __name__ == '__main__':
 
     # with Pool(1) as pool:
     #     pool.map(process_dept_code, process_dept_code_args)
+
+    db.set_maintenance_status(False)
+    db.set_cron_notification_status(True)
+
+    db._add_admin_log(
+        f'updated courses to term code {current_term_code} in {round(time()-tic)} seconds')
 
     print(f'success: approx. {round(time()-tic)} seconds')

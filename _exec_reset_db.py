@@ -28,10 +28,8 @@ if __name__ == '__main__':
     hard_reset = process_args()
 
     if hard_reset:
-        database = Database()
-        database.reset_db()
+        Database().reset_db()
         print('done')
     else:
-        database = Database()
-        database.soft_reset_db()
+        Database().soft_reset_db()
         print('done')
