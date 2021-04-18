@@ -41,25 +41,36 @@ class Database:
 
     def find_match(self, netid, courseid):
         user_waitlists = self.get_user(netid, 'waitlists')
-        return user_waitlists
 
+        # sections that user is waiting for for given courseid
         user_course_waitlists = []
         for classid in user_waitlists:
             if self.is_classid_in_courseid(classid, courseid):
                 user_course_waitlists.append(classid)
 
+        # get user's currect section
+        curr_section = self.get_current_section(netid, courseid)
+        if curr_section is None:
+            raise Exception(
+                f'current section of course {courseid} for {netid} not found - match cannot be made')
+        # check if user wants user's current section
+
         matches = {}
         for classid in user_course_waitlists:
+            # netids that want to swap out of section
             swapout_list = self.get_swapout_for_class(classid)
             for match_netid in swapout_list:
-                if match_netid not in matches:
-                    matches['netid'] = match_netid
-                    matches['netid'] = {}
-                    matches['netid']['email'] = self._db.get_user(
-                        match_netid, 'email')
-                    matches['netid']['sections'] = set()
-                matches['netid']['sections'].add(self._db.enrollments.find_one(
-                    {'classid': classid}, {'_id': 0, 'section': 1})['section'])
+                return curr_section in self.get_user(netid, 'waitlists')
+            #     if match_netid not in matches:
+            #         matches['netid'] = match_netid
+            #         matches['netid'] = {}
+            #         matches['netid']['email'] = self._db.get_user(
+            #             match_netid, 'email')
+            #         matches['netid']['sections'] = set()
+            #     matches['netid']['sections'].add(self._db.enrollments.find_one(
+            #         {'classid': classid}, {'_id': 0, 'section': 1})['section'])
+
+        # remove user's own net id
 
     # returns list of users who want to swap out of a class
     def get_swapout_for_class(self, classid):
