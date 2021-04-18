@@ -50,27 +50,41 @@ class Database:
 
         # get user's currect section
         curr_section = self.get_current_section(netid, courseid)
+        print(curr_section)
         if curr_section is None:
             raise Exception(
                 f'current section of course {courseid} for {netid} not found - match cannot be made')
-        # check if user wants user's current section
 
         matches = {}
+        # for each seciton that user wants
         for classid in user_course_waitlists:
-            # netids that want to swap out of section
+            # get netids that want to swap out of the sections you want
             swapout_list = self.get_swapout_for_class(classid)
+            print(classid, swapout_list)
             for match_netid in swapout_list:
-                return curr_section in self.get_user(netid, 'waitlists')
-            #     if match_netid not in matches:
-            #         matches['netid'] = match_netid
-            #         matches['netid'] = {}
-            #         matches['netid']['email'] = self._db.get_user(
-            #             match_netid, 'email')
-            #         matches['netid']['sections'] = set()
-            #     matches['netid']['sections'].add(self._db.enrollments.find_one(
-            #         {'classid': classid}, {'_id': 0, 'section': 1})['section'])
+                # check if match wants your section
+                if not curr_section in self.get_user(match_netid, 'waitlists'):
+                    continue
+                if match_netid in matches:
+                    raise Exception(
+                        f'user {match_netid} has more than one current section for course {courseid}')
+                # if yes, add them to matches
+                matches[match_netid] = {}
+                matches[match_netid]['email'] = self.get_user(
+                    match_netid, 'email')
+                matches[match_netid]['sections'] = self._db.enrollments.find_one(
+                    {'classid': classid}, {'_id': 0, 'section': 1})['section']
 
-        # remove user's own net id
+        # in case you are your own match
+        if netid in matches:
+            del matches[netid]
+
+        if matches == {}:
+            print(f'no matches found for user {netid} in course {courseid}')
+        else:
+            print(f'yay - matches found for user {netid} in course {courseid}')
+
+        return matches
 
     # returns list of users who want to swap out of a class
     def get_swapout_for_class(self, classid):
@@ -426,7 +440,6 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
-
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
@@ -899,6 +912,6 @@ if __name__ == '__main__':
     db = Database()
     # db.remove_from_blacklist('sheh')
     # print(db.is_admin('ntyp'))
-    print(db.find_match('sheh', '002635'))
-    db.update_current_section('ntyp', '002054', '21921')
-    print(db.get_current_section('ntyp', '002054'))
+    print(db.find_match('ntyp', '002054'))
+    # db.update_current_section('ntyp', '002054', '21921')
+    # print(db.get_current_section('ntyp', '002054'))
