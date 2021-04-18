@@ -77,11 +77,32 @@ class Database:
         return self._db.enrollments.find_one({'classid': classid},
                                              {'swap_out': 1, '_id': 0})['swap_out']
 
-# ----------------------------------------------------------------------
-# ADMIN PANEL METHODS
-# ----------------------------------------------------------------------
+    # updates a user's current section (classid) for a course (courseid)
 
-    # prints log and adds log to admin collection to track admin activity
+    def update_current_section(self, netid, courseid, classid):
+        '''
+        possibly need to check whether the desired classid is in the user's waitlists
+        '''
+        self.is_classid_in_courseid(classid, courseid)  # throws Exception
+        current_sections = self.get_user(netid, 'current_sections')
+
+        print('setting current section in course', courseid,
+              'to class', classid, 'for user', netid)
+        current_sections[courseid] = classid
+        self._db.users.update_one({'netid': netid}, {'$set': {
+            'current_sections': current_sections
+        }})
+
+    # gets a user's current section given a courseid
+
+    def get_current_section(self, netid, courseid):
+        return self.get_user(netid, 'current_sections').get(courseid, None)
+
+        # ----------------------------------------------------------------------
+        # ADMIN PANEL METHODS
+        # ----------------------------------------------------------------------
+
+        # prints log and adds log to admin collection to track admin activity
 
     def _add_admin_log(self, log):
         print(log)
@@ -323,7 +344,7 @@ class Database:
         return self._db.logs.find_one({'netid': netid},
                                       {'waitlist_log': 1, '_id': 0})['waitlist_log']
 
-    # returns user data given netid
+    # returns user data given netid and a key from the users collection
 
     def get_user(self, netid, key):
         try:
@@ -405,6 +426,7 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
+
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
@@ -878,3 +900,5 @@ if __name__ == '__main__':
     # db.remove_from_blacklist('sheh')
     # print(db.is_admin('ntyp'))
     print(db.find_match('sheh', '002635'))
+    db.update_current_section('ntyp', '002054', '21921')
+    print(db.get_current_section('ntyp', '002054'))
