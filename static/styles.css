@@ -233,12 +233,12 @@ div#logs-header {
 
 div#guide-content,
 div#links-content,
-div#logs-content,
+div#trades-tracker,
 div#logs-content-admin {
     font-size: 0.9em;
 }
 
-div#logs-content {
+div#trades-tracker {
     max-height: 80px;
     overflow: auto;
 }
