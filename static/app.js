@@ -44,6 +44,30 @@ const toastRemoved = $(
 `)
 );
 
+const toastUserDoesNotExist = $(
+    $.parseHTML(`
+<div
+    id="toast-user-does-not-exist"
+    class="toast align-items-center text-white bg-danger border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">That netID does not exist.</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+
 // When user clicks on "Contact" for a particular match, 
 // new tab should open with the link specified in "tradeEmailLink"
 // Fill in placeholders (in ALL CAPS) to craft email using String.replace()
@@ -390,6 +414,8 @@ let enableAdminFunction = function () {
     $("#classid-clear-submit").attr("disabled", false);
     $("#courseid-clear-input").attr("disabled", false);
     $("#courseid-clear-submit").attr("disabled", false);
+    $("#get-user-data-input").attr("disabled", false);
+    $("#get-user-data-submit").attr("disabled", false);
 };
 
 let disableAdminFunction = function () {
@@ -398,6 +424,8 @@ let disableAdminFunction = function () {
     $("#classid-clear-submit").attr("disabled", true);
     $("#courseid-clear-input").attr("disabled", true);
     $("#courseid-clear-submit").attr("disabled", true);
+    $("#get-user-data-input").attr("disabled", true);
+    $("#get-user-data-submit").attr("disabled", true);
 };
 
 // listens for "Confirm" removal from waitlist
@@ -453,6 +481,36 @@ let clearCourseWaitlistListener = function () {
     });
 };
 
+// listens for get_user_data query
+let getUserDataListener = function () {
+    $("#get-user-data").on("submit", function (e) {
+        e.preventDefault();
+        netid = $("#get-user-data-input").val();
+        disableAdminFunction();
+        $.post(`/get_user_data/${netid}`, function (res) {
+            if (!res["data"]) {
+                $(".toast-container").prepend(
+                    toastUserDoesNotExist.clone().attr("id", "toast-user-does-not-exist-" + ++i)
+                );
+                $("#toast-user-does-not-exist-" + i).toast("show");
+                enableAdminFunction();
+                return;
+            }
+            let data = res["data"].split(",");
+            $("#get-user-data-input").val("");
+
+            dataHTML = "";
+            for (let d of data) dataHTML += `<p>${d}</p>`;
+
+            $("#modal-body-user-data").html(dataHTML);
+            $("#user-data-waitlist-modal").modal("show");
+            $("#staticBackdropLabelUserData").html(`Subscribed Sections for ${netid}`);
+
+            enableAdminFunction();
+        });
+    });
+};
+
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
 $(document).ready(function () {
@@ -474,4 +532,5 @@ $(document).ready(function () {
     clearAllWaitlistListener();
     clearClassWaitlistListener();
     clearCourseWaitlistListener();
+    getUserDataListener();
 });

@@ -320,7 +320,11 @@ class Database:
     # returns a user's waited-on sections
 
     def get_waited_sections(self, netid):
-        classids = self.get_user(netid, 'waitlists')
+        try:
+            classids = self.get_user(netid, 'waitlists')
+        except:
+            print('user', {netid}, 'does not exist', file=stderr)
+            return None
         res = []
 
         for classid in classids:
@@ -370,12 +374,11 @@ class Database:
              'trade_log': []})
         print(f'successfully created user {netid}')
 
-    # update user netid's log - string must be formatted:
-    # "datetime,department_number,section_name,new_slots_count"
+    # update user netid's waitlist log
 
-    def update_user_log(self, netid, entry):
+    def update_user_waitlist_log(self, netid, entry):
         log = self.get_user_waitlist_log(netid)
-        log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {log}"
+        entry = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {entry}"
 
         log.insert(0, entry)
         if len(log) > MAX_LOG_LENGTH:
@@ -383,13 +386,35 @@ class Database:
 
         self._db.logs.update_one(
             {'netid': netid}, {'$set': {'waitlist_log': log}})
-        print(f'log for user {netid} successfully updated with entry {entry}')
+        print(
+            f'waitlist log for user {netid} successfully updated with entry {entry}')
 
-    # gets user netid's trade log in array-of-strings format
+    # gets user netid's waitlist log in array-of-strings format
 
     def get_user_waitlist_log(self, netid):
         return self._db.logs.find_one({'netid': netid},
                                       {'waitlist_log': 1, '_id': 0})['waitlist_log']
+
+    # update user netid's waitlist log
+
+    def update_user_trade_log(self, netid, entry):
+        log = self.get_user_waitlist_log(netid)
+        entry = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {entry}"
+
+        log.insert(0, entry)
+        if len(log) > MAX_LOG_LENGTH:
+            log.pop(-1)
+
+        self._db.logs.update_one(
+            {'netid': netid}, {'$set': {'trade_log': log}})
+        print(
+            f'trade log for user {netid} successfully updated with entry {entry}')
+
+    # gets user netid's trade log in array-of-strings format
+
+    def get_user_trade_log(self, netid):
+        return self._db.logs.find_one({'netid': netid},
+                                      {'trade_log': 1, '_id': 0})['trade_log']
 
     # returns user data given netid and a key from the users collection
 
@@ -952,3 +977,11 @@ if __name__ == '__main__':
     print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
     # db.update_current_section('ntyp', '002054', '21921')
     # print(db.get_current_section('ntyp', '002054'))
+<<<<<<< HEAD
+=======
+    # db.remove_current_section('ntyp', '002054')
+    # print(db.get_waited_sections('ntyp'))
+    # db.update_current_section('ntyp', '002054', '21929')
+    # db.remove_current_section('ntyp', '002054')
+    # print(db.get_user_trade_log('ntyp'))
+>>>>>>> 815cee2ade7ef9fb4a7a8c3a1419183b6ff42f58
