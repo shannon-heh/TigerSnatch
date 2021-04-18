@@ -402,7 +402,7 @@ class Database:
     # update user netid's waitlist log
 
     def update_user_trade_log(self, netid, entry):
-        log = self.get_user_waitlist_log(netid)
+        log = self.get_user_trade_log(netid)
         entry = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {entry}"
 
         log.insert(0, entry)
@@ -502,6 +502,7 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
+
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
@@ -974,9 +975,15 @@ if __name__ == '__main__':
     db = Database()
     # db.remove_from_blacklist('sheh')
     # print(db.is_admin('ntyp'))
-    db.update_current_section('ntyp', '002054', "21921")
-    db.update_current_section('sheh', '002054', "21929")
-    print(db.find_matches('ntyp', '002054'))  # should return sheh with P02
-    print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
+    # db.update_user_waitlist_log('sheh', 'A spot has opened up in COS126 L01')
+    # db.update_user_waitlist_log('sheh', 'A spot has opened up in COS226 P03')
+    # db.update_user_trade_log(
+    #     'sheh', 'You have contacted ntyp about a trade for COS226')
+    # db.update_user_trade_log(
+    #     'sheh', 'You have contacted zishouz about a trade for COS226')
+    # db.update_current_section('ntyp', '002054', "21921")
+    # db.update_current_section('sheh', '002054', "21929")
+    # print(db.find_matches('ntyp', '002054'))  # should return sheh with P02
+    # print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
     # db.update_current_section('ntyp', '002054', '21921')
     # print(db.get_current_section('ntyp', '002054'))

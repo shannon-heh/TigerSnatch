@@ -8,50 +8,50 @@
     {% include 'nav/nav.html' %}
     <body id="landing-container">
         <div class="container-fluid">
-            <div class="row" style="margin-bottom: 10px">
-                <br />
-                <p class="fw-light text-center mt-4 fs-5 p-text">
-                    TigerSnatch is a platform that notifies Princeton students via email when a full
-                    course or section opens up, erasing the need to repeatedly check the Registrar's
-                    Course Offerings page.
-                </p>
-                <hr class="mt-4 mb-0" style="width: 80%; margin: auto" />
-            </div>
-            <div class="row">
-                <p class="text-center fs-1 px-5 mt-3 mb-4" style="letter-spacing: 1px">
-                    <span class="badge bg-warning text-dark font-monospace fs-1 px-2 py-2"
-                        >Team</span
-                    >
-                </p>
-            </div>
-            <div class="row">
-                <div class="col-xl-4">
-                    <img
-                        class="img-shadow rounded-circle border border-3 border-warning mx-auto d-block"
-                        src="/static/SAMANTHA.jpg"
-                        width="250px"
-                        height="250px"
-                    />
-                    <h2 class="fs-4 text-center py-4">Nicholas Padmanabhan '23</h2>
+            <div class="row activity-row">
+                <div id="subscription-activity-col" class="col-xl-6">
+                    <p class="text-center fs-1 px-5 mt-4 mb-4" style="letter-spacing: 1px">
+                        <span class="badge bg-warning text-dark font-monospace fs-3 px-2 py-2"
+                            >Subscriptions</span
+                        >
+                    </p>
+                    {% if waitlist_logs == [] %}
+                        <div class="card activity-card text-center mt-3">
+                            <div class="card-body">
+                                <div>Once a spot is available in your subscribed sections, a message will appear here!</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        {% for waitlist_log in waitlist_logs %}
+                            <div class="card activity-card text-center mt-3">
+                                <div class="card-body">
+                                    <div>{{waitlist_log}}</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
-                <div class="col-xl-4">
-                    <img
-                        class="img-shadow rounded-circle border border-3 border-warning mx-auto d-block"
-                        src="/static/KODI.JPG"
-                        width="250px"
-                        height="250px"
-                    />
-                    <h2 class="fs-4 text-center py-4">Byron Zhang '23</h2>
-                </div>
-                <div class="col-xl-4">
-                    <img
-                        class="img-shadow rounded-circle border border-3 border-warning mx-auto d-block"
-                        src="/static/BISCUIT.jpg"
-                        width="250px"
-                    />
-                    <h2 class="fs-4 text-center py-4" style="margin-bottom: 66px">
-                        Shannon Heh '23
-                    </h2>
+                <div id="trade-activity-col" class="col-xl-6">
+                    <p class="text-center fs-1 px-5 mt-4 mb-4" style="letter-spacing: 1px">
+                        <span class="badge bg-warning text-dark font-monospace fs-3 px-2 py-2"
+                            >Trades</span
+                        >
+                    </p>
+                    {% if trade_logs == [] %}
+                        <div class="card activity-card text-center mt-3">
+                            <div class="card-body">
+                                <div>Once you have contacted a Tiger to trade sections, a message will appear here!</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        {% for trade_log in trade_logs %}
+                            <div class="card activity-card text-center mt-3">
+                                <div class="card-body">
+                                    <div>{{trade_log}}</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             <nav
@@ -61,8 +61,7 @@
             >
                 <div class="container-fluid">
                     <p id="landing-bottom-text" class="mb-0 text-center">
-                        We thank Professor Robert Dondero and Sata Sengupta for their guidance on
-                        TigerSnatch.
+                        Refresh the page to view the latest logs!
                     </p>
                 </div>
             </nav>
