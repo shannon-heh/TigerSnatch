@@ -44,6 +44,23 @@ const toastRemoved = $(
 `)
 );
 
+// When user clicks on "Contact" for a particular match, 
+// new tab should open with the link specified in "tradeEmailLink"
+// Fill in placeholders (in ALL CAPS) to craft email using String.replace()
+// e.g. tradeEmailSubject.replace('MATCH_SECTION', 'P01')
+// Let me know if spaces & line breaks dont work
+const tradeEmailSubject = 'TigerSnatch: Trade Sections for MATCH_SECTION?'
+const tradeEmailBody = `
+Hi MATCH_NETID, 
+
+From TigerSnatch, I saw that you're enrolled in COURSE_NAME MATCH_SECTION. I'm currently in MY_SECTION. 
+Would you like to set up a time to trade sections with me?
+
+Thank you,
+MY_NETID
+`
+const tradeEmailLink = `https://mail.google.com/mail/u/0/?fs=1&to=MATCH_NETID@princeton.edu&su=${tradeEmailSubject}?&body=${tradeEmailBody}`
+
 // scrolls to the bottom of id #dest
 let scrollBottom = function (dest) {
     $(dest).animate(

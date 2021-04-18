@@ -139,6 +139,25 @@ def about():
     return make_response(html)
 
 
+@app.route('/activity', methods=['GET'])
+def activity():
+    if redirect_landing():
+        html = render_template('activity.html', loggedin=False)
+        return make_response(html)
+
+    netid = _CAS.authenticate()
+
+    _db = Database()
+    waitlist_logs = _db.get_user_waitlist_log(netid)
+    trade_logs = _db.get_user_trade_log(netid)
+
+    html = render_template('activity.html',
+                           loggedin=True,
+                           waitlist_logs=waitlist_logs,
+                           trade_logs=trade_logs)
+    return make_response(html)
+
+
 @app.route('/searchresults', methods=['POST'])
 @app.route('/searchresults/<query>', methods=['POST'])
 def get_search_results(query=''):
@@ -350,3 +369,9 @@ def get_user_sections(netid):
         return redirect(url_for(''))
 
     return jsonify({"data": Database().get_waited_sections(netid)})
+
+
+@app.route('/find_matches/<netid>/<courseid>', methods=['POST'])
+def find_matches(netid, courseid):
+    matches = Database().find_matches(netid, courseid)
+    return jsonify({"data": matches})
