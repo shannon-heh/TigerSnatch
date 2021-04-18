@@ -36,6 +36,36 @@ class Database:
         self._check_basic_integrity()
 
 # ----------------------------------------------------------------------
+# TRADES METHODS
+# ----------------------------------------------------------------------
+
+    def find_match(self, netid, courseid):
+        user_waitlists = self._db.users.find_one(
+            {'netid': netid}, {'waitlists': 1, '_id': 0})['waitlists']
+
+        user_course_waitlists = []
+        for classid in user_waitlists:
+            if is_classid_in_courseid(classid, courseid):
+                user_course_waitlists.append(classid)
+
+        matches = {}
+        for classid in user_course_waitlists:
+            swapout_list = self.get_swapout_for_class(classid)
+            for match_netid in swapout_list:
+                if match_netid not in matches:
+                    matches['netid'] = match_netid
+                    matches['netid'] = {}
+                    # matches['netid']['email'] =
+                    matches['netid']['sections'] = set()
+                matches['netid']['sections'].add(self._db.enrollments.find_one(
+                    {'classid': classid}, {'_id': 0, 'section': 1}))
+
+    # returns list of users who want to swap out of a class
+    def get_swapout_for_class(self, classid):
+        return self._db.enrollments.find_one({'classid': classid},
+                                             {'swap_out': 1, '_id': 0})
+
+# ----------------------------------------------------------------------
 # ADMIN PANEL METHODS
 # ----------------------------------------------------------------------
 
@@ -364,6 +394,7 @@ class Database:
 
     # gets current term code from admin collection
 
+
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
 
@@ -392,6 +423,20 @@ class Database:
     def get_course(self, courseid):
         return self._db.courses.find_one(
             {'courseid': courseid}, {'_id': 0})
+
+    # returns list of section names for a course
+    # set include_lecture to True if you want Lecture section included
+
+    def get_section_names_in_course(self, courseid, include_lecture=False):
+        section_name_list = []
+        course_dict = self.get_course(courseid)
+        for key in course_dict.keys():
+            if key.startswith('class_'):
+                section_name = course_dict[key]['section']
+                if not include_lecture and section_name.startswith('L'):
+                    continue
+                section_name_list.append(section_name)
+        return section_name_list
 
     # return list of class ids for a course
 
