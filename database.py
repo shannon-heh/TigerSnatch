@@ -82,6 +82,9 @@ class Database:
             'current_sections': current_sections
         }})
 
+        self._db.enrollments.update_one({'classid': classid},
+                                        {'$addToSet': {'swap_out': netid}})
+
     # removes a user's current section given a courseid
 
     def remove_current_section(self, netid, courseid):
@@ -89,14 +92,18 @@ class Database:
         print('removing current section in course', courseid, 'for user', netid)
 
         if courseid in current_sections:
+            classid = current_sections[courseid]
             del current_sections[courseid]
+
+            self._db.users.update_one({'netid': netid}, {'$set': {
+                'current_sections': current_sections
+            }})
+
+            self._db.enrollments.update_one({'classid': classid},
+                                            {'$pull': {'swap_out': netid}})
         else:
             print('user', netid, 'does not have a current section in course (non-fatal)',
                   courseid, file=stderr)
-
-        self._db.users.update_one({'netid': netid}, {'$set': {
-            'current_sections': current_sections
-        }})
 
     # gets a user's current section given a courseid
 
@@ -919,4 +926,6 @@ if __name__ == '__main__':
     # db.update_current_section('ntyp', '002054', '21921')
     # print(db.get_current_section('ntyp', '002054'))
     # db.remove_current_section('ntyp', '002054')
-    print(db.get_waited_sections('ntyp'))
+    # print(db.get_waited_sections('ntyp'))
+    db.update_current_section('ntyp', '002054', '21929')
+    db.remove_current_section('ntyp', '002054')
