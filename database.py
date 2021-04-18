@@ -311,7 +311,7 @@ class Database:
         return self._db.logs.find_one({'netid': netid},
                                       {'waitlist_log': 1, '_id': 0})['waitlist_log']
 
-    # returns user data given netid
+    # returns user data given netid and a key from the users collection
 
     def get_user(self, netid, key):
         try:
