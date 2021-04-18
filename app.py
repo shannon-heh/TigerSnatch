@@ -142,8 +142,7 @@ def about():
 @app.route('/activity', methods=['GET'])
 def activity():
     if redirect_landing():
-        html = render_template('activity.html', loggedin=False)
-        return make_response(html)
+        return redirect(url_for('landing'))
 
     netid = _CAS.authenticate()
 
@@ -152,14 +151,17 @@ def activity():
     trade_logs = _db.get_user_trade_log(netid)
 
     html = render_template('activity.html',
+                           user_is_admin=is_admin(CASClient().authenticate()),
                            loggedin=True,
                            waitlist_logs=waitlist_logs,
-                           trade_logs=trade_logs)
+                           trade_logs=trade_logs,
+                           notifs_online=Database().get_cron_notification_status())
+
     return make_response(html)
 
 
-@app.route('/searchresults', methods=['POST'])
-@app.route('/searchresults/<query>', methods=['POST'])
+@ app.route('/searchresults', methods=['POST'])
+@ app.route('/searchresults/<query>', methods=['POST'])
 def get_search_results(query=''):
     res = do_search(query)
     html = render_template('search/search_results.html',
@@ -168,7 +170,7 @@ def get_search_results(query=''):
     return make_response(html)
 
 
-@app.route('/courseinfo/<courseid>', methods=['POST'])
+@ app.route('/courseinfo/<courseid>', methods=['POST'])
 def get_course_info(courseid):
     _db = Database()
     netid = _CAS.authenticate()
@@ -191,7 +193,7 @@ def get_course_info(courseid):
     return make_response(html)
 
 
-@app.route('/course', methods=['GET'])
+@ app.route('/course', methods=['GET'])
 def get_course():
     if not _CAS.is_logged_in():
         return redirect(url_for('landing'))
@@ -238,27 +240,27 @@ def get_course():
     return make_response(html)
 
 
-@app.route('/logout', methods=['GET'])
+@ app.route('/logout', methods=['GET'])
 def logout():
     _CAS.logout()
     return redirect(url_for('landing'))
 
 
-@app.route('/add_to_waitlist/<classid>', methods=['POST'])
+@ app.route('/add_to_waitlist/<classid>', methods=['POST'])
 def add_to_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
     return jsonify({"isSuccess": waitlist.add_to_waitlist(classid)})
 
 
-@app.route('/remove_from_waitlist/<classid>', methods=['POST'])
+@ app.route('/remove_from_waitlist/<classid>', methods=['POST'])
 def remove_from_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
     return jsonify({"isSuccess": waitlist.remove_from_waitlist(classid)})
 
 
-@app.route('/admin', methods=['GET', 'POST'])
+@ app.route('/admin', methods=['GET', 'POST'])
 def admin():
     netid = _CAS.authenticate()
     try:
@@ -293,7 +295,7 @@ def admin():
     return make_response(html)
 
 
-@app.route('/add_to_blacklist/<user>', methods=['GET', 'POST'])
+@ app.route('/add_to_blacklist/<user>', methods=['GET', 'POST'])
 def add_to_blacklist(user):
     netid = _CAS.authenticate()
 
@@ -306,7 +308,7 @@ def add_to_blacklist(user):
     return jsonify({"isSuccess": Database().add_to_blacklist(user)})
 
 
-@app.route('/remove_from_blacklist/<user>', methods=['POST'])
+@ app.route('/remove_from_blacklist/<user>', methods=['POST'])
 def remove_from_blacklist(user):
     netid = _CAS.authenticate()
 
@@ -319,7 +321,7 @@ def remove_from_blacklist(user):
     return jsonify({"isSuccess": Database().remove_from_blacklist(user)})
 
 
-@app.route('/clear_all_waitlists', methods=['POST'])
+@ app.route('/clear_all_waitlists', methods=['POST'])
 def clear_all_waitlists():
     netid = _CAS.authenticate()
 
@@ -332,7 +334,7 @@ def clear_all_waitlists():
     return jsonify({"isSuccess": Database().clear_all_waitlists()})
 
 
-@app.route('/clear_by_class/<classid>', methods=['POST'])
+@ app.route('/clear_by_class/<classid>', methods=['POST'])
 def clear_by_class(classid):
     netid = _CAS.authenticate()
 
@@ -345,7 +347,7 @@ def clear_by_class(classid):
     return jsonify({"isSuccess": Database().clear_class_waitlist(classid)})
 
 
-@app.route('/clear_by_course/<courseid>', methods=['POST'])
+@ app.route('/clear_by_course/<courseid>', methods=['POST'])
 def clear_by_course(courseid):
     netid = _CAS.authenticate()
 
@@ -358,7 +360,7 @@ def clear_by_course(courseid):
     return jsonify({"isSuccess": Database().clear_course_waitlists(courseid)})
 
 
-@app.route('/get_user_data/<netid>', methods=['POST'])
+@ app.route('/get_user_data/<netid>', methods=['POST'])
 def get_user_sections(netid):
     netid_ = _CAS.authenticate()
 
@@ -371,7 +373,7 @@ def get_user_sections(netid):
     return jsonify({"data": Database().get_waited_sections(netid)})
 
 
-@app.route('/find_matches/<netid>/<courseid>', methods=['POST'])
+@ app.route('/find_matches/<netid>/<courseid>', methods=['POST'])
 def find_matches(netid, courseid):
     matches = Database().find_matches(netid, courseid)
     return jsonify({"data": matches})
