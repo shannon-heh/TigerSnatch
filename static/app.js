@@ -67,13 +67,58 @@ const toastUserDoesNotExist = $(
 `)
 );
 
+const toastEmailsOn = $(
+    $.parseHTML(`
+<div
+    id="toast-emails-on"
+    class="toast align-items-center text-white bg-success border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Email notifications turned on! Reloading in a few seconds...</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
 
-// When user clicks on "Contact" for a particular match, 
+const toastEmailsOff = $(
+    $.parseHTML(`
+<div
+    id="toast-emails-off"
+    class="toast align-items-center text-white bg-success border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Email notifications turned off! Reloading in a few seconds...</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+// When user clicks on "Contact" for a particular match,
 // new tab should open with the link specified in "tradeEmailLink"
 // Fill in placeholders (in ALL CAPS) to craft email using String.replace()
 // e.g. tradeEmailSubject.replace('MATCH_SECTION', 'P01')
 // Let me know if spaces & line breaks dont work
-const tradeEmailSubject = 'TigerSnatch: Trade Sections for MATCH_SECTION?'
+const tradeEmailSubject = "TigerSnatch: Trade Sections for MATCH_SECTION?";
 const tradeEmailBody = `
 Hi MATCH_NETID, 
 
@@ -82,8 +127,8 @@ Would you like to set up a time to trade sections with me?
 
 Thank you,
 MY_NETID
-`
-const tradeEmailLink = `https://mail.google.com/mail/u/0/?fs=1&to=MATCH_NETID@princeton.edu&su=${tradeEmailSubject}?&body=${tradeEmailBody}`
+`;
+const tradeEmailLink = `https://mail.google.com/mail/u/0/?fs=1&to=MATCH_NETID@princeton.edu&su=${tradeEmailSubject}?&body=${tradeEmailBody}`;
 
 // scrolls to the bottom of id #dest
 let scrollBottom = function (dest) {
@@ -410,6 +455,7 @@ let blacklistRemovalListener = function () {
 
 let enableAdminFunction = function () {
     $("#clear-all").attr("disabled", false);
+    $("#toggle-emails").attr("disabled", false);
     $("#classid-clear-input").attr("disabled", false);
     $("#classid-clear-submit").attr("disabled", false);
     $("#courseid-clear-input").attr("disabled", false);
@@ -420,6 +466,7 @@ let enableAdminFunction = function () {
 
 let disableAdminFunction = function () {
     $("#clear-all").attr("disabled", true);
+    $("#toggle-emails").attr("disabled", true);
     $("#classid-clear-input").attr("disabled", true);
     $("#classid-clear-submit").attr("disabled", true);
     $("#courseid-clear-input").attr("disabled", true);
@@ -428,16 +475,58 @@ let disableAdminFunction = function () {
     $("#get-user-data-submit").attr("disabled", true);
 };
 
+// listens for email notifications switch toggle
+let toggleEmailNotificationsListener = function () {
+    $("#toggle-emails").on("click", function (e) {
+        e.preventDefault();
+        disableAdminFunction();
+
+        if (!confirm("Are you sure you want to toggle notifications?")) {
+            enableAdminFunction();
+            return;
+        }
+
+        $.post("/get_notifications_status", function (res) {
+            $.post(`/set_notifications_status/${!res["isOn"]}`, function (res1) {
+                if (!res["isOn"]) {
+                    $(".toast-container").prepend(
+                        toastEmailsOn.clone().attr("id", "toast-emails-on-" + ++i)
+                    );
+                    $("#toast-emails-on-" + i).toast("show");
+                } else {
+                    $(".toast-container").prepend(
+                        toastEmailsOff.clone().attr("id", "toast-emails-off-" + ++i)
+                    );
+                    $("#toast-emails-off-" + i).toast("show");
+                }
+                setTimeout(() => location.reload(), 3500);
+            });
+        });
+    });
+};
+
+let initToggleEmailNotificationsButton = function () {
+    $.post("/get_notifications_status", function (res) {
+        if (res["isOn"]) $("#toggle-emails").html("Turn Off");
+        else $("#toggle-emails").html("Turn On");
+        enableAdminFunction();
+    });
+};
+
 // listens for "Confirm" removal from waitlist
 let clearAllWaitlistListener = function () {
     $("#clear-all").on("click", function (e) {
         e.preventDefault();
-
-        if (!confirm("Are you sure you want to clear all waitlists? This action is irreversible."))
-            return;
-
         disableAdminFunction();
-        $.post(`/clear_all_waitlists`, function (res) {
+
+        if (
+            !confirm("Are you sure you want to clear all waitlists? This action is irreversible.")
+        ) {
+            enableAdminFunction();
+            return;
+        }
+
+        $.post("/clear_all_waitlists", function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
                 enableAdminFunction();
@@ -533,4 +622,6 @@ $(document).ready(function () {
     clearClassWaitlistListener();
     clearCourseWaitlistListener();
     getUserDataListener();
+    initToggleEmailNotificationsButton();
+    toggleEmailNotificationsListener();
 });
