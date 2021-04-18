@@ -392,7 +392,7 @@ class Database:
     # gets user netid's waitlist log in array-of-strings format
 
     def get_user_waitlist_log(self, netid):
-        return self._db.logs.find_one({'netid': netid},
+        return self._db.logs.find_one({'netid': netid.rstrip()},
                                       {'waitlist_log': 1, '_id': 0})['waitlist_log']
 
     # update user netid's waitlist log
@@ -413,7 +413,7 @@ class Database:
     # gets user netid's trade log in array-of-strings format
 
     def get_user_trade_log(self, netid):
-        return self._db.logs.find_one({'netid': netid},
+        return self._db.logs.find_one({'netid': netid.rstrip()},
                                       {'trade_log': 1, '_id': 0})['trade_log']
 
     # returns user data given netid and a key from the users collection
@@ -498,7 +498,6 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
-
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
