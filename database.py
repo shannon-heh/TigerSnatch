@@ -40,8 +40,8 @@ class Database:
 # ----------------------------------------------------------------------
 
     def find_match(self, netid, courseid):
-        user_waitlists = self._db.users.find_one(
-            {'netid': netid}, {'waitlists': 1, '_id': 0})['waitlists']
+        user_waitlists = self.get_user(netid, 'waitlists')
+        return user_waitlists
 
         user_course_waitlists = []
         for classid in user_waitlists:
@@ -55,15 +55,16 @@ class Database:
                 if match_netid not in matches:
                     matches['netid'] = match_netid
                     matches['netid'] = {}
-                    # matches['netid']['email'] =
+                    matches['netid']['email'] = self._db.get_user(
+                        match_netid, 'email')
                     matches['netid']['sections'] = set()
                 matches['netid']['sections'].add(self._db.enrollments.find_one(
-                    {'classid': classid}, {'_id': 0, 'section': 1}))
+                    {'classid': classid}, {'_id': 0, 'section': 1})['section'])
 
     # returns list of users who want to swap out of a class
     def get_swapout_for_class(self, classid):
         return self._db.enrollments.find_one({'classid': classid},
-                                             {'swap_out': 1, '_id': 0})
+                                             {'swap_out': 1, '_id': 0})['swap_out']
 
 # ----------------------------------------------------------------------
 # ADMIN PANEL METHODS
@@ -394,7 +395,6 @@ class Database:
 
     # gets current term code from admin collection
 
-
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
 
@@ -506,6 +506,14 @@ class Database:
 # ----------------------------------------------------------------------
 # CLASS METHODS
 # ----------------------------------------------------------------------
+
+    # returns True if classid is found in course with courseid
+    def is_classid_in_courseid(self, classid, courseid):
+        try:
+            return self._db.enrollments.find_one(
+                {'classid': classid})['courseid'] == courseid
+        except:
+            raise RuntimeError(f'classid {classid} not found in enrollments')
 
     # returns the corresponding course displayname for a given classid
 
@@ -858,4 +866,4 @@ if __name__ == '__main__':
     db = Database()
     # db.remove_from_blacklist('sheh')
     # print(db.is_admin('ntyp'))
-    print(db.get_user('ntyp', 'email'))
+    print(db.find_match('sheh', '002635'))
