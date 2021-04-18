@@ -45,7 +45,7 @@ class Database:
 
         user_course_waitlists = []
         for classid in user_waitlists:
-            if is_classid_in_courseid(classid, courseid):
+            if self.is_classid_in_courseid(classid, courseid):
                 user_course_waitlists.append(classid)
 
         matches = {}
