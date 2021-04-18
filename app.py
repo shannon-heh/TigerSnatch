@@ -305,7 +305,7 @@ def add_to_blacklist(user):
     except:
         return redirect(url_for(''))
 
-    return jsonify({"isSuccess": Database().add_to_blacklist(user)})
+    return jsonify({"isSuccess": Database().add_to_blacklist(user.strip())})
 
 
 @ app.route('/remove_from_blacklist/<user>', methods=['POST'])
@@ -318,7 +318,7 @@ def remove_from_blacklist(user):
     except:
         return redirect(url_for(''))
 
-    return jsonify({"isSuccess": Database().remove_from_blacklist(user)})
+    return jsonify({"isSuccess": Database().remove_from_blacklist(user.strip())})
 
 
 @ app.route('/clear_all_waitlists', methods=['POST'])
@@ -370,10 +370,10 @@ def get_user_sections(netid):
     except:
         return redirect(url_for(''))
 
-    return jsonify({"data": Database().get_waited_sections(netid)})
+    return jsonify({"data": Database().get_waited_sections(netid.strip())})
 
 
 @ app.route('/find_matches/<netid>/<courseid>', methods=['POST'])
 def find_matches(netid, courseid):
-    matches = Database().find_matches(netid, courseid)
+    matches = Database().find_matches(netid.strip(), courseid)
     return jsonify({"data": matches})

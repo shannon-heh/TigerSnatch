@@ -41,7 +41,10 @@ if __name__ == '__main__':
     hard_reset = process_args()
     db = Database()
     db.set_maintenance_status(True)
-    db.set_cron_notification_status(False)
+
+    notifs_were_on = db.get_cron_notification_status()
+    if notifs_were_on:
+        db.set_cron_notification_status(False)
 
     # get current term code
     terms = MobileApp().get_terms()
@@ -76,7 +79,9 @@ if __name__ == '__main__':
     #     pool.map(process_dept_code, process_dept_code_args)
 
     db.set_maintenance_status(False)
-    db.set_cron_notification_status(True)
+
+    if notifs_were_on:
+        db.set_cron_notification_status(True)
 
     db._add_admin_log(
         f'updated courses to term code {current_term_code} in {round(time()-tic)} seconds')

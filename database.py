@@ -186,11 +186,15 @@ class Database:
         if not isinstance(status, bool):
             raise Exception('status must be a boolean')
 
-        app = self._connect_to_heroku()
-        app.process_formation()['notifs'].scale(1 if status else 0)
+        try:
+            app = self._connect_to_heroku()
+            app.process_formation()['notifs'].scale(1 if status else 0)
 
-        self._add_admin_log(
-            f'notification script is now {"on" if status else "off"}')
+            self._add_admin_log(
+                f'notification script is now {"on" if status else "off"}')
+        except:
+            raise Exception(
+                'something is badly wrong - check heroku website', file=stderr)
 
     # sets notification script status; either True (on) or False (off)
 
