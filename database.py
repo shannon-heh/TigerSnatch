@@ -236,8 +236,8 @@ class Database:
             return True
         except:
             if log_classid_skip:
-                self._add_admin_log(
-                    f'waitlist for class {classid} does not exist - skipping')
+                print(
+                    f'waitlist for class {classid} does not exist - skipping', file=stderr)
             return False
 
     # clears and removes users from all waitlists for class classid
@@ -253,7 +253,7 @@ class Database:
                 self.clear_class_waitlist(classid, log_classid_skip=False)
             return True
         except:
-            self._add_admin_log(
+            print(
                 f'failed to clear waitlists for course {courseid}', file=stderr)
             return False
 
@@ -328,7 +328,7 @@ class Database:
             classids = self.get_user(
                 netid, 'current_sections').values() if trades else self.get_user(netid, 'waitlists')
         except:
-            print('user', {netid}, 'does not exist', file=stderr)
+            print('user', netid, 'does not exist', file=stderr)
             return None
         res = []
 
@@ -344,7 +344,6 @@ class Database:
 # ----------------------------------------------------------------------
 
     # returns True if netid is on app blacklist
-
 
     def is_blacklisted(self, netid):
         try:
@@ -505,7 +504,7 @@ class Database:
         try:
             current_sections = self.get_user(netid, 'current_sections')
         except:
-            print('user', {netid}, 'does not exist', file=stderr)
+            print('user', netid, 'does not exist', file=stderr)
             return None
         res = []
 
@@ -523,7 +522,6 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
-
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']

@@ -113,6 +113,52 @@ const toastEmailsOff = $(
 `)
 );
 
+const toastClearSuccess = $(
+    $.parseHTML(`
+<div
+    id="toast-clear-success"
+    class="toast align-items-center text-white bg-success border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Waitlist(s) cleared!</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+const toastClearFail = $(
+    $.parseHTML(`
+<div
+    id="toast-clear-fail"
+    class="toast align-items-center text-white bg-danger border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Waitlist(s) failed to clear. Check class/course ID!</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
 // When user clicks on "Contact" for a particular match,
 // new tab should open with the link specified in "tradeEmailLink"
 // Fill in placeholders (in ALL CAPS) to craft email using String.replace()
@@ -523,6 +569,19 @@ let initToggleEmailNotificationsButton = function () {
     });
 };
 
+// helper method to display fail/success toasts for waitlist clearing
+let clearWaitlistsToastHelper = function (res) {
+    if (!res["isSuccess"]) {
+        $(".toast-container").prepend(toastClearFail.clone().attr("id", "toast-clear-fail-" + ++i));
+        $("#toast-clear-fail-" + i).toast("show");
+    } else {
+        $(".toast-container").prepend(
+            toastClearSuccess.clone().attr("id", "toast-clear-success-" + ++i)
+        );
+        $("#toast-clear-success-" + i).toast("show");
+    }
+};
+
 // listens for "Confirm" removal from waitlist
 let clearAllWaitlistListener = function () {
     $("#clear-all").on("click", function (e) {
@@ -538,10 +597,7 @@ let clearAllWaitlistListener = function () {
 
         $.post("/clear_all_waitlists", function (res) {
             // checks that user successfully removed from waitlist on back-end
-            if (!res["isSuccess"]) {
-                enableAdminFunction();
-                return;
-            }
+            clearWaitlistsToastHelper(res);
             enableAdminFunction();
         });
     });
@@ -555,9 +611,8 @@ let clearClassWaitlistListener = function () {
         disableAdminFunction();
         $.post(`/clear_by_class/${classid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
-            if (!res["isSuccess"]) {
-                enableAdminFunction();
-            }
+            clearWaitlistsToastHelper(res);
+            $("#classid-clear-input").val("");
             enableAdminFunction();
         });
     });
@@ -571,10 +626,8 @@ let clearCourseWaitlistListener = function () {
         disableAdminFunction();
         $.post(`/clear_by_course/${courseid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
-            if (!res["isSuccess"]) {
-                enableAdminFunction();
-                return;
-            }
+            clearWaitlistsToastHelper(res);
+            $("#courseid-clear-input").val("");
             enableAdminFunction();
         });
     });
