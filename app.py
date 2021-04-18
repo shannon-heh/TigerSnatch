@@ -109,7 +109,7 @@ def dashboard():
         _db.update_user(netid, new_email.strip())
         return redirect(url_for('dashboard'))
 
-    curr_sections = _db.get_current_sections('sheh')
+    curr_sections = _db.get_current_sections(netid)
 
     html = render_template('base.html',
                            is_dashboard=True,
