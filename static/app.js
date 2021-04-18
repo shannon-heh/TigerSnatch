@@ -385,6 +385,7 @@ let initTooltipsToasts = function () {
     });
 };
 
+// closes the navbar (mobile) on tap out
 let navbarAutoclose = function () {
     $(document).click(function (event) {
         var click = $(event.target);
@@ -453,7 +454,9 @@ let blacklistRemovalListener = function () {
     });
 };
 
+// enables all admin function buttons
 let enableAdminFunction = function () {
+    $(".btn-blacklist").attr("disabled", false);
     $("#clear-all").attr("disabled", false);
     $("#toggle-emails").attr("disabled", false);
     $("#classid-clear-input").attr("disabled", false);
@@ -464,7 +467,9 @@ let enableAdminFunction = function () {
     $("#get-user-data-submit").attr("disabled", false);
 };
 
+// disables all admin function buttons
 let disableAdminFunction = function () {
+    $(".btn-blacklist").attr("disabled", true);
     $("#clear-all").attr("disabled", true);
     $("#toggle-emails").attr("disabled", true);
     $("#classid-clear-input").attr("disabled", true);
@@ -499,12 +504,13 @@ let toggleEmailNotificationsListener = function () {
                     );
                     $("#toast-emails-off-" + i).toast("show");
                 }
-                setTimeout(() => location.reload(), 3500);
+                setTimeout(() => location.reload(), 3100);
             });
         });
     });
 };
 
+// sets the state of the toggle notifications button
 let initToggleEmailNotificationsButton = function () {
     $.post("/get_notifications_status", function (res) {
         if (res["isOn"]) $("#toggle-emails").html("Turn Off");

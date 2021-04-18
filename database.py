@@ -1013,4 +1013,4 @@ if __name__ == '__main__':
     # print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
     # db.update_current_section('ntyp', '002054', '21921')
     # print(db.get_current_section('ntyp', '002054'))
-    # print(db.get_current_sections('sheh'))
+    print(db.get_current_sections('ntyp'))
