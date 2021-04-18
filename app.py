@@ -337,3 +337,16 @@ def clear_by_course(courseid):
         return redirect(url_for(''))
 
     return jsonify({"isSuccess": Database().clear_course_waitlists(courseid)})
+
+
+@app.route('/get_user_sections/<netid>', methods=['POST'])
+def get_user_sections(netid):
+    netid_ = _CAS.authenticate()
+
+    try:
+        if not is_admin(netid_):
+            return redirect(url_for(''))
+    except:
+        return redirect(url_for(''))
+
+    return jsonify({"data": Database().get_waited_sections(netid)})

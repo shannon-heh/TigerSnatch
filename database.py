@@ -82,16 +82,32 @@ class Database:
             'current_sections': current_sections
         }})
 
+    # removes a user's current section given a courseid
+
+    def remove_current_section(self, netid, courseid):
+        current_sections = self.get_user(netid, 'current_sections')
+        print('removing current section in course', courseid, 'for user', netid)
+
+        if courseid in current_sections:
+            del current_sections[courseid]
+        else:
+            print('user', netid, 'does not have a current section in course (non-fatal)',
+                  courseid, file=stderr)
+
+        self._db.users.update_one({'netid': netid}, {'$set': {
+            'current_sections': current_sections
+        }})
+
     # gets a user's current section given a courseid
 
     def get_current_section(self, netid, courseid):
         return self.get_user(netid, 'current_sections').get(courseid, None)
 
-        # ----------------------------------------------------------------------
-        # ADMIN PANEL METHODS
-        # ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# ADMIN PANEL METHODS
+# ----------------------------------------------------------------------
 
-        # prints log and adds log to admin collection to track admin activity
+    # prints log and adds log to admin collection to track admin activity
 
     def _add_admin_log(self, log):
         print(log)
@@ -271,6 +287,18 @@ class Database:
         return self._db.admin.find_one(
             {}, {'blacklist': 1, '_id': 0})['blacklist']
 
+    # returns a user's waited-on sections
+
+    def get_waited_sections(self, netid):
+        classids = self.get_user(netid, 'waitlists')
+        res = []
+
+        for classid in classids:
+            deptnum, name, section = self.classid_to_classinfo(classid)
+            res.append(f'{name} ({deptnum}): {section}')
+
+        return ','.join(res)
+
 # ----------------------------------------------------------------------
 # BLACKLIST UTILITY METHODS
 # ----------------------------------------------------------------------
@@ -415,7 +443,6 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
-
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
@@ -888,6 +915,8 @@ if __name__ == '__main__':
     db = Database()
     # db.remove_from_blacklist('sheh')
     # print(db.is_admin('ntyp'))
-    print(db.find_match('sheh', '002635'))
-    db.update_current_section('ntyp', '002054', '21921')
-    print(db.get_current_section('ntyp', '002054'))
+    # print(db.find_match('sheh', '002635'))
+    # db.update_current_section('ntyp', '002054', '21921')
+    # print(db.get_current_section('ntyp', '002054'))
+    # db.remove_current_section('ntyp', '002054')
+    print(db.get_waited_sections('ntyp'))
