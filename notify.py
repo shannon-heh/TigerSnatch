@@ -31,7 +31,7 @@ class Notify:
         self._email = db.get_user(self._netid, 'email')
 
         user_log = f"{n_new_slots} spots available in {self._deptnum} {self._sectionname}"
-        db.update_user_log(self._netid, user_log)
+        db.update_user_waitlist_log(self._netid, user_log)
 
         self._swap = swap
         if swap:

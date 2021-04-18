@@ -339,7 +339,7 @@ def clear_by_course(courseid):
     return jsonify({"isSuccess": Database().clear_course_waitlists(courseid)})
 
 
-@app.route('/get_user_sections/<netid>', methods=['POST'])
+@app.route('/get_user_data/<netid>', methods=['POST'])
 def get_user_sections(netid):
     netid_ = _CAS.authenticate()
 
