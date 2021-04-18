@@ -253,32 +253,42 @@ class Database:
              'email': f'{netid}@princeton.edu',
              'phone': '',
              'waitlists': [],
-             'log': []})
+             'current_sections': {}})
+        self._db.logs.insert_one(
+            {'netid': netid,
+             'waitlist_log': [],
+             'trade_log': []})
         print(f'successfully created user {netid}')
 
     # update user netid's log - string must be formatted:
     # "datetime,department_number,section_name,new_slots_count"
 
     def update_user_log(self, netid, entry):
-        user_info = self.get_user(netid)
-        log = user_info['log']
+        log = self.get_user_waitlist_log(netid)
+        log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {log}"
 
         log.insert(0, entry)
         if len(log) > MAX_LOG_LENGTH:
             log.pop(-1)
 
-        self._db.users.update_one({'netid': netid}, {'$set': {'log': log}})
+        self._db.logs.update_one(
+            {'netid': netid}, {'$set': {'waitlist_log': log}})
         print(f'log for user {netid} successfully updated with entry {entry}')
 
-    # gets user netid's log in array-of-strings format
+    # gets user netid's trade log in array-of-strings format
 
-    def get_user_log(self, netid):
-        return self.get_user(netid)['log']
+    def get_user_waitlist_log(self, netid):
+        return self._db.logs.find_one({'netid': netid},
+                                      {'waitlist_log': 1, '_id': 0})['waitlist_log']
 
     # returns user data given netid
 
-    def get_user(self, netid):
-        return self._db.users.find_one({'netid': netid.rstrip()})
+    def get_user(self, netid, key):
+        try:
+            return self._db.users.find_one({'netid': netid.rstrip()},
+                                           {key: 1, '_id': 0})[key]
+        except:
+            raise Exception(f'failed to get key {key} for netid {netid}')
 
     # returns all data needed to display user waitlists on dashboard
 
@@ -353,7 +363,6 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
-
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
@@ -559,7 +568,7 @@ class Database:
             if not is_class_full(class_enrollment):
                 raise Exception(
                     f'user cannot enter waitlist for non-full class {classid}')
-            if classid in self.get_user(netid)['waitlists']:
+            if classid in self.get_user(netid, 'waitlists'):
                 raise Exception(
                     f'user {netid} is already in waitlist for class {classid}')
 
@@ -569,8 +578,7 @@ class Database:
             validate()
 
         # add classid to user's waitlist
-        user_info = self.get_user(netid)
-        user_waitlists = user_info['waitlists']
+        user_waitlists = self.get_user(netid, 'waitlists')
         try:
             if len(user_waitlists) >= MAX_WAITLIST_SIZE:
                 print('user', netid, 'exceeded the waitlist limit of',
@@ -608,7 +616,7 @@ class Database:
             waitlist = self.get_class_waitlist(classid)
             if waitlist is None:
                 raise Exception(f'no waitlist for class {classid} exists')
-            if classid not in self.get_user(netid)['waitlists'] or netid not in waitlist['waitlist']:
+            if classid not in self.get_user(netid, 'waitlists') or netid not in waitlist['waitlist']:
                 raise Exception(
                     f'user {netid} not in waitlist for class {classid}')
 
@@ -616,8 +624,7 @@ class Database:
         validate()
 
         # remove classid from user's waitlist
-        user_info = self.get_user(netid)
-        user_waitlists = user_info['waitlists']
+        user_waitlists = self.get_user(netid, 'waitlists')
         user_waitlists.remove(classid)
         self._db.users.update_one({'netid': netid}, {
             '$set': {'waitlists': user_waitlists}})
@@ -805,4 +812,5 @@ class Database:
 if __name__ == '__main__':
     db = Database()
     # db.remove_from_blacklist('sheh')
-    print(db.is_admin('ntyp'))
+    # print(db.is_admin('ntyp'))
+    print(db.get_user('ntyp', 'email'))
