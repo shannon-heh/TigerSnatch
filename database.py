@@ -977,11 +977,3 @@ if __name__ == '__main__':
     print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
     # db.update_current_section('ntyp', '002054', '21921')
     # print(db.get_current_section('ntyp', '002054'))
-<<<<<<< HEAD
-=======
-    # db.remove_current_section('ntyp', '002054')
-    # print(db.get_waited_sections('ntyp'))
-    # db.update_current_section('ntyp', '002054', '21929')
-    # db.remove_current_section('ntyp', '002054')
-    # print(db.get_user_trade_log('ntyp'))
->>>>>>> 815cee2ade7ef9fb4a7a8c3a1419183b6ff42f58
