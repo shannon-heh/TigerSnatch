@@ -321,6 +321,33 @@ def remove_from_blacklist(user):
     return jsonify({"isSuccess": Database().remove_from_blacklist(user.strip())})
 
 
+@ app.route('/get_notifications_status', methods=['POST'])
+def get_notifications_status():
+    netid = _CAS.authenticate()
+
+    try:
+        if not is_admin(netid):
+            return redirect(url_for(''))
+    except:
+        return redirect(url_for(''))
+
+    return jsonify({"isOn": Database().get_cron_notification_status()})
+
+
+@ app.route('/set_notifications_status/<status>', methods=['POST'])
+def set_notifications_status(status):
+    netid = _CAS.authenticate()
+
+    try:
+        if not is_admin(netid):
+            return redirect(url_for(''))
+    except:
+        return redirect(url_for(''))
+
+    Database().set_cron_notification_status(status == 'true')
+    return jsonify({})
+
+
 @ app.route('/clear_all_waitlists', methods=['POST'])
 def clear_all_waitlists():
     netid = _CAS.authenticate()

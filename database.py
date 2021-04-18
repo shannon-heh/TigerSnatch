@@ -335,7 +335,7 @@ class Database:
             deptnum, name, section = self.classid_to_classinfo(classid)
             res.append(f'{name} ({deptnum}): {section}')
 
-        return ','.join(res)
+        return ','.join(sorted(res))
 
 
 # ----------------------------------------------------------------------
