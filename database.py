@@ -70,8 +70,8 @@ class Database:
                 matches[match_netid] = {}
                 matches[match_netid]['email'] = self.get_user(
                     match_netid, 'email')
-                matches[match_netid]['section'] = self._db.enrollments.find_one(
-                    {'classid': classid}, {'_id': 0, 'section': 1})['section']
+                matches[match_netid]['section'] = self.classid_to_sectionname(
+                    classid)
 
         # in case you are your own match
         if netid in matches:
@@ -337,6 +337,7 @@ class Database:
 
         return ','.join(sorted(res))
 
+
 # ----------------------------------------------------------------------
 # BLACKLIST UTILITY METHODS
 # ----------------------------------------------------------------------
@@ -402,7 +403,7 @@ class Database:
     # update user netid's waitlist log
 
     def update_user_trade_log(self, netid, entry):
-        log = self.get_user_waitlist_log(netid)
+        log = self.get_user_trade_log(netid)
         entry = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {entry}"
 
         log.insert(0, entry)
@@ -494,6 +495,24 @@ class Database:
         query = re.compile(query, re.IGNORECASE)
 
         res = list(self._db.users.find({'netid': {'$regex': query}}))
+        return res
+
+     # returns a user's current sections
+
+    def get_current_sections(self, netid):
+        try:
+            current_sections = self.get_user(netid, 'current_sections')
+        except:
+            print('user', {netid}, 'does not exist', file=stderr)
+            return None
+        res = []
+
+        for courseid in current_sections.keys():
+            course_name = self.courseid_to_displayname(courseid)
+            section_name = self.classid_to_sectionname(
+                current_sections[courseid])
+            res.append((course_name, section_name))
+
         return res
 
 
@@ -619,7 +638,15 @@ class Database:
     def is_classid_in_courseid(self, classid, courseid):
         try:
             return self._db.enrollments.find_one(
-                {'classid': classid})['courseid'] == courseid
+                {'classid': classid}, {'_id': 0, 'courseid': 1})['courseid'] == courseid
+        except:
+            raise RuntimeError(f'classid {classid} not found in enrollments')
+
+    # returns name of section specified by classid
+    def classid_to_sectionname(self, classid):
+        try:
+            return self._db.enrollments.find_one(
+                {'classid': classid}, {'_id': 0, 'section': 1})['section']
         except:
             raise RuntimeError(f'classid {classid} not found in enrollments')
 
@@ -974,9 +1001,16 @@ if __name__ == '__main__':
     db = Database()
     # db.remove_from_blacklist('sheh')
     # print(db.is_admin('ntyp'))
-    db.update_current_section('ntyp', '002054', "21921")
-    db.update_current_section('sheh', '002054', "21929")
-    print(db.find_matches('ntyp', '002054'))  # should return sheh with P02
-    print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
+    # db.update_user_waitlist_log('sheh', 'A spot has opened up in COS126 L01')
+    # db.update_user_waitlist_log('sheh', 'A spot has opened up in COS226 P03')
+    # db.update_user_trade_log(
+    #     'sheh', 'You have contacted ntyp about a trade for COS226')
+    # db.update_user_trade_log(
+    #     'sheh', 'You have contacted zishouz about a trade for COS226')
+    # db.update_current_section('ntyp', '002054', "21921")
+    # db.update_current_section('sheh', '002054', "21929")
+    # print(db.find_matches('ntyp', '002054'))  # should return sheh with P02
+    # print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
     # db.update_current_section('ntyp', '002054', '21921')
     # print(db.get_current_section('ntyp', '002054'))
+    # print(db.get_current_sections('sheh'))

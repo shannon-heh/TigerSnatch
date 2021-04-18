@@ -233,12 +233,12 @@ div#logs-header {
 
 div#guide-content,
 div#links-content,
-div#logs-content,
+div#trades-tracker,
 div#logs-content-admin {
     font-size: 0.9em;
 }
 
-div#logs-content {
+div#trades-tracker {
     max-height: 80px;
     overflow: auto;
 }
@@ -381,6 +381,17 @@ tr {
     margin: auto;
 }
 
+div#subscription-activity-col,
+div#trade-activity-col {
+    margin-bottom: 100px;
+}
+
+@media (max-width: 1199.98px) {
+    div#trade-activity-col {
+        margin-bottom: 100px;
+    }
+}
+
 @media (max-width: 1398.98px) {
     .tutorial-image {
         width: 90%;
@@ -407,4 +418,21 @@ tr {
 
 .table-white {
     --bs-table-bg: white;
+}
+
+.activity-card {
+    width: 90%;
+    margin: auto;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+.activity-row {
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
+.activity-card:hover {
+    transform: scale(1.03);
+    transition: transform 0.3s;
 }

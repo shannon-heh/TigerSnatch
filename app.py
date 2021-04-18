@@ -109,7 +109,7 @@ def dashboard():
         _db.update_user(netid, new_email.strip())
         return redirect(url_for('dashboard'))
 
-    user_logs = _db.get_user_waitlist_log(netid)
+    curr_sections = _db.get_current_sections('sheh')
 
     html = render_template('base.html',
                            is_dashboard=True,
@@ -120,7 +120,7 @@ def dashboard():
                            username=netid.rstrip(),
                            data=data,
                            email=email,
-                           user_logs=user_logs,
+                           curr_sections=curr_sections,
                            notifs_online=_db.get_cron_notification_status())
 
     return make_response(html)
