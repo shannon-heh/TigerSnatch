@@ -96,7 +96,7 @@ def dashboard():
     print('user', netid, 'viewed dashboard')
 
     data = _db.get_dashboard_data(netid)
-    email = _db.get_user(netid)['email']
+    email = _db.get_user(netid, 'email')
 
     query = request.args.get('query')
     new_email = request.form.get('new_email')
@@ -109,7 +109,7 @@ def dashboard():
         _db.update_user(netid, new_email.strip())
         return redirect(url_for('dashboard'))
 
-    user_logs = _db.get_user_log(netid)
+    user_logs = _db.get_user_waitlist_log(netid)
 
     html = render_template('base.html',
                            is_dashboard=True,
@@ -155,7 +155,7 @@ def get_course_info(courseid):
     netid = _CAS.authenticate()
 
     course_details, classes_list = pull_course(courseid)
-    curr_waitlists = _db.get_user(netid)['waitlists']
+    curr_waitlists = _db.get_user(netid, 'waitlists')
 
     num_full = sum(class_data['isFull'] for class_data in classes_list)
     term_code = _db.get_current_term_code()
@@ -195,7 +195,7 @@ def get_course():
     search_res = do_search(query)
 
     course_details, classes_list = pull_course(courseid)
-    curr_waitlists = _db.get_user(netid)['waitlists']
+    curr_waitlists = _db.get_user(netid, 'waitlists')
     num_full = sum(class_data['isFull'] for class_data in classes_list)
     term_code = _db.get_current_term_code()
 

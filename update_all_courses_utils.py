@@ -114,7 +114,8 @@ def process_dept_code(args):
                         'courseid': courseid,
                         'section': section,
                         'enrollment': int(class_['enrollment']),
-                        'capacity': int(class_['capacity'])
+                        'capacity': int(class_['capacity']),
+                        'swap_out': []
                     }
 
                     print('inserting', new['displayname'],
