@@ -323,9 +323,10 @@ class Database:
 
     # returns a user's waited-on sections
 
-    def get_waited_sections(self, netid):
+    def get_waited_sections(self, netid, trades=False):
         try:
-            classids = self.get_user(netid, 'waitlists')
+            classids = self.get_user(
+                netid, 'current_sections').values() if trades else self.get_user(netid, 'waitlists')
         except:
             print('user', {netid}, 'does not exist', file=stderr)
             return None
@@ -343,6 +344,7 @@ class Database:
 # ----------------------------------------------------------------------
 
     # returns True if netid is on app blacklist
+
 
     def is_blacklisted(self, netid):
         try:
@@ -497,7 +499,7 @@ class Database:
         res = list(self._db.users.find({'netid': {'$regex': query}}))
         return res
 
-     # returns a user's current sections
+    # returns a user's current sections
 
     def get_current_sections(self, netid):
         try:
@@ -521,6 +523,7 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
+
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']

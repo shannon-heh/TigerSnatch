@@ -387,8 +387,8 @@ def clear_by_course(courseid):
     return jsonify({"isSuccess": Database().clear_course_waitlists(courseid)})
 
 
-@ app.route('/get_user_data/<netid>', methods=['POST'])
-def get_user_sections(netid):
+@ app.route('/get_user_data/<netid>/<isTrade>', methods=['POST'])
+def get_user_data(netid, isTrade):
     netid_ = _CAS.authenticate()
 
     try:
@@ -397,7 +397,8 @@ def get_user_sections(netid):
     except:
         return redirect(url_for(''))
 
-    return jsonify({"data": Database().get_waited_sections(netid.strip())})
+    return jsonify({"data": Database().get_waited_sections(netid.strip(),
+                                                           trades=isTrade == 'true')})
 
 
 @ app.route('/find_matches/<netid>/<courseid>', methods=['POST'])

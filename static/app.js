@@ -465,6 +465,8 @@ let enableAdminFunction = function () {
     $("#courseid-clear-submit").attr("disabled", false);
     $("#get-user-data-input").attr("disabled", false);
     $("#get-user-data-submit").attr("disabled", false);
+    $("#get-user-trade-data-input").attr("disabled", false);
+    $("#get-user-trade-data-submit").attr("disabled", false);
 };
 
 // disables all admin function buttons
@@ -478,6 +480,8 @@ let disableAdminFunction = function () {
     $("#courseid-clear-submit").attr("disabled", true);
     $("#get-user-data-input").attr("disabled", true);
     $("#get-user-data-submit").attr("disabled", true);
+    $("#get-user-trade-data-input").attr("disabled", true);
+    $("#get-user-trade-data-submit").attr("disabled", true);
 };
 
 // listens for email notifications switch toggle
@@ -578,29 +582,43 @@ let clearCourseWaitlistListener = function () {
 
 // listens for get_user_data query
 let getUserDataListener = function () {
+    let helper = function (res, label) {
+        if (!res["data"]) {
+            $(".toast-container").prepend(
+                toastUserDoesNotExist.clone().attr("id", "toast-user-does-not-exist-" + ++i)
+            );
+            $("#toast-user-does-not-exist-" + i).toast("show");
+            enableAdminFunction();
+            return;
+        }
+        let data = res["data"].split(",");
+        $(`#get-${label}-input`).val("");
+
+        dataHTML = "";
+        for (let d of data) dataHTML += `<p class="my-1">&#8594; ${d}</p>`;
+
+        $("#modal-body-user-data").html(dataHTML);
+        $("#user-data-waitlist-modal").modal("show");
+    };
+
     $("#get-user-data").on("submit", function (e) {
         e.preventDefault();
-        netid = $("#get-user-data-input").val();
+        netid = $(`#get-user-data-input`).val();
         disableAdminFunction();
-        $.post(`/get_user_data/${netid}`, function (res) {
-            if (!res["data"]) {
-                $(".toast-container").prepend(
-                    toastUserDoesNotExist.clone().attr("id", "toast-user-does-not-exist-" + ++i)
-                );
-                $("#toast-user-does-not-exist-" + i).toast("show");
-                enableAdminFunction();
-                return;
-            }
-            let data = res["data"].split(",");
-            $("#get-user-data-input").val("");
-
-            dataHTML = "";
-            for (let d of data) dataHTML += `<p>${d}</p>`;
-
-            $("#modal-body-user-data").html(dataHTML);
-            $("#user-data-waitlist-modal").modal("show");
+        $.post(`/get_user_data/${netid}/${false}`, function (res) {
+            helper(res, "user-data");
             $("#staticBackdropLabelUserData").html(`Subscribed Sections for ${netid}`);
+            enableAdminFunction();
+        });
+    });
 
+    $("#get-user-trade-data").on("submit", function (e) {
+        e.preventDefault();
+        netid = $(`#get-user-trade-data-input`).val();
+        disableAdminFunction();
+        $.post(`/get_user_data/${netid}/${true}`, function (res) {
+            helper(res, "user-trade-data");
+            $("#staticBackdropLabelUserData").html(`Trade Sections for ${netid}`);
             enableAdminFunction();
         });
     });
