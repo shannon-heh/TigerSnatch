@@ -96,6 +96,10 @@ thead {
     white-space: nowrap !important;
 }
 
+td:first-child {
+    white-space: normal !important;
+}
+
 div.card.search-results-card {
     width: 90%;
     margin: auto;
