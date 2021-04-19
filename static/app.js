@@ -485,7 +485,7 @@ let blacklistListener = function () {
                     ${netid}
                 </td>
                 <td>
-                    <button type='button' id='button-remove-${netid}' data-netid=${netid} class='btn btn-sm btn-warning btn-blacklist-removal'>remove</button>
+                    <button type='button' id='button-remove-${netid}' data-netid=${netid} class='btn btn-sm btn-warning btn-blacklist-removal'>Unblacklist</button>
                 </td>    
             </tr>`);
             $(document).on("click", `#button-remove-${netid}`, function (e) {
@@ -757,7 +757,7 @@ let clearCourseWaitlistListener = function () {
 // listens for a user data query
 let getUserDataListener = function () {
     let helper = function (res, label) {
-        if (!res["data"]) {
+        if (res["data"] === "missing") {
             $(".toast-container").prepend(
                 toastUserDoesNotExist.clone().attr("id", "toast-user-does-not-exist-" + ++i)
             );

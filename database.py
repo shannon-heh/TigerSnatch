@@ -368,12 +368,15 @@ class Database:
                 netid, 'current_sections').values() if trades else self.get_user(netid, 'waitlists')
         except:
             print('user', netid, 'does not exist', file=stderr)
-            return None
+            return 'missing'
         res = []
 
         for classid in classids:
             deptnum, name, section = self.classid_to_classinfo(classid)
             res.append(f'{name} ({deptnum}): {section}')
+
+        if len(res) == 0:
+            return 'No data'
 
         return ','.join(sorted(res))
 

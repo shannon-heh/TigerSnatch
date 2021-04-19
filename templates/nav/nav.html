@@ -10,11 +10,7 @@
                 class="d-inline-block align-text-center mx-2"
             />
             TigerSnatch
-            <span
-                id="tigersnatch-beta"
-                class="badge bg-warning text-dark font-monospace pe-1 ps-2 py-0 ms-1 fs-4"
-                >BETA</span
-            >
+
             <span id="status-indicator" class="fs-6 ms-3"
                 >active:
                 <svg
@@ -24,23 +20,12 @@
                     fill="{{ '#51a451' if notifs_online else '#dc3545'}}"
                     class="bi bi-circle-fill"
                     viewBox="0 0 16 16"
-                >
-                    <circle cx="8" cy="8" r="8" />
-                </svg>
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-info-square-fill text-primary"
-                    viewBox="0 0 16 16"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="{{'ONLINE: every 2 minutes, TigerSnatch will check for open spots and send emails!' if notifs_online else 'OFFLINE: TigerSnatch is not currently checking for open spots.'}}"
                 >
-                    <path
-                        d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm8.93 4.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM8 5.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
-                    /></svg>
+                    <circle cx="8" cy="8" r="8" />
+                </svg>
             </span>
         </a>
         <button
@@ -59,7 +44,9 @@
         <ul class="navbar-nav">
             {% if user_is_admin %}
             <li class="nav-item">
-                <a class="nav-link ms-4 fs-5 fw-light hvr-underline-from-center active" href="/admin">Admin</a>
+                <a class="nav-link fs-5 fw-light hvr-underline-from-center active" href="/admin"
+                    >Admin</a
+                >
             </li>
             {% endif %}
             <li class="nav-item">

@@ -36,6 +36,7 @@ div.row.align-items-start {
 .navbar#nav {
     background-color: var(--color-yellow);
     height: 4rem;
+    align-content: center;
 }
 
 #status-tooltip,
