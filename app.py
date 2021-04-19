@@ -302,9 +302,9 @@ def add_to_blacklist(user):
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     return jsonify({"isSuccess": Database().add_to_blacklist(user.strip())})
 
@@ -315,9 +315,9 @@ def remove_from_blacklist(user):
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     return jsonify({"isSuccess": Database().remove_from_blacklist(user.strip())})
 
@@ -328,9 +328,9 @@ def get_notifications_status():
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     return jsonify({"isOn": Database().get_cron_notification_status()})
 
@@ -341,9 +341,9 @@ def set_notifications_status(status):
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     Database().set_cron_notification_status(status == 'true')
     return jsonify({})
@@ -355,9 +355,9 @@ def clear_all_trades():
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     return jsonify({"isSuccess": Database().clear_all_trades()})
 
@@ -368,9 +368,9 @@ def clear_all_user_logs():
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     return jsonify({"isSuccess": Database().clear_all_user_logs()})
 
@@ -381,9 +381,9 @@ def update_all_courses():
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     do_update(True)  # !!hard reset and update!!
 
@@ -396,9 +396,9 @@ def clear_all_waitlists():
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     return jsonify({"isSuccess": Database().clear_all_waitlists()})
 
@@ -409,9 +409,9 @@ def clear_by_class(classid):
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     return jsonify({"isSuccess": Database().clear_class_waitlist(classid)})
 
@@ -422,9 +422,9 @@ def clear_by_course(courseid):
 
     try:
         if not is_admin(netid):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     return jsonify({"isSuccess": Database().clear_course_waitlists(courseid)})
 
@@ -435,9 +435,9 @@ def get_user_data(netid, isTrade):
 
     try:
         if not is_admin(netid_):
-            return redirect(url_for(''))
+            return redirect(url_for('landing'))
     except:
-        return redirect(url_for(''))
+        return redirect(url_for('landing'))
 
     return jsonify({"data": Database().get_waited_sections(netid.strip(),
                                                            trades=isTrade == 'true')})
