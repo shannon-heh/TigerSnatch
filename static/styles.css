@@ -36,7 +36,12 @@ div.row.align-items-start {
 .navbar#nav {
     background-color: var(--color-yellow);
     height: 4rem;
-    align-content: center;
+}
+
+@media (max-width: 991.98px) {
+    a#admin-nav-link {
+        margin-left: 23px;
+    }
 }
 
 #status-tooltip,

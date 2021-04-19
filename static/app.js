@@ -459,7 +459,12 @@ let navbarAutoclose = function () {
     $(document).click(function (event) {
         var click = $(event.target);
         var _open = $(".navbar-collapse").hasClass("show");
-        if (_open && !click.hasClass("navbar-toggler")) {
+        if (
+            _open &&
+            !click.hasClass("navbar-toggler") &&
+            !click.hasClass("nav-item") &&
+            !click.hasClass("nav-button")
+        ) {
             $(".navbar-toggler").click();
         }
     });

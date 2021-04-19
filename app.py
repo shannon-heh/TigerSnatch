@@ -133,7 +133,7 @@ def about():
         html = render_template('about.html', loggedin=False)
         return make_response(html)
 
-    html = render_template('base.html',
+    html = render_template('about.html',
                            user_is_admin=is_admin(CASClient().authenticate()),
                            loggedin=True,
                            notifs_online=Database().get_cron_notification_status())
@@ -324,6 +324,9 @@ def remove_from_blacklist(user):
 
 @app.route('/get_notifications_status', methods=['POST'])
 def get_notifications_status():
+    if redirect_landing():
+        return redirect(url_for('landing'))
+
     netid = _CAS.authenticate()
 
     try:

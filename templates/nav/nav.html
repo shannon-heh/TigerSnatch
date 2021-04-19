@@ -44,7 +44,10 @@
         <ul class="navbar-nav">
             {% if user_is_admin %}
             <li class="nav-item">
-                <a class="nav-link fs-5 fw-light hvr-underline-from-center active" href="/admin"
+                <a
+                    id="admin-nav-link"
+                    class="nav-link fs-5 fw-light hvr-underline-from-center active"
+                    href="/admin"
                     >Admin</a
                 >
             </li>
@@ -77,11 +80,11 @@
                     >Tutorial</a
                 >
             </li>
-            <li>
-                <form class="d-flex mx-4" action="/logout" method="get">
+            <li class="">
+                <form class="d-flex mx-4 nav-button" action="/logout" method="get">
                     <button
                         id="logout-btn"
-                        class="btn btn-warning text-dark fs-5 px-4 fw-light"
+                        class="btn btn-warning text-dark fs-5 px-4 fw-light nav-button"
                         type="submit"
                     >
                         Logout
