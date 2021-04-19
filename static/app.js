@@ -124,7 +124,7 @@ const toastClearSuccess = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Waitlist(s) cleared!</div>
+        <div class="toast-body">Cleared sucessfully!</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
@@ -147,7 +147,30 @@ const toastClearFail = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Waitlist(s) failed to clear. Check class/course ID!</div>
+        <div class="toast-body">Failed to clear. Contact a TigerSnatch developer for assistance.</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+const toastUpdateTerm = $(
+    $.parseHTML(`
+<div
+    id="toast-update-term"
+    class="toast align-items-center text-white bg-success border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">TigerSnatch will update to the latest term. Going offline for 2-3 minutes...</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
@@ -504,6 +527,9 @@ let blacklistRemovalListener = function () {
 let enableAdminFunction = function () {
     $(".btn-blacklist").attr("disabled", false);
     $("#clear-all").attr("disabled", false);
+    $("#clear-all-trades").attr("disabled", false);
+    $("#clear-all-logs").attr("disabled", false);
+    $("#update-term").attr("disabled", false);
     $("#toggle-emails").attr("disabled", false);
     $("#classid-clear-input").attr("disabled", false);
     $("#classid-clear-submit").attr("disabled", false);
@@ -519,6 +545,9 @@ let enableAdminFunction = function () {
 let disableAdminFunction = function () {
     $(".btn-blacklist").attr("disabled", true);
     $("#clear-all").attr("disabled", true);
+    $("#clear-all-trades").attr("disabled", true);
+    $("#clear-all-logs").attr("disabled", true);
+    $("#update-term").attr("disabled", true);
     $("#toggle-emails").attr("disabled", true);
     $("#classid-clear-input").attr("disabled", true);
     $("#classid-clear-submit").attr("disabled", true);
@@ -582,8 +611,8 @@ let clearWaitlistsToastHelper = function (res) {
     }
 };
 
-// listens for "Confirm" removal from waitlist
-let clearAllWaitlistListener = function () {
+// listens for clear all waitlists button
+let clearAllWaitlistsListener = function () {
     $("#clear-all").on("click", function (e) {
         e.preventDefault();
         disableAdminFunction();
@@ -603,12 +632,94 @@ let clearAllWaitlistListener = function () {
     });
 };
 
-// listens for "Confirm" removal from waitlist
+// listens for update term button
+let updateTermListener = function () {
+    $("#update-term").on("click", function (e) {
+        e.preventDefault();
+        disableAdminFunction();
+
+        if (
+            !confirm(
+                "Are you sure you want to update TigerSnatch to the latest term? This action will clear ALL term-specific data (including user logs, Trades, waitlists, and curent sections) and is irreversible. TigerSnatch will go into maintenance mode for 2-3 minutes while updating."
+            )
+        ) {
+            enableAdminFunction();
+            return;
+        }
+
+        // MAKE THE ADMIN CONFIRM TWICE!!
+        if (
+            !confirm("Are you ABSOLUTELY sure you want to update TigerSnatch to the latest term?")
+        ) {
+            enableAdminFunction();
+            return;
+        }
+
+        setTimeout(() => location.reload(), 3100);
+        $(".toast-container").prepend(
+            toastUpdateTerm.clone().attr("id", "toast-update-term-" + ++i)
+        );
+        $("#toast-update-term-" + i).toast("show");
+        $.post("/update_all_courses", function (res) {});
+    });
+};
+
+// listens for clear all trades button
+let clearAllTradesListener = function () {
+    $("#clear-all-trades").on("click", function (e) {
+        e.preventDefault();
+        disableAdminFunction();
+
+        if (!confirm("Are you sure you want to clear all Trades? This action is irreversible.")) {
+            enableAdminFunction();
+            return;
+        }
+
+        $.post("/clear_all_trades", function (res) {
+            // checks that user successfully removed from waitlist on back-end
+            clearWaitlistsToastHelper(res);
+            enableAdminFunction();
+        });
+    });
+};
+
+// listens for clear all logs button
+let clearAllLogsListener = function () {
+    $("#clear-all-logs").on("click", function (e) {
+        e.preventDefault();
+        disableAdminFunction();
+
+        if (
+            !confirm("Are you sure you want to clear all user logs? This action is irreversible.")
+        ) {
+            enableAdminFunction();
+            return;
+        }
+
+        $.post("/clear_all_user_logs", function (res) {
+            // checks that user successfully removed from waitlist on back-end
+            clearWaitlistsToastHelper(res);
+            enableAdminFunction();
+        });
+    });
+};
+
+// listens for clear class waitlist button
 let clearClassWaitlistListener = function () {
     $("#classid-clear").on("submit", function (e) {
         e.preventDefault();
         classid = $("#classid-clear-input").val();
         disableAdminFunction();
+
+        if (
+            !confirm(
+                `Are you sure you want to clear the waitlist for class ${classid}? This action is irreversible.`
+            )
+        ) {
+            enableAdminFunction();
+            return;
+        }
+
         $.post(`/clear_by_class/${classid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             clearWaitlistsToastHelper(res);
@@ -618,12 +729,22 @@ let clearClassWaitlistListener = function () {
     });
 };
 
-// listens for "Confirm" removal from waitlist
+// listens for clear course waitlists button
 let clearCourseWaitlistListener = function () {
     $("#courseid-clear").on("submit", function (e) {
         e.preventDefault();
         courseid = $("#courseid-clear-input").val();
         disableAdminFunction();
+
+        if (
+            !confirm(
+                `Are you sure you want to clear the waitlist for course ${courseid}? This action is irreversible.`
+            )
+        ) {
+            enableAdminFunction();
+            return;
+        }
+
         $.post(`/clear_by_course/${courseid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             clearWaitlistsToastHelper(res);
@@ -633,7 +754,7 @@ let clearCourseWaitlistListener = function () {
     });
 };
 
-// listens for get_user_data query
+// listens for a user data query
 let getUserDataListener = function () {
     let helper = function (res, label) {
         if (!res["data"]) {
@@ -695,7 +816,10 @@ $(document).ready(function () {
     navbarAutoclose();
     blacklistListener();
     blacklistRemovalListener();
-    clearAllWaitlistListener();
+    updateTermListener();
+    clearAllWaitlistsListener();
+    clearAllTradesListener();
+    clearAllLogsListener();
     clearClassWaitlistListener();
     clearCourseWaitlistListener();
     getUserDataListener();

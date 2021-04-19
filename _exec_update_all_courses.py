@@ -28,17 +28,12 @@ from sys import argv, exit
 from time import time
 from update_all_courses_utils import get_all_dept_codes, process_dept_code
 
-if __name__ == '__main__':
-    def process_args():
-        if len(argv) != 2 or (argv[1] != '--soft' and argv[1] != '--hard'):
-            print('specify one of the following flags:')
-            print('\t--soft: resets only course-related data')
-            print('\t--hard: resets both course and waitlist-related data')
-            exit(2)
-        return argv[1] == '--hard'
 
+# True --> hard reset
+# False --> soft reset
+def do_update(reset_type):
     tic = time()
-    hard_reset = process_args()
+    hard_reset = reset_type
     db = Database()
     db.set_maintenance_status(True)
 
@@ -87,3 +82,15 @@ if __name__ == '__main__':
         f'updated courses to term code {current_term_code} in {round(time()-tic)} seconds')
 
     print(f'success: approx. {round(time()-tic)} seconds')
+
+
+if __name__ == '__main__':
+    def process_args():
+        if len(argv) != 2 or (argv[1] != '--soft' and argv[1] != '--hard'):
+            print('specify one of the following flags:')
+            print('\t--soft: resets only course-related data')
+            print('\t--hard: resets both course and waitlist-related data')
+            exit(2)
+        return argv[1] == '--hard'
+
+    do_update(process_args())

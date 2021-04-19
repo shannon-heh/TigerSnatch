@@ -39,6 +39,8 @@ class Database:
 # TRADES METHODS
 # ----------------------------------------------------------------------
 
+    # core Trade matching algorithm!
+
     def find_matches(self, netid, courseid):
         user_waitlists = self.get_user(netid, 'waitlists')
 
@@ -85,6 +87,7 @@ class Database:
         return matches
 
     # returns list of users who want to swap out of a class
+
     def get_swapout_for_class(self, classid):
         return self._db.enrollments.find_one({'classid': classid},
                                              {'swap_out': 1, '_id': 0})['swap_out']
@@ -222,6 +225,42 @@ class Database:
         except:
             return False
 
+    # clears and removes users from all Trades
+
+    def clear_all_trades(self):
+        try:
+            self._add_admin_log(
+                'clearing current_sections in users collection')
+            self._db.users.update_many(
+                {},
+                {'$set': {'current_sections': {}}}
+            )
+
+            self._add_admin_log(
+                'clearing swap_out arrays in enrollments collection')
+            self._db.enrollments.update_many(
+                {},
+                {'$set': {'swap_out': []}}
+            )
+            return True
+        except:
+            return False
+
+    # clears all user logs
+
+    def clear_all_user_logs(self):
+        try:
+            self._add_admin_log(
+                'clearing all user waitlist and trade logs')
+            self._db.logs.update_many(
+                {},
+                {'$set': {'waitlist_log': [],
+                          'trade_log': []}}
+            )
+            return True
+        except:
+            return False
+
     # clears and removes users from the waitlist for class classid
 
     def clear_class_waitlist(self, classid, log_classid_skip=True):
@@ -344,6 +383,7 @@ class Database:
 # ----------------------------------------------------------------------
 
     # returns True if netid is on app blacklist
+
 
     def is_blacklisted(self, netid):
         try:
@@ -522,6 +562,7 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
+
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
@@ -912,7 +953,7 @@ class Database:
 # ----------------------------------------------------------------------
 
     # does the following:
-    #   * clears all "waitlists" lists for each user
+    #   * clears all waitlists and current sections for each user
     #   * deletes all documents from mappings
     #   * deletes all documents from courses
     #   * deletes all documents from enrollments
@@ -925,10 +966,18 @@ class Database:
             print('clearing', coll)
             self._db[coll].delete_many({})
 
-        print('clearing waitlists in users')
+        print('clearing waitlists and current_sections in users')
         self._db.users.update_many(
             {},
-            {'$set': {'waitlists': []}}
+            {'$set': {'waitlists': [],
+                      'current_sections': {}}}
+        )
+
+        print('resetting user logs')
+        self._db.logs.update_many(
+            {},
+            {'$set': {'waitlist_log': [],
+                      'trade_log': []}}
         )
 
         clear_coll('mappings')
