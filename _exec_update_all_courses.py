@@ -49,8 +49,8 @@ def do_update(reset_type):
         current_term_code = terms['term'][0]['code']
         db.update_current_term_code(current_term_code)
         ######################### REMOVE LATER #########################
-        # current_term_code = '1214'
-        # db.update_current_term_code('1214')
+        current_term_code = '1214'
+        db.update_current_term_code('1214')
         ################################################################
     except:
         raise Exception('failed to get current term code')
