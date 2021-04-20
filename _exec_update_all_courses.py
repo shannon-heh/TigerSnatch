@@ -26,6 +26,7 @@ from mobileapp import MobileApp
 from database import Database
 from sys import argv, exit
 from time import time
+from os import system
 from update_all_courses_utils import get_all_dept_codes, process_dept_code
 
 
@@ -58,7 +59,7 @@ def do_update(reset_type):
 
     DEPT_CODES = get_all_dept_codes(current_term_code)
 
-    process_dept_code_args = []
+    # process_dept_code_args = []
     for n, code in enumerate(DEPT_CODES):
         process_dept_code([code, n, current_term_code, False, hard_reset])
         # the below code is for multiprocessing
@@ -82,6 +83,10 @@ def do_update(reset_type):
         f'updated courses to term code {current_term_code} in {round(time()-tic)} seconds')
 
     print(f'success: approx. {round(time()-tic)} seconds')
+
+
+def do_update_async():
+    system('python _exec_update_all_courses.py --hard &')
 
 
 if __name__ == '__main__':

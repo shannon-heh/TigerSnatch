@@ -588,6 +588,7 @@ let toggleEmailNotificationsListener = function () {
                     );
                     $("#toast-emails-off-" + i).toast("show");
                 }
+                $("*").css("pointer-events", "none");
                 setTimeout(() => location.reload(), 3100);
             });
         });
