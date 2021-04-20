@@ -291,7 +291,8 @@ def admin():
                            username=netid.rstrip(),
                            admin_logs=admin_logs,
                            blacklist=_db.get_blacklist(),
-                           notifs_online=_db.get_cron_notification_status())
+                           notifs_online=_db.get_cron_notification_status(),
+                           current_term_code=_db.get_current_term_code())
 
     return make_response(html)
 
