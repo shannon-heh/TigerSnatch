@@ -302,10 +302,19 @@ class Database:
         # removes user profile from users collection
         # removes user from any waitlists
         def remove_user(netid):
-            classids = self._db.users.find_one({'netid': netid})['waitlists']
+            print('removing user', netid, 'from all waitlists')
+            classids = self.get_user(netid, 'waitlists')
             for classid in classids:
                 self.remove_from_waitlist(netid, classid)
+
+            print('removing user', netid, 'from all swap_out lists')
+            courseids = self.get_user(netid, 'current_sections').keys()
+            for courseid in courseids:
+                self.remove_current_section(netid, courseid)
+
+            print('removing user', netid, 'from users and logs collections')
             self._db.users.delete_one({'netid': netid})
+            self._db.logs.delete_one({'netid': netid})
 
         try:
             if self.is_admin(netid):
@@ -318,7 +327,7 @@ class Database:
             # check if user is already in blacklist
             if netid in blacklist:
                 self._add_admin_log(
-                    f'user {netid} already on app blacklist - not added')
+                    f'user {netid} already on blacklist - not added')
                 return
 
             if self.is_user_created(netid):
@@ -328,11 +337,11 @@ class Database:
             self._db.admin.update_one(
                 {}, {'$set': {'blacklist': blacklist}})
             self._add_admin_log(
-                f'user {netid} added to app blacklist and removed from database')
+                f'user {netid} added to blacklist and removed from database')
             return True
 
         except Exception:
-            print(f'error in adding {netid} to blacklist', file=stderr)
+            print(f'failed to add user {netid} to blacklist', file=stderr)
             return False
 
     # remove netid from app blacklist
@@ -342,16 +351,16 @@ class Database:
             blacklist = self.get_blacklist()
             if netid not in blacklist:
                 self._add_admin_log(
-                    f'user {netid} is not on app blacklist - not removed')
+                    f'user {netid} not on blacklist - not removed')
                 return False
 
             blacklist.remove(netid)
             self._db.admin.update_one(
                 {}, {'$set': {'blacklist': blacklist}})
-            self._add_admin_log(f'user {netid} removed from app blacklist')
+            self._add_admin_log(f'user {netid} removed from blacklist')
             return True
         except Exception:
-            print(f'Error in removing {netid} from blacklist', file=stderr)
+            print(f'failed to remove user {netid} from blacklist', file=stderr)
             return False
 
     # returns list of blacklisted netids

@@ -170,7 +170,7 @@ const toastUpdateTerm = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">TigerSnatch will update to the latest term. Going offline for 2-3 minutes...</div>
+        <div class="toast-body">TigerSnatch will update to the latest term and go offline for 2-3 minutes. Reloading in a few seconds...</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
@@ -660,6 +660,7 @@ let updateTermListener = function () {
             return;
         }
 
+        $("*").css("pointer-events", "none");
         setTimeout(() => location.reload(), 3100);
         $(".toast-container").prepend(
             toastUpdateTerm.clone().attr("id", "toast-update-term-" + ++i)
