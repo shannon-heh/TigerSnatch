@@ -54,44 +54,32 @@ class Notify:
         <head></head>
         <body style='font-size:1.3em'>
             <p>Dear {self._netid},</p>
-            <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> has one or more spots open!</p>
-            <p>Head over to <a href="https://phubprod.princeton.edu/psp/phubprod/?cmd=start">Tigerhub</a> to Snatch your spot!</p>
-            <p>You'll continue to receive notifications for this section every 5 minutes if spots are still available. To unsubscribe from notifications for this section, please visit <a href="https://tigersnatch.herokuapp.com">TigerSnatch</a>.</p>
-            <p>Best,<br>Tigersnatch Team <3</p>
+            <p>Your subscribed section <b>{self._sectionname}</b> in <b>{self._coursename}</b> has one or more spots open!</p>
+            <p>Head over to <a href="https://phubprod.princeton.edu/psp/phubprod/?cmd=start">TigerHub</a> to Snatch your spot!</p>
+            <p>You'll continue to receive notifications for this section every 2 minutes if spots are still available. To unsubscribe from notifications for this section, please visit <a href="https://tigersnatch.herokuapp.com">TigerSnatch</a>.</p>
+            <p>Best,<br>TigerSnatch Team <3</p>
         </body>
         </html>
         """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
-        # msg.add_alternative(f"""\
-        # <html>
-        # <head></head>
-        # <body style='font-size:1.3em'>
-        #     <p>Dear {self._netid},</p>
-        #     <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> has a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.</p>
-        #     <p>Please head over to <a href="https://phubprod.princeton.edu/psp/phubprod/?cmd=start">Tigerhub</a> to register for your course!</p>
-        #     <p>If you wish to re-add yourself to this waitlist, please go to <a href="https://tigersnatch.herokuapp.com">TigerSnatch</a>.</p>
-        #     <p>Best,<br>Tigersnatch Team</p>
-        # </body>
-        # </html>
-        # """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
 
-        if self._swap:
-            msg.add_alternative(f"""\
-            <html>
-            <head></head>
-            <body>
-                <p>Dear {self._netid},</p>
-                <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> have a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.
-                <p>The netid of your match is: {self._netid_swap}. Please contact them to arrange a section swap!</p>
-                <p>Best,<br>Tigersnatch Team</p>
-            </body>
-            </html>
-            """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
+        # if self._swap:
+        #     msg.add_alternative(f"""\
+        #     <html>
+        #     <head></head>
+        #     <body>
+        #         <p>Dear {self._netid},</p>
+        #         <p>Your requested section <b>{self._sectionname}</b> in <b>{self._coursename}</b> have a spot open! You have been removed from the waitlist on TigerSnatch. The next student on the waitlist will receive a notification in 5 minutes.
+        #         <p>The netid of your match is: {self._netid_swap}. Please contact them to arrange a section swap!</p>
+        #         <p>Best,<br>Tigersnatch Team</p>
+        #     </body>
+        #     </html>
+        #     """.format(asparagus_cid=asparagus_cid[1:-1]), subtype='html')
 
         me = TS_EMAIL
         you = self._email  # receiver
         pwd = TS_PASSWORD  # see config.py
 
-        msg['Subject'] = f'TigerSnatch: a spot opened in {self._coursename} {self._sectionname}'
+        msg['Subject'] = f'TigerSnatch: a spot opened in {self._deptnum} {self._sectionname}'
         msg['From'] = me
         msg['To'] = you
         s = smtplib.SMTP('smtp.office365.com', 587)
