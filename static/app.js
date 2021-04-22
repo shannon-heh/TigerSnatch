@@ -501,10 +501,6 @@ let initTooltipsToasts = function () {
     $("#dev-warning").on("click", function (e) {
         e.preventDefault();
     });
-
-    $("#status-indicator-tooltip").tooltip("show");
-
-    setTimeout(() => $("#status-indicator-tooltip").tooltip("hide"), 2000);
 };
 
 // closes the navbar (mobile) on tap out
