@@ -11,10 +11,9 @@ from config import APP_SECRET_KEY
 from waitlist import Waitlist
 from _exec_update_all_courses import do_update_async
 from app_helper import do_search, pull_course, is_admin
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, unquote_plus
 
 app = Flask(__name__, template_folder='./templates')
-app.jinja_env.filters['quote_plus'] = lambda u: quote_plus(u)
 app.secret_key = APP_SECRET_KEY
 _CAS = CASClient()
 
@@ -118,6 +117,7 @@ def dashboard():
                            user_is_admin=is_admin(netid),
                            search_res=search_res,
                            last_query=quote_plus(query),
+                           last_query_unquoted=unquote_plus(query),
                            username=netid.rstrip(),
                            data=data,
                            email=email,
@@ -167,6 +167,7 @@ def get_search_results(query=''):
     res = do_search(query)
     html = render_template('search/search_results.html',
                            last_query=quote_plus(query),
+                           last_query_unquoted=unquote_plus(query),
                            search_res=res)
     return make_response(html)
 
@@ -236,6 +237,7 @@ def get_course():
                            num_full=num_full,
                            term_code=term_code,
                            last_query=quote_plus(query),
+                           last_query_unquoted=unquote_plus(query),
                            notifs_online=_db.get_cron_notification_status())
 
     return make_response(html)
@@ -288,6 +290,7 @@ def admin():
                            user_is_admin=True,
                            search_res=search_res,
                            last_query=quote_plus(query),
+                           last_query_unquoted=unquote_plus(query),
                            username=netid.rstrip(),
                            admin_logs=admin_logs,
                            blacklist=_db.get_blacklist(),
