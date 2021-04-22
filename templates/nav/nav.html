@@ -9,24 +9,8 @@
                 alt="TigerSnatch logo"
                 class="d-inline-block align-text-center mx-2"
             />
-            TigerSnatch {% include 'utils/dev_warning.html'%}
-
-            <span id="status-indicator" class="fs-6 ms-3"
-                >active:
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="{{ '#51a451' if notifs_online else '#dc3545'}}"
-                    class="bi bi-circle-fill"
-                    viewBox="0 0 16 16"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="{{'ONLINE: every 2 minutes, TigerSnatch will check for open spots and send emails!' if notifs_online else 'OFFLINE: TigerSnatch is not currently checking for open spots.'}}"
-                >
-                    <circle cx="8" cy="8" r="8" />
-                </svg>
-            </span>
+            TigerSnatch {% include 'utils/dev_warning.html'%} {% include
+            'utils/status_indicator.html' %}
         </a>
         <button
             class="navbar-toggler"
