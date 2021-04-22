@@ -506,13 +506,13 @@ let initTooltipsToasts = function () {
 // closes the navbar (mobile) on tap out
 let navbarAutoclose = function () {
     $(document).click(function (event) {
-        var click = $(event.target);
-        var _open = $(".navbar-collapse").hasClass("show");
+        let click = $(event.target);
         if (
-            _open &&
+            $(".navbar-collapse").hasClass("show") &&
             !click.hasClass("navbar-toggler") &&
             !click.hasClass("nav-item") &&
-            !click.hasClass("nav-button")
+            !click.hasClass("nav-button") &&
+            !click.hasClass("nav-link")
         ) {
             $(".navbar-toggler").click();
         }
