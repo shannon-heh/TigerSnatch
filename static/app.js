@@ -193,7 +193,7 @@ const toastFillFail = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Failed to fill section. Contact a TigerSnatch developer for assistance.</div>
+        <div class="toast-body">Failed to fill section. Check class ID or contact a TigerSnatch developer for assistance.</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
@@ -714,6 +714,7 @@ let enableAdminFunction = function () {
     $("#courseid-clear-submit").attr("disabled", false);
     $("#get-user-data-input").attr("disabled", false);
     $("#get-user-data-submit").attr("disabled", false);
+    $("#fill-section-input").attr("disabled", false);
     $("#get-user-trade-data-input").attr("disabled", false);
     $("#get-user-trade-data-submit").attr("disabled", false);
     $("#fill-section-submit").attr("disabled", false);
@@ -734,6 +735,7 @@ let disableAdminFunction = function () {
     $("#courseid-clear-submit").attr("disabled", true);
     $("#get-user-data-input").attr("disabled", true);
     $("#get-user-data-submit").attr("disabled", true);
+    $("#fill-section-input").attr("disabled", true);
     $("#get-user-trade-data-input").attr("disabled", true);
     $("#get-user-trade-data-submit").attr("disabled", true);
     $("#fill-section-submit").attr("disabled", true);
