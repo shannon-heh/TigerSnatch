@@ -278,7 +278,7 @@ const toastRemovedSection = $(
     $.parseHTML(`
 <div
     id="toast-removedsection-success"
-    class="toast align-items-center text-white bg-success border-0"
+    class="toast align-items-center text-white bg-warning border-0"
     role="alert"
     aria-live="assertive"
     aria-atomic="true"
