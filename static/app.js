@@ -1132,7 +1132,22 @@ let findMatches = function () {
                             <tr>
                                 <th scope="col">NetID</th>
                                 <th scope="col">Current Section</th>
-                                <th scopt="col">Contact</th>
+                                <th scopt="col">Contact <svg
+                                    id="dev-warning"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    class="bi bi-exclamation-triangle-fill text-primary ms-1"
+                                    viewBox="0 0 16 16"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="This user will be notified in their Activity page if you click Email!"
+                                >
+                                    <path
+                                        d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
+                                    />
+                                </svg></th>
                             </tr>
                         </thead>
                             <tbody>`;
@@ -1159,7 +1174,8 @@ let findMatches = function () {
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope me-1" viewBox="0 0 18 18">
                                 <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.758 2.855L15 11.114v-5.73zm-.034 6.878L9.271 8.82 8 9.583 6.728 8.82l-5.694 3.44A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.739zM1 11.114l4.758-2.876L1 5.383v5.73z"/>
                             </svg>Email
-                        </a></td>
+                        </a>
+                    </td>
                         </tr>`;
                 }
                 s += "</tbody></table></div>";
@@ -1179,6 +1195,7 @@ let findMatches = function () {
                         }
                     );
                 });
+                initTooltipsToasts();
             } else {
                 $(`#match-${courseid}`).html("We're unable to find you a Trade.");
             }
