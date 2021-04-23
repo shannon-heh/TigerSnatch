@@ -109,6 +109,10 @@ def dashboard():
     search_res = do_search(query)
 
     if new_email is not None:
+        if '<' in new_email or '>' in new_email or 'script' in new_email:
+            print('HTML code detected in', new_email, file=stderr)
+            return redirect(url_for('dashboard'))
+
         _db.update_user(netid, new_email.strip())
         return redirect(url_for('dashboard'))
 

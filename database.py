@@ -74,6 +74,10 @@ class Database:
                 # if yes, add them to matches
                 match_email = self.get_user(match_netid, 'email')
                 match_section = self.classid_to_sectionname(classid)
+
+                if match_section == self.classid_to_sectionname(curr_section):
+                    continue
+
                 matches.append([match_netid, match_section, match_email])
 
         if not matches:
