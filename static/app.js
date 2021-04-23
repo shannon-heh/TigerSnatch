@@ -9,7 +9,7 @@ const toastAdded = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Successfully added to waitlist!</div>
+        <div class="toast-body">Successfully subscribed!</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
@@ -32,7 +32,7 @@ const toastRemoved = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Successfully removed from waitlist!</div>
+        <div class="toast-body">Successfully unsubscribed!</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
@@ -501,18 +501,21 @@ let initTooltipsToasts = function () {
     $("#status-indicator").on("click", function (e) {
         e.preventDefault();
     });
+    $("#dev-warning").on("click", function (e) {
+        e.preventDefault();
+    });
 };
 
 // closes the navbar (mobile) on tap out
 let navbarAutoclose = function () {
     $(document).click(function (event) {
-        var click = $(event.target);
-        var _open = $(".navbar-collapse").hasClass("show");
+        let click = $(event.target);
         if (
-            _open &&
+            $(".navbar-collapse").hasClass("show") &&
             !click.hasClass("navbar-toggler") &&
             !click.hasClass("nav-item") &&
-            !click.hasClass("nav-button")
+            !click.hasClass("nav-button") &&
+            !click.hasClass("nav-link")
         ) {
             $(".navbar-toggler").click();
         }
@@ -673,7 +676,9 @@ let clearAllWaitlistsListener = function () {
         disableAdminFunction();
 
         if (
-            !confirm("Are you sure you want to clear all waitlists? This action is irreversible.")
+            !confirm(
+                "Are you sure you want to clear all subscriptions? This action is irreversible."
+            )
         ) {
             enableAdminFunction();
             return;
@@ -695,7 +700,7 @@ let updateTermListener = function () {
 
         if (
             !confirm(
-                "Are you sure you want to update TigerSnatch to the latest term? This action will clear ALL term-specific data (including user logs, Trades, waitlists, and curent sections) and is irreversible. TigerSnatch will go into maintenance mode for 2-3 minutes while updating."
+                "Are you sure you want to update TigerSnatch to the latest term? This action will clear ALL term-specific data (including user logs, Trades, subscriptions, and curent sections) and is irreversible. TigerSnatch will go into maintenance mode for 2-3 minutes while updating."
             )
         ) {
             enableAdminFunction();
@@ -769,7 +774,7 @@ let clearClassWaitlistListener = function () {
 
         if (
             !confirm(
-                `Are you sure you want to clear the waitlist for class ${classid}? This action is irreversible.`
+                `Are you sure you want to clear subscriptions for class ${classid}? This action is irreversible.`
             )
         ) {
             enableAdminFunction();
@@ -794,7 +799,7 @@ let clearCourseWaitlistListener = function () {
 
         if (
             !confirm(
-                `Are you sure you want to clear the waitlist for course ${courseid}? This action is irreversible.`
+                `Are you sure you want to clear subscriptions for course ${courseid}? This action is irreversible.`
             )
         ) {
             enableAdminFunction();

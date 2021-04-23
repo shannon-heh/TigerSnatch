@@ -1,0 +1,17 @@
+<span id="status-indicator" class="fs-6 ms-3"
+    >active:
+    <svg
+        id="status-indicator-tooltip"
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        fill="currentColor"
+        class="bi bi-circle-fill {{ 'text-success' if notifs_online else 'text-danger' }}"
+        viewBox="0 0 16 16"
+        data-bs-toggle="tooltip"
+        data-bs-placement="auto"
+        title="{{'TigerSnatch is actively checking for open spots!' if notifs_online else 'TigerSnatch is not currently checking for open spots.'}}"
+    >
+        <circle cx="8" cy="8" r="8" />
+    </svg>
+</span>
