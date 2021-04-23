@@ -62,6 +62,9 @@ class Database:
             # get netids that want to swap out of the sections you want
             swapout_list = self.get_swapout_for_class(classid)
             for match_netid in swapout_list:
+                # prevents self match
+                if match_netid == netid:
+                    continue
                 # check if match wants your section
                 if not curr_section in self.get_user(match_netid, 'waitlists'):
                     continue
@@ -72,10 +75,6 @@ class Database:
                 match_email = self.get_user(match_netid, 'email')
                 match_section = self.classid_to_sectionname(classid)
                 matches.append([match_netid, match_section, match_email])
-
-        # in case you are your own match
-        if netid in matches:
-            matches.pop(netid)
 
         if not matches:
             print(f'no matches found for user {netid} in course {courseid}')

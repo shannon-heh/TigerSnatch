@@ -12,6 +12,7 @@ from waitlist import Waitlist
 from _exec_update_all_courses import do_update_async
 from app_helper import do_search, pull_course, is_admin
 from urllib.parse import quote_plus, unquote_plus
+import traceback
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
@@ -20,6 +21,7 @@ _CAS = CASClient()
 
 @app.errorhandler(Exception)
 def handle_exception(e):
+    traceback.print_exc()
     print(e)
     return render_template('error.html')
 
@@ -233,7 +235,8 @@ def get_course():
     term_code = _db.get_current_term_code()
     section_names = _db.get_section_names_in_course(courseid)
     current_section = _db.get_current_section(netid, courseid)
-    current_sectionname = _db.classid_to_sectionname(current_section)
+    current_sectionname = _db.classid_to_sectionname(
+        current_section) if current_section is not None else ''
     trade_unavailable = False
     if not section_names or len(section_names) < 2:
         trade_unavailable = True

@@ -9,7 +9,6 @@ from email.message import EmailMessage
 from email.utils import make_msgid
 from sys import stderr
 from config import TS_EMAIL, TS_PASSWORD
-from datetime import datetime, timedelta
 
 
 class Notify:
