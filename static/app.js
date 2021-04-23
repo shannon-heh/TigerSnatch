@@ -159,6 +159,52 @@ const toastClearFail = $(
 `)
 );
 
+const toastFillSuccess = $(
+    $.parseHTML(`
+<div
+    id="toast-clear-success"
+    class="toast align-items-center text-white bg-success border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Filled section sucessfully!</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+const toastFillFail = $(
+    $.parseHTML(`
+<div
+    id="toast-clear-fail"
+    class="toast align-items-center text-white bg-danger border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Failed to fill section. Contact a TigerSnatch developer for assistance.</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
 const toastUpdateTerm = $(
     $.parseHTML(`
 <div
@@ -228,22 +274,97 @@ const toastBlacklistSuccess = $(
 `)
 );
 
-// When user clicks on "Contact" for a particular match,
-// new tab should open with the link specified in "tradeEmailLink"
-// Fill in placeholders (in ALL CAPS) to craft email using String.replace()
-// e.g. tradeEmailSubject.replace('MATCH_SECTION', 'P01')
-// Let me know if spaces & line breaks dont work
-// const tradeEmailSubject = "TigerSnatch: Trade Sections for MATCH_SECTION?";
-// const tradeEmailBody = `
-// Hi MATCH_NETID, 
+const toastAddedSection = $(
+    $.parseHTML(`
+<div
+    id="toast-updatesection"
+    class="toast align-items-center text-white bg-success border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Successfully saved your current section for this course!</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
 
-// From TigerSnatch, I saw that you're enrolled in COURSE_NAME MATCH_SECTION. I'm currently in MY_SECTION. 
-// Would you like to set up a time to trade sections with me?
+const toastAddedSectionFail = $(
+    $.parseHTML(`
+<div
+    id="toast-updatesection-fail"
+    class="toast align-items-center text-white bg-danger border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Failed to save your current section for this course.</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
 
-// Thank you,
-// MY_NETID
-// `;
+const toastRemovedSection = $(
+    $.parseHTML(`
+<div
+    id="toast-removedsection-success"
+    class="toast align-items-center text-white bg-warning border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Successfully removed your current section for this course!</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
 
+const toastRemovedSectionFail = $(
+    $.parseHTML(`
+<div
+    id="toast-removedsection-fail"
+    class="toast align-items-center text-white bg-danger border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Failed to remove your current section for this course.</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
 
 // scrolls to the bottom of id #dest
 let scrollBottom = function (dest) {
@@ -595,6 +716,7 @@ let enableAdminFunction = function () {
     $("#get-user-data-submit").attr("disabled", false);
     $("#get-user-trade-data-input").attr("disabled", false);
     $("#get-user-trade-data-submit").attr("disabled", false);
+    $("#fill-section-submit").attr("disabled", false);
 };
 
 // disables all admin function buttons
@@ -614,6 +736,7 @@ let disableAdminFunction = function () {
     $("#get-user-data-submit").attr("disabled", true);
     $("#get-user-trade-data-input").attr("disabled", true);
     $("#get-user-trade-data-submit").attr("disabled", true);
+    $("#fill-section-submit").attr("disabled", true);
 };
 
 // listens for email notifications switch toggle
@@ -664,6 +787,19 @@ let clearWaitlistsToastHelper = function (res) {
     } else {
         $(".toast-container").prepend(
             toastClearSuccess.clone().attr("id", "toast-clear-success-" + ++i)
+        );
+        $("#toast-clear-success-" + i).toast("show");
+    }
+};
+
+// helper method to display fail/success toasts for waitlist clearing
+let fillSectionToastHelper = function (res) {
+    if (!res["isSuccess"]) {
+        $(".toast-container").prepend(toastFillFail.clone().attr("id", "toast-clear-fail-" + ++i));
+        $("#toast-clear-fail-" + i).toast("show");
+    } else {
+        $(".toast-container").prepend(
+            toastFillSuccess.clone().attr("id", "toast-clear-success-" + ++i)
         );
         $("#toast-clear-success-" + i).toast("show");
     }
@@ -790,6 +926,21 @@ let clearClassWaitlistListener = function () {
     });
 };
 
+let fillSectionListener = function () {
+    $("#fill-section").on("submit", function (e) {
+        e.preventDefault();
+        classid = $("#fill-section-input").val();
+        disableAdminFunction();
+
+        $.post(`/fill_section/${classid}`, function (res) {
+            // checks that user successfully removed from waitlist on back-end
+            fillSectionToastHelper(res);
+            $("#fill-section-input").val("");
+            enableAdminFunction();
+        });
+    });
+};
+
 // listens for clear course waitlists button
 let clearCourseWaitlistListener = function () {
     $("#courseid-clear").on("submit", function (e) {
@@ -859,115 +1010,30 @@ let getUserDataListener = function () {
     });
 };
 
+// disables trade functionality buttons
 let disableTradeFunction = function () {
     $(".submit-trade").attr("disabled", true);
     $(".save-trade").attr("disabled", true);
     $(".remove-trade").attr("disabled", true);
-}
+    $("*").css("pointer-events", "none");
+    $("*").css("cursor", "wait");
+};
 
+// enables trade functionality buttons
 let enableTradeFunction = function () {
     $(".submit-trade").attr("disabled", false);
     $(".remove-trade").attr("disabled", false);
     $(".save-trade").attr("disabled", false);
-}
+    $("*").css("pointer-events", "");
+    $("*").css("cursor", "");
+};
 
-const toastAddedSection = $(
-    $.parseHTML(`
-<div
-    id="toast-added"
-    class="toast align-items-center text-white bg-success border-0"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-    data-bs-delay="3000"
->
-    <div class="d-flex">
-        <div class="toast-body">Successfully saved entry to this trade!</div>
-        <button
-            type="button"
-            class="btn-close btn-close-white me-2 m-auto"
-            data-bs-dismiss="toast"
-            aria-label="Close"
-        ></button>
-    </div>
-</div>
-`)
-);
-
-const toastAddedSectionFail = $(
-    $.parseHTML(`
-<div
-    id="toast-clear-fail"
-    class="toast align-items-center text-white bg-danger border-0"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-    data-bs-delay="3000"
->
-    <div class="d-flex">
-        <div class="toast-body">Failed to save your entry to this trade.</div>
-        <button
-            type="button"
-            class="btn-close btn-close-white me-2 m-auto"
-            data-bs-dismiss="toast"
-            aria-label="Close"
-        ></button>
-    </div>
-</div>
-`)
-);
-
-const toastRemovedSection = $(
-    $.parseHTML(`
-<div
-    id="toast-added"
-    class="toast align-items-center text-white bg-success border-0"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-    data-bs-delay="3000"
->
-    <div class="d-flex">
-        <div class="toast-body">Successfully removed yourself from this trade!</div>
-        <button
-            type="button"
-            class="btn-close btn-close-white me-2 m-auto"
-            data-bs-dismiss="toast"
-            aria-label="Close"
-        ></button>
-    </div>
-</div>
-`)
-);
-
-const toastRemovedSectionFail = $(
-    $.parseHTML(`
-<div
-    id="toast-clear-fail"
-    class="toast align-items-center text-white bg-danger border-0"
-    role="alert"
-    aria-live="assertive"
-    aria-atomic="true"
-    data-bs-delay="3000"
->
-    <div class="d-flex">
-        <div class="toast-body">Failed to remove yourself from this trade.</div>
-        <button
-            type="button"
-            class="btn-close btn-close-white me-2 m-auto"
-            data-bs-dismiss="toast"
-            aria-label="Close"
-        ></button>
-    </div>
-</div>
-`)
-);
-
-
-// helper method to display fail/success toasts for waitlist clearing
+// helper method to display fail/success toasts for updating current section
 let updateSectionToastHelper = function (res) {
     if (!res["isSuccess"]) {
-        $(".toast-container").prepend(toastAddedSectionFail.clone().attr("id", "toast-updatesection-fail-" + ++i));
+        $(".toast-container").prepend(
+            toastAddedSectionFail.clone().attr("id", "toast-updatesection-fail-" + ++i)
+        );
         $("#toast-updatesection-fail-" + i).toast("show");
     } else {
         $(".toast-container").prepend(
@@ -977,10 +1043,12 @@ let updateSectionToastHelper = function (res) {
     }
 };
 
-// helper method to display fail/success toasts for waitlist clearing
+// helper method to display fail/success toasts for removing current section
 let removeSectionToastHelper = function (res) {
     if (!res["isSuccess"]) {
-        $(".toast-container").prepend(toastRemovedSectionFail.clone().attr("id", "toast-removedsection-fail-" + ++i));
+        $(".toast-container").prepend(
+            toastRemovedSectionFail.clone().attr("id", "toast-removedsection-fail-" + ++i)
+        );
         $("#toast-removedsection-fail-" + i).toast("show");
     } else {
         $(".toast-container").prepend(
@@ -990,33 +1058,30 @@ let removeSectionToastHelper = function (res) {
     }
 };
 
-// listens for clear class waitlist button
+// listens for update current section button
 let updateCurrentSection = function () {
     $(".trade-form").on("submit", function (e) {
         e.preventDefault();
         courseid = e.target.getAttribute("courseid");
-        netid = e.target.getAttribute("netid")
-        classid = $(`#sections-${courseid}`).val()
-        console.log(netid);
+        classid = $(`#sections-${courseid}`).val();
 
         disableTradeFunction();
 
         $.post(`/update_user_section/${courseid}/${classid}`, function (res) {
             // checks that user successfully updated section on back-end
             updateSectionToastHelper(res);
-            curr_section = $(`#sections-${courseid} option:selected`).text()
-            $('.submit-trade').attr("curr-section", curr_section)
+            curr_section = $(`#sections-${courseid} option:selected`).text();
+            $(".submit-trade").attr("curr-section", curr_section);
             enableTradeFunction();
         });
     });
 };
 
-// listens for clear class waitlist button
+// listens for reset current section button
 let removeCurrentSection = function () {
     $(".remove-trade").on("click", function (e) {
         e.preventDefault();
         courseid = e.target.getAttribute("courseid");
-        netid = e.target.getAttribute("netid")
 
         disableTradeFunction();
 
@@ -1024,32 +1089,42 @@ let removeCurrentSection = function () {
             // checks that user successfully updated section on back-end
             removeSectionToastHelper(res);
             $(".save-trade").attr("disabled", false);
-            $(`#sections-${courseid}`).val('');
+            $("*").css("pointer-events", "");
+            $("*").css("cursor", "");
+            $(`#sections-${courseid}`).val("");
         });
     });
 };
 
-let createEmail = function (match_netid, my_netid, match_section, my_section, course_name, match_email) {
+// helper function to build email link
+let createEmail = function (
+    match_netid,
+    my_netid,
+    match_section,
+    my_section,
+    course_name,
+    match_email
+) {
     const tradeEmailSubject = `TigerSnatch: Trade Sections for ${match_section} in ${course_name}?`;
     const tradeEmailBody = `Hi ${match_netid},\n\nFrom TigerSnatch, I saw that you're enrolled in ${course_name} ${match_section}. I'm currently in ${my_section}.\nWould you like to set up a time to trade sections with me?\n\nThank you,\n${my_netid}`;
 
-    return encodeURI(`//mail.google.com/mail/?view=cm&fs=1&to=${match_email}&su=${tradeEmailSubject}&body=${tradeEmailBody}`);
-}
+    return encodeURI(
+        `//mail.google.com/mail/?view=cm&fs=1&to=${match_email}&su=${tradeEmailSubject}&body=${tradeEmailBody}`
+    );
+};
 
-// listens for clear class waitlist button
+// listens for find trades button
 let findMatches = function () {
     $(".submit-trade").on("click", function (e) {
         e.preventDefault();
         courseid = e.target.getAttribute("courseid");
-        netid = e.target.getAttribute("netid")
-        console.log(netid)
-        coursename = e.target.getAttribute("coursename")
+        netid = e.target.getAttribute("netid");
+        coursename = e.target.getAttribute("coursename");
 
         disableTradeFunction();
 
         $.post(`/find_matches/${courseid}`, function (res) {
             // checks that user successfully updated section on back-end
-            console.log(res["data"])
             if (res["data"].length !== 0) {
                 s = `<div class="table-responsive">
                         <table class="table table-hover mt-2">
@@ -1060,32 +1135,55 @@ let findMatches = function () {
                                 <th scopt="col">Contact</th>
                             </tr>
                         </thead>
-                            <tbody>`
+                            <tbody>`;
                 for (var i = 0; i < res["data"].length; i++) {
-                    match_netid = res["data"][i][0]
-                    match_section = res["data"][i][1]
-                    my_section = $(".submit-trade").attr("curr-section")
-                    coursename = $(".submit-trade").attr("coursename")
-                    match_email = res["data"][i][2]
-                    
-                    emailLink = createEmail(match_netid, netid, match_section, my_section, coursename, match_email)
+                    match_netid = res["data"][i][0];
+                    match_section = res["data"][i][1];
+                    my_section = $(".submit-trade").attr("curr-section");
+                    coursename = $(".submit-trade").attr("coursename");
+                    match_email = res["data"][i][2];
+
+                    emailLink = createEmail(
+                        match_netid,
+                        netid,
+                        match_section,
+                        my_section,
+                        coursename,
+                        match_email
+                    );
+
                     s += `<tr>
                         <td>${res["data"][i][0]}</td>
                         <td>${res["data"][i][1]}</td>
-                        <td><button class='btn btn-outline-primary'><a href=${emailLink} target='_blank'>Contact</a></button></td>
-                        </tr>`
+                        <td><a href=${emailLink} target='_blank' class='btn btn-outline-primary contact-button' match-netid=${res["data"][i][0]} match-section=${res["data"][i][1]}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope me-1" viewBox="0 0 18 18">
+                                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.758 2.855L15 11.114v-5.73zm-.034 6.878L9.271 8.82 8 9.583 6.728 8.82l-5.694 3.44A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.739zM1 11.114l4.758-2.876L1 5.383v5.73z"/>
+                            </svg>Email
+                        </a></td>
+                        </tr>`;
                 }
-                s += '</tbody></table></div>'
+                s += "</tbody></table></div>";
                 $(`#match-${courseid}`).html(s);
+                $('.contact-button').on('click', function (e) {
+                    // e.preventDefault();
+                    $(".contact-button").attr("disabled", true);
+                    matchNetid = e.target.getAttribute("match-netid");
+                    matchSection = e.target.getAttribute("match-section");
+
+                    $.post(`/contact_trade/${coursename.split('/')[0]}/${matchNetid}/${matchSection}`, function (res) {
+                        // checks that user successfully updated section on back-end
+                        $(".contact-button").attr("disabled", false);
+                    });
+
+                });
             } else {
-                $(`#match-${courseid}`).html("We're unable to find you a match.");
+                $(`#match-${courseid}`).html("We're unable to find you a Trade.");
             }
             $("#matches-modal").modal("show");
             enableTradeFunction();
         });
     });
 };
-
 
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
@@ -1097,7 +1195,6 @@ $(document).ready(function () {
     modalCancelListener();
     modalConfirmListener();
     dashboardCourseSelectListener();
-    // modalCloseListener();
     pageBackListener();
     dashboardSkip();
     searchSkip();
@@ -1117,4 +1214,5 @@ $(document).ready(function () {
     updateCurrentSection();
     removeCurrentSection();
     findMatches();
+    fillSectionListener();
 });
