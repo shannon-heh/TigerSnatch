@@ -1089,7 +1089,7 @@ let findMatches = function () {
                 s += "</tbody></table></div>";
                 $(`#match-${courseid}`).html(s);
             } else {
-                $(`#match-${courseid}`).html("We're unable to find you a match.");
+                $(`#match-${courseid}`).html("We're unable to find you a Trade.");
             }
             $("#matches-modal").modal("show");
             enableTradeFunction();
