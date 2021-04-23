@@ -183,7 +183,8 @@ def get_course_info(courseid):
     curr_waitlists = _db.get_user(netid, 'waitlists')
     section_names = _db.get_section_names_in_course(courseid)
     current_section = _db.get_current_section(netid, courseid)
-    current_sectionname = _db.classid_to_sectionname(current_section)
+    current_sectionname = _db.classid_to_sectionname(
+        current_section) if current_section is not None else ''
     trade_unavailable = False
     if not section_names or len(section_names) < 2:
         trade_unavailable = True
