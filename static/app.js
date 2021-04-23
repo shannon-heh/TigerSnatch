@@ -239,7 +239,7 @@ const toastAddedSection = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Successfully saved entry to this trade!</div>
+        <div class="toast-body">Successfully saved your current section for this course!</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
@@ -262,7 +262,7 @@ const toastAddedSectionFail = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Failed to save your entry to this trade.</div>
+        <div class="toast-body">Failed to save your current section for this course.</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
@@ -285,7 +285,7 @@ const toastRemovedSection = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Successfully removed yourself from this trade!</div>
+        <div class="toast-body">Successfully removed your current section for this course!</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
@@ -308,7 +308,7 @@ const toastRemovedSectionFail = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Failed to remove yourself from this trade.</div>
+        <div class="toast-body">Failed to remove your current section for this course.</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
