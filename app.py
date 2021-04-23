@@ -12,6 +12,7 @@ from waitlist import Waitlist
 from _exec_update_all_courses import do_update_async
 from app_helper import do_search, pull_course, is_admin
 from urllib.parse import quote_plus, unquote_plus
+from sys import stderr
 import traceback
 
 app = Flask(__name__, template_folder='./templates')
@@ -104,7 +105,7 @@ def dashboard():
     new_email = request.form.get('new_email')
 
     if query is None:
-        query = ""
+        query = ''
     search_res = do_search(query)
 
     if new_email is not None:
@@ -116,6 +117,7 @@ def dashboard():
     html = render_template('base.html',
                            is_dashboard=True,
                            is_admin=False,
+                           netid=netid,
                            user_is_admin=is_admin(netid),
                            search_res=search_res,
                            last_query=quote_plus(query),
@@ -193,6 +195,7 @@ def get_course_info(courseid):
     term_code = _db.get_current_term_code()
 
     html = render_template('course/course.html',
+                           netid=netid,
                            user_is_admin=is_admin(netid),
                            courseid=courseid,
                            course_details=course_details,
@@ -226,7 +229,7 @@ def get_course():
     query = request.args.get('query')
 
     if query is None:
-        query = ""
+        query = ''
 
     search_res = do_search(query)
 
@@ -277,14 +280,14 @@ def logout():
 def add_to_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
-    return jsonify({"isSuccess": waitlist.add_to_waitlist(classid)})
+    return jsonify({'isSuccess': waitlist.add_to_waitlist(classid)})
 
 
 @app.route('/remove_from_waitlist/<classid>', methods=['POST'])
 def remove_from_waitlist(classid):
     netid = _CAS.authenticate()
     waitlist = Waitlist(netid)
-    return jsonify({"isSuccess": waitlist.remove_from_waitlist(classid)})
+    return jsonify({'isSuccess': waitlist.remove_from_waitlist(classid)})
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -306,7 +309,7 @@ def admin():
     query = request.args.get('query-netid')
 
     if query is None:
-        query = ""
+        query = ''
     search_res = _db.search_for_user(query)
 
     html = render_template('base.html',
@@ -335,7 +338,7 @@ def add_to_blacklist(user):
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({"isSuccess": Database().add_to_blacklist(user.strip())})
+    return jsonify({'isSuccess': Database().add_to_blacklist(user.strip())})
 
 
 @app.route('/remove_from_blacklist/<user>', methods=['POST'])
@@ -348,7 +351,7 @@ def remove_from_blacklist(user):
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({"isSuccess": Database().remove_from_blacklist(user.strip())})
+    return jsonify({'isSuccess': Database().remove_from_blacklist(user.strip())})
 
 
 @app.route('/get_notifications_status', methods=['POST'])
@@ -364,7 +367,7 @@ def get_notifications_status():
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({"isOn": Database().get_cron_notification_status()})
+    return jsonify({'isOn': Database().get_cron_notification_status()})
 
 
 @app.route('/set_notifications_status/<status>', methods=['POST'])
@@ -391,7 +394,7 @@ def clear_all_trades():
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({"isSuccess": Database().clear_all_trades()})
+    return jsonify({'isSuccess': Database().clear_all_trades()})
 
 
 @app.route('/clear_all_user_logs', methods=['POST'])
@@ -404,7 +407,7 @@ def clear_all_user_logs():
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({"isSuccess": Database().clear_all_user_logs()})
+    return jsonify({'isSuccess': Database().clear_all_user_logs()})
 
 
 @app.route('/update_all_courses', methods=['POST'])
@@ -432,7 +435,7 @@ def clear_all_waitlists():
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({"isSuccess": Database().clear_all_waitlists()})
+    return jsonify({'isSuccess': Database().clear_all_waitlists()})
 
 
 @app.route('/clear_by_class/<classid>', methods=['POST'])
@@ -445,7 +448,7 @@ def clear_by_class(classid):
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({"isSuccess": Database().clear_class_waitlist(classid)})
+    return jsonify({'isSuccess': Database().clear_class_waitlist(classid)})
 
 
 @app.route('/clear_by_course/<courseid>', methods=['POST'])
@@ -458,7 +461,7 @@ def clear_by_course(courseid):
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({"isSuccess": Database().clear_course_waitlists(courseid)})
+    return jsonify({'isSuccess': Database().clear_course_waitlists(courseid)})
 
 
 @app.route('/get_user_data/<netid>/<isTrade>', methods=['POST'])
@@ -471,7 +474,7 @@ def get_user_data(netid, isTrade):
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({"data": Database().get_waited_sections(netid.strip(),
+    return jsonify({'data': Database().get_waited_sections(netid.strip(),
                                                            trades=isTrade == 'true')})
 
 
@@ -480,7 +483,7 @@ def update_user_section(courseid, classid):
     netid = _CAS.authenticate()
     netid = netid.rstrip()
     status = Database().update_current_section(netid, courseid, classid)
-    return jsonify({"isSuccess": status})
+    return jsonify({'isSuccess': status})
 
 
 @app.route('/remove_user_section/<courseid>', methods=['POST'])
@@ -488,7 +491,7 @@ def remove_user_section(courseid):
     netid = _CAS.authenticate()
     netid = netid.rstrip()
     status = Database().remove_current_section(netid, courseid)
-    return jsonify({"isSuccess": status})
+    return jsonify({'isSuccess': status})
 
 
 @app.route('/find_matches/<courseid>', methods=['POST'])
@@ -496,22 +499,31 @@ def find_matches(courseid):
     netid = _CAS.authenticate()
     netid = netid.rstrip()
     matches = Database().find_matches(netid.strip(), courseid)
-    return jsonify({"data": matches})
+    return jsonify({'data': matches})
 
 
 @app.route('/contact_trade/<course_name>/<match_netid>/<section_name>', methods=['POST'])
 def contact_trade(course_name, match_netid, section_name):
     netid = _CAS.authenticate()
     netid = netid.rstrip()
-    log_str = f"You contacted {match_netid} to swap into {course_name} {section_name}"
+    log_str = f'You contacted {match_netid} to swap into {course_name} {section_name}'
+    log_str_alt = f'{netid} contacted you about swapping into your section {course_name} {section_name}'
+    _db = Database()
+
+    # protects against HTML injection
+    if '<' in log_str or '>' in log_str or 'script' in log_str:
+        print('HTML code detected in', log_str, file=stderr)
+        return jsonify({'isSuccess': False})
+
     try:
-        Database().update_user_trade_log(netid, log_str)
+        _db.update_user_trade_log(netid, log_str)
+        _db.update_user_trade_log(match_netid, log_str_alt)
     except:
-        return jsonify({"isSuccess": False})
-    return jsonify({"isSuccess": True})
+        return jsonify({'isSuccess': False})
+    return jsonify({'isSuccess': True})
 
 
-@app.route('/fill_section/<classid>', methods=["POST"])
+@app.route('/fill_section/<classid>', methods=['POST'])
 def fill_section(classid):
     netid = _CAS.authenticate()
     netid = netid.strip()
@@ -526,7 +538,7 @@ def fill_section(classid):
         curr_enrollment = db.get_class_enrollment(classid)
         db.update_enrollment(
             classid, curr_enrollment['capacity'], curr_enrollment['capacity'])
-        db._add_admin_log(f'filled enrollments for class {classid}')
+        db._add_admin_log(f'manually filled enrollments for class {classid}')
     except:
         return jsonify({'isSuccess': False})
 

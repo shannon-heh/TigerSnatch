@@ -1164,17 +1164,20 @@ let findMatches = function () {
                 }
                 s += "</tbody></table></div>";
                 $(`#match-${courseid}`).html(s);
-                $('.contact-button').on('click', function (e) {
-                    // e.preventDefault();
+                $(".contact-button").on("click", function (e) {
                     $(".contact-button").attr("disabled", true);
                     matchNetid = e.target.getAttribute("match-netid");
                     matchSection = e.target.getAttribute("match-section");
 
-                    $.post(`/contact_trade/${coursename.split('/')[0]}/${matchNetid}/${matchSection}`, function (res) {
-                        // checks that user successfully updated section on back-end
-                        $(".contact-button").attr("disabled", false);
-                    });
+                    if (!matchNetid || !matchSection) return;
 
+                    $.post(
+                        `/contact_trade/${coursename.split("/")[0]}/${matchNetid}/${matchSection}`,
+                        function (res) {
+                            // checks that user successfully updated section on back-end
+                            $(".contact-button").attr("disabled", false);
+                        }
+                    );
                 });
             } else {
                 $(`#match-${courseid}`).html("We're unable to find you a Trade.");
