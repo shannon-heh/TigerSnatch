@@ -1013,6 +1013,8 @@ let removeCurrentSection = function () {
             // checks that user successfully updated section on back-end
             removeSectionToastHelper(res);
             $(".save-trade").attr("disabled", false);
+            $("*").css("pointer-events", "");
+            $("*").css("cursor", "");
             $(`#sections-${courseid}`).val("");
         });
     });
