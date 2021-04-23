@@ -491,3 +491,15 @@ def find_matches(courseid):
     netid = netid.rstrip()
     matches = Database().find_matches(netid.strip(), courseid)
     return jsonify({"data": matches})
+
+
+@app.route('contact_trade/<course_name>/<match_netid>/<section_name>', methods=['POST'])
+def contact_trade(course_name, match_netid, section_name):
+    netid = _CAS.authenticate()
+    netid = netid.rstrip()
+    log_str = f"Contacted {match_netid} to swap into {section_name} of {course_name}"
+    try:
+        Database().update_user_trade_log(netid, log_str)
+    except:
+        return jsonify({"isSuccess": False})
+    return jsonify({"isSuccess": True})
