@@ -233,17 +233,17 @@ const toastBlacklistSuccess = $(
 // Fill in placeholders (in ALL CAPS) to craft email using String.replace()
 // e.g. tradeEmailSubject.replace('MATCH_SECTION', 'P01')
 // Let me know if spaces & line breaks dont work
-const tradeEmailSubject = "TigerSnatch: Trade Sections for MATCH_SECTION?";
-const tradeEmailBody = `
-Hi MATCH_NETID, 
+// const tradeEmailSubject = "TigerSnatch: Trade Sections for MATCH_SECTION?";
+// const tradeEmailBody = `
+// Hi MATCH_NETID, 
 
-From TigerSnatch, I saw that you're enrolled in COURSE_NAME MATCH_SECTION. I'm currently in MY_SECTION. 
-Would you like to set up a time to trade sections with me?
+// From TigerSnatch, I saw that you're enrolled in COURSE_NAME MATCH_SECTION. I'm currently in MY_SECTION. 
+// Would you like to set up a time to trade sections with me?
 
-Thank you,
-MY_NETID
-`;
-const tradeEmailLink = `https://mail.google.com/mail/u/0/?fs=1&to=MATCH_NETID@princeton.edu&su=${tradeEmailSubject}?&body=${tradeEmailBody}`;
+// Thank you,
+// MY_NETID
+// `;
+
 
 // scrolls to the bottom of id #dest
 let scrollBottom = function (dest) {
@@ -364,6 +364,9 @@ let searchResultListener = function () {
             modalCancelListener();
             modalConfirmListener();
             searchSkip();
+            updateCurrentSection();
+            removeCurrentSection();
+            findMatches();
         });
     });
 };
@@ -851,6 +854,234 @@ let getUserDataListener = function () {
     });
 };
 
+let disableTradeFunction = function () {
+    $(".submit-trade").attr("disabled", true);
+    $(".save-trade").attr("disabled", true);
+    $(".remove-trade").attr("disabled", true);
+}
+
+let enableTradeFunction = function () {
+    $(".submit-trade").attr("disabled", false);
+    $(".remove-trade").attr("disabled", false);
+    $(".save-trade").attr("disabled", false);
+}
+
+const toastAddedSection = $(
+    $.parseHTML(`
+<div
+    id="toast-added"
+    class="toast align-items-center text-white bg-success border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Successfully saved entry to this trade!</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+const toastAddedSectionFail = $(
+    $.parseHTML(`
+<div
+    id="toast-clear-fail"
+    class="toast align-items-center text-white bg-danger border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Failed to save your entry to this trade.</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+const toastRemovedSection = $(
+    $.parseHTML(`
+<div
+    id="toast-added"
+    class="toast align-items-center text-white bg-success border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Successfully removed yourself from this trade!</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+const toastRemovedSectionFail = $(
+    $.parseHTML(`
+<div
+    id="toast-clear-fail"
+    class="toast align-items-center text-white bg-danger border-0"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    data-bs-delay="3000"
+>
+    <div class="d-flex">
+        <div class="toast-body">Failed to remove yourself from this trade.</div>
+        <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+        ></button>
+    </div>
+</div>
+`)
+);
+
+
+// helper method to display fail/success toasts for waitlist clearing
+let updateSectionToastHelper = function (res) {
+    if (!res["isSuccess"]) {
+        $(".toast-container").prepend(toastAddedSectionFail.clone().attr("id", "toast-updatesection-fail-" + ++i));
+        $("#toast-updatesection-fail-" + i).toast("show");
+    } else {
+        $(".toast-container").prepend(
+            toastAddedSection.clone().attr("id", "toast-updatesection-success-" + ++i)
+        );
+        $("#toast-updatesection-success-" + i).toast("show");
+    }
+};
+
+// helper method to display fail/success toasts for waitlist clearing
+let removeSectionToastHelper = function (res) {
+    if (!res["isSuccess"]) {
+        $(".toast-container").prepend(toastRemovedSectionFail.clone().attr("id", "toast-removedsection-fail-" + ++i));
+        $("#toast-removedsection-fail-" + i).toast("show");
+    } else {
+        $(".toast-container").prepend(
+            toastRemovedSection.clone().attr("id", "toast-removedsection-success-" + ++i)
+        );
+        $("#toast-removedsection-success-" + i).toast("show");
+    }
+};
+
+// listens for clear class waitlist button
+let updateCurrentSection = function () {
+    $(".trade-form").on("submit", function (e) {
+        e.preventDefault();
+        courseid = e.target.getAttribute("courseid");
+        netid = e.target.getAttribute("netid")
+        classid = $(`#sections-${courseid}`).val()
+        console.log(netid);
+
+        disableTradeFunction();
+
+        $.post(`/update_user_section/${courseid}/${classid}`, function (res) {
+            // checks that user successfully updated section on back-end
+            updateSectionToastHelper(res);
+            curr_section = $(`#sections-${courseid} option:selected`).text()
+            $('.submit-trade').attr("curr-section", curr_section)
+            enableTradeFunction();
+        });
+    });
+};
+
+// listens for clear class waitlist button
+let removeCurrentSection = function () {
+    $(".remove-trade").on("click", function (e) {
+        e.preventDefault();
+        courseid = e.target.getAttribute("courseid");
+        netid = e.target.getAttribute("netid")
+
+        disableTradeFunction();
+
+        $.post(`/remove_user_section/${courseid}`, function (res) {
+            // checks that user successfully updated section on back-end
+            removeSectionToastHelper(res);
+            $(".save-trade").attr("disabled", false);
+            $(`#sections-${courseid}`).val('');
+        });
+    });
+};
+
+let createEmail = function (match_netid, my_netid, match_section, my_section, course_name, match_email) {
+    const tradeEmailSubject = `TigerSnatch: Trade Sections for ${match_section} in ${course_name}?`;
+    const tradeEmailBody = `Hi ${match_netid},\n\nFrom TigerSnatch, I saw that you're enrolled in ${course_name} ${match_section}. I'm currently in ${my_section}.\nWould you like to set up a time to trade sections with me?\n\nThank you,\n${my_netid}`;
+
+    return encodeURI(`//mail.google.com/mail/?view=cm&fs=1&to=${match_email}&su=${tradeEmailSubject}&body=${tradeEmailBody}`);
+}
+
+// listens for clear class waitlist button
+let findMatches = function () {
+    $(".submit-trade").on("click", function (e) {
+        e.preventDefault();
+        courseid = e.target.getAttribute("courseid");
+        netid = e.target.getAttribute("netid")
+        console.log(netid)
+        coursename = e.target.getAttribute("coursename")
+
+        disableTradeFunction();
+
+        $.post(`/find_matches/${courseid}`, function (res) {
+            // checks that user successfully updated section on back-end
+            console.log(res["data"])
+            if (res["data"].length !== 0) {
+                s = `<div class="table-responsive">
+                        <table class="table table-hover mt-2">
+                        <thead class="table-white">
+                            <tr>
+                                <th scope="col">NetID</th>
+                                <th scope="col">Current Section</th>
+                                <th scopt="col">Contact</th>
+                            </tr>
+                        </thead>
+                            <tbody>`
+                for (var i = 0; i < res["data"].length; i++) {
+                    match_netid = res["data"][i][0]
+                    match_section = res["data"][i][1]
+                    my_section = $(".submit-trade").attr("curr-section")
+                    coursename = $(".submit-trade").attr("coursename")
+                    match_email = res["data"][i][2]
+                    
+                    emailLink = createEmail(match_netid, netid, match_section, my_section, coursename, match_email)
+                    s += `<tr>
+                        <td>${res["data"][i][0]}</td>
+                        <td>${res["data"][i][1]}</td>
+                        <td><button class='btn btn-outline-primary'><a href=${emailLink} target='_blank'>Contact</a></button></td>
+                        </tr>`
+                }
+                s += '</tbody></table></div>'
+                $(`#match-${courseid}`).html(s);
+            } else {
+                $(`#match-${courseid}`).html("We're unable to find you a match.");
+            }
+            $("#matches-modal").modal("show");
+            enableTradeFunction();
+        });
+    });
+};
+
+
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
 $(document).ready(function () {
@@ -878,4 +1109,7 @@ $(document).ready(function () {
     getUserDataListener();
     initToggleEmailNotificationsButton();
     toggleEmailNotificationsListener();
+    updateCurrentSection();
+    removeCurrentSection();
+    findMatches();
 });

@@ -178,6 +178,12 @@ def get_course_info(courseid):
 
     course_details, classes_list = pull_course(courseid)
     curr_waitlists = _db.get_user(netid, 'waitlists')
+    section_names = _db.get_section_names_in_course(courseid)
+    current_section = _db.get_current_section(netid, courseid)
+    current_sectionname = _db.classid_to_sectionname(current_section)
+    trade_unavailable = False
+    if not section_names or len(section_names) < 2:
+        trade_unavailable = True
 
     num_full = sum(class_data['isFull'] for class_data in classes_list)
     term_code = _db.get_current_term_code()
@@ -187,9 +193,13 @@ def get_course_info(courseid):
                            courseid=courseid,
                            course_details=course_details,
                            classes_list=classes_list,
+                           trade_unavailable=trade_unavailable,
                            num_full=num_full,
+                           current_section=current_section,
+                           current_sectionname=current_sectionname,
                            term_code=term_code,
                            curr_waitlists=curr_waitlists,
+                           section_names=section_names,
                            notifs_online=_db.get_cron_notification_status())
     return make_response(html)
 
@@ -220,6 +230,12 @@ def get_course():
     curr_waitlists = _db.get_user(netid, 'waitlists')
     num_full = sum(class_data['isFull'] for class_data in classes_list)
     term_code = _db.get_current_term_code()
+    section_names = _db.get_section_names_in_course(courseid)
+    current_section = _db.get_current_section(netid, courseid)
+    current_sectionname = _db.classid_to_sectionname(current_section)
+    trade_unavailable = False
+    if not section_names or len(section_names) < 2:
+        trade_unavailable = True
 
     # change to check if updateSearch == 'false'
     # if updateSearch is None:
@@ -228,12 +244,16 @@ def get_course():
                            is_admin=False,
                            user_is_admin=is_admin(netid),
                            netid=netid,
+                           current_section=current_section,
+                           current_sectionname=current_sectionname,
                            courseid=courseid,
                            course_details=course_details,
                            classes_list=classes_list,
+                           trade_unavailable=trade_unavailable,
                            curr_waitlists=curr_waitlists,
                            search_res=search_res,
                            num_full=num_full,
+                           section_names=section_names,
                            term_code=term_code,
                            last_query=quote_plus(query),
                            notifs_online=_db.get_cron_notification_status())
@@ -436,7 +456,6 @@ def clear_by_course(courseid):
 @app.route('/get_user_data/<netid>/<isTrade>', methods=['POST'])
 def get_user_data(netid, isTrade):
     netid_ = _CAS.authenticate()
-
     try:
         if not is_admin(netid_):
             return redirect(url_for('landing'))
@@ -447,7 +466,25 @@ def get_user_data(netid, isTrade):
                                                            trades=isTrade == 'true')})
 
 
-@app.route('/find_matches/<netid>/<courseid>', methods=['POST'])
-def find_matches(netid, courseid):
+@app.route('/update_user_section/<courseid>/<classid>', methods=['POST'])
+def update_user_section(courseid, classid):
+    netid = _CAS.authenticate()
+    netid = netid.rstrip()
+    status = Database().update_current_section(netid, courseid, classid)
+    return jsonify({"isSuccess": status})
+
+
+@app.route('/remove_user_section/<courseid>', methods=['POST'])
+def remove_user_section(courseid):
+    netid = _CAS.authenticate()
+    netid = netid.rstrip()
+    status = Database().remove_current_section(netid, courseid)
+    return jsonify({"isSuccess": status})
+
+
+@app.route('/find_matches/<courseid>', methods=['POST'])
+def find_matches(courseid):
+    netid = _CAS.authenticate()
+    netid = netid.rstrip()
     matches = Database().find_matches(netid.strip(), courseid)
     return jsonify({"data": matches})

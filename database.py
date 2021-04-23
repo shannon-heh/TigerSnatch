@@ -56,7 +56,7 @@ class Database:
             raise Exception(
                 f'current section of course {courseid} for {netid} not found - match cannot be made')
 
-        matches = {}
+        matches = []
         # for each seciton that user wants
         for classid in user_course_waitlists:
             # get netids that want to swap out of the sections you want
@@ -69,17 +69,15 @@ class Database:
                     raise Exception(
                         f'user {match_netid} has more than one current section for course {courseid}')
                 # if yes, add them to matches
-                matches[match_netid] = {}
-                matches[match_netid]['email'] = self.get_user(
-                    match_netid, 'email')
-                matches[match_netid]['section'] = self.classid_to_sectionname(
-                    classid)
+                match_email = self.get_user(match_netid, 'email')
+                match_section = self.classid_to_sectionname(classid)
+                matches.append([match_netid, match_section, match_email])
 
         # in case you are your own match
         if netid in matches:
-            del matches[netid]
+            matches.pop(netid)
 
-        if matches == {}:
+        if not matches:
             print(f'no matches found for user {netid} in course {courseid}')
         else:
             print(f'yay - matches found for user {netid} in course {courseid}')
@@ -98,38 +96,50 @@ class Database:
         '''
         possibly need to check whether the desired classid is in the user's waitlists
         '''
-        self.is_classid_in_courseid(classid, courseid)  # throws Exception
-        current_sections = self.get_user(netid, 'current_sections')
+        try:
+            self.is_classid_in_courseid(classid, courseid)  # throws Exception
+            current_sections = self.get_user(netid, 'current_sections')
 
-        print('setting current section in course', courseid,
-              'to class', classid, 'for user', netid)
-        current_sections[courseid] = classid
-        self._db.users.update_one({'netid': netid}, {'$set': {
-            'current_sections': current_sections
-        }})
-
-        self._db.enrollments.update_one({'classid': classid},
-                                        {'$addToSet': {'swap_out': netid}})
-
-    # removes a user's current section given a courseid
-
-    def remove_current_section(self, netid, courseid):
-        current_sections = self.get_user(netid, 'current_sections')
-        print('removing current section in course', courseid, 'for user', netid)
-
-        if courseid in current_sections:
-            classid = current_sections[courseid]
-            del current_sections[courseid]
-
+            print('setting current section in course', courseid,
+                  'to class', classid, 'for user', netid)
+            current_sections[courseid] = classid
             self._db.users.update_one({'netid': netid}, {'$set': {
                 'current_sections': current_sections
             }})
 
             self._db.enrollments.update_one({'classid': classid},
-                                            {'$pull': {'swap_out': netid}})
-        else:
-            print('user', netid, 'does not have a current section in course (non-fatal)',
-                  courseid, file=stderr)
+                                            {'$addToSet': {'swap_out': netid}})
+        except:
+            return False
+
+        return True
+
+    # removes a user's current section given a courseid
+
+    def remove_current_section(self, netid, courseid):
+        try:
+            current_sections = self.get_user(netid, 'current_sections')
+            print('removing current section in course',
+                  courseid, 'for user', netid)
+
+            if courseid in current_sections:
+                classid = current_sections[courseid]
+                del current_sections[courseid]
+
+                self._db.users.update_one({'netid': netid}, {'$set': {
+                    'current_sections': current_sections
+                }})
+
+                self._db.enrollments.update_one({'classid': classid},
+                                                {'$pull': {'swap_out': netid}})
+            else:
+                print('user', netid, 'does not have a current section in course (non-fatal)',
+                      courseid, file=stderr)
+                return False
+        except:
+            return False
+
+        return True
 
     # gets a user's current section given a courseid
 
@@ -605,7 +615,7 @@ class Database:
         return self._db.courses.find_one(
             {'courseid': courseid}, {'_id': 0})
 
-    # returns list of section names for a course
+    # returns list of tuples (section_name, classid) for a course
     # set include_lecture to True if you want Lecture section included
 
     def get_section_names_in_course(self, courseid, include_lecture=False):
@@ -614,9 +624,10 @@ class Database:
         for key in course_dict.keys():
             if key.startswith('class_'):
                 section_name = course_dict[key]['section']
+                classid = course_dict[key]['classid']
                 if not include_lecture and section_name.startswith('L'):
                     continue
-                section_name_list.append(section_name)
+                section_name_list.append((section_name, classid))
         return section_name_list
 
     # return list of class ids for a course
@@ -1075,4 +1086,5 @@ if __name__ == '__main__':
     # print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
     # db.update_current_section('ntyp', '002054', '21921')
     # print(db.get_current_section('ntyp', '002054'))
+    db.update_current_section('ntyp', '002051', '43475')
     print(db.get_current_sections('ntyp'))

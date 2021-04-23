@@ -1,4 +1,45 @@
 <div id="course-trades-header" class="fs-5 pb-1">Trade sections with another Tiger?</div>
-<div class="">
-    <button class="btn btn-warning" type="submit">Find Trades!</button>
+{% if trade_unavailable %}
+<div class="">Trade unavailable - This class has less than two sections outside of lecture.</div>
+{% else %}
+<form class='trade-form' courseid="{{courseid}}">
+    <div class='pb-2'>
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">Your current enrollment: </span>
+            </div>
+            <select class="form-select" id="sections-{{courseid}}" required>
+                {% if not current_section %}
+                <option id="empty-{{courseid}}" selected value=""></option>
+                {% endif %}
+                {% for section_name, classid in section_names %}
+                {% if current_section == classid %}
+                <option selected value="{{classid}}">{{section_name}}</option>
+                {% else %}
+                <option value="{{classid}}">{{section_name}}
+                </option>
+                {% endif %}
+                {% endfor %}
+            </select>
+            <div class="input-group-append">
+                <button class="btn btn-outline btn-secondary save-trade" type="submit">Save</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class='btn-group d-flex' role="group" aria-label="buttons-trade">
+
+    {% if current_section %}
+    <button class="btn btn-warning submit-trade w-100" type="button" courseid="{{courseid}}" coursename="{{course_details.displayname}}" curr-section="{{current_sectionname}}" netid="{{netid}}">Find Trades!</button>
+    <button class="btn btn-outline-danger remove-trade w-100" courseid="{{courseid}}" type="button">Remove me from this trade</button>
+    {% else %}
+    <button class="btn btn-warning submit-trade w-100" type="button" courseid="{{courseid}}" coursename="{{course_details.displayname}}" curr-section="" netid="{{netid}}" disabled>Find
+        Trades!</button>
+    <button class="btn btn-outline-danger remove-trade w-100" courseid="{{courseid}}" type="button" disabled>Remove
+        me from this trade</button>
+    {% endif %}
 </div>
+{% endif %}
+
+{% include 'utils/matches_modal.html' %}
