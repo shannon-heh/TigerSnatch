@@ -25,9 +25,17 @@ _CAS = CASClient()
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    traceback.print_exc()
+    # traceback.print_exc()
     print(e)
     return render_template('error.html')
+
+
+@app.before_request
+def enforceHttpsInHeroku():
+    if request.headers.get('X-Forwarded-Proto') == 'http':
+        url = request.url.replace('http://', 'https://', 1)
+        code = 301
+        return redirect(url, code=code)
 
 
 # private method that redirects to landing page
@@ -91,8 +99,6 @@ def tutorial():
 def dashboard():
     if redirect_landing():
         return redirect(url_for('landing'))
-
-    print(request.headers.get('X-Forwarded-Proto'))
 
     _db = Database()
     netid = _CAS.authenticate()
