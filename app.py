@@ -14,9 +14,12 @@ from app_helper import do_search, pull_course, is_admin
 from urllib.parse import quote_plus, unquote_plus
 from sys import stderr
 import traceback
+import logging
 
 app = Flask(__name__, template_folder='./templates')
 app.secret_key = APP_SECRET_KEY
+log = logging.getLogger('werkzeug')
+log.disabled = True
 _CAS = CASClient()
 
 
@@ -88,6 +91,8 @@ def tutorial():
 def dashboard():
     if redirect_landing():
         return redirect(url_for('landing'))
+
+    print(request.headers.get('X-Forwarded-Proto'))
 
     _db = Database()
     netid = _CAS.authenticate()
