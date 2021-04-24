@@ -1145,7 +1145,7 @@ let findMatches = function () {
                                     viewBox="0 0 16 16"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="This user will be notified in their Activity page if you click Email!"
+                                    title="Clicking 'Email' will notify the user in their Activity page!"
                                 >
                                     <path
                                         d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"
@@ -1184,11 +1184,21 @@ let findMatches = function () {
                 s += "</tbody></table></div>";
                 $(`#match-${courseid}`).html(s);
                 $(".contact-button").on("click", function (e) {
+                    e.preventDefault();
                     $(".contact-button").attr("disabled", true);
                     matchNetid = e.target.getAttribute("match-netid");
                     matchSection = e.target.getAttribute("match-section");
 
                     if (!matchNetid || !matchSection) return;
+
+                    if (
+                        !confirm(
+                            "Are you sure you want to email this user? They will be notified in their Activity page if you confirm!"
+                        )
+                    )
+                        return;
+
+                    window.open($(this).prop("href"), "_blank");
 
                     $.post(
                         `/contact_trade/${coursename.split("/")[0]}/${matchNetid}/${matchSection}`,
