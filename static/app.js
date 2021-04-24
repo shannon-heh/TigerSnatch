@@ -1200,7 +1200,9 @@ let findMatches = function () {
                 });
                 initTooltipsToasts();
             } else {
-                $(`#match-${courseid}`).html("We're unable to find you a Trade.");
+                $(`#match-${courseid}`).html(
+                    "We're unable to find you a Trade! If you haven't already, make sure to Subscribe to one of more sections for this course. We'll use those sections as the ones you'd like to trade into!"
+                );
             }
             $("#matches-modal").modal("show");
             enableTradeFunction();

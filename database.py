@@ -4,7 +4,7 @@
 # database.
 # ----------------------------------------------------------------------
 
-from sys import stdout, stderr
+from sys import stderr
 import re
 from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, HEROKU_API_KEY
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
