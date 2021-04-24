@@ -19,8 +19,8 @@ class Database:
     # creates a reference to the TigerSnatch MongoDB database
 
     def __init__(self):
-        print(f'{(datetime.now()-timedelta(hours=4)).strftime("%Y-%m-%d %H:%M:%S ET")}: connecting to database', end='...')
-        stdout.flush()
+        # print(f'{(datetime.now()-timedelta(hours=4)).strftime("%Y-%m-%d %H:%M:%S ET")}: connecting to database', end='...')
+        # stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
                                serverSelectionTimeoutMS=5000)
 
@@ -30,7 +30,7 @@ class Database:
             print('failed (server not available)', file=stderr)
             raise Exception('server unavailable')
 
-        print('success')
+        # print('success')
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 

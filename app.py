@@ -304,6 +304,8 @@ def admin():
     except:
         return redirect(url_for(''))
 
+    print('admin', netid, 'viewed admin panel')
+
     _db = Database()
     admin_logs = _db.get_admin_logs()
     try:

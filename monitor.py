@@ -74,7 +74,7 @@ class Monitor:
         try:
             return self._changed_enrollments
         except:
-            print('cached enrollments data not found; performing analysis')
+            pass
 
         tic = time()
 
@@ -114,8 +114,6 @@ class Monitor:
         # if it hasn't been 2 minutes since last update, do not update
         curr_time = time()
         if curr_time - time_last_updated < COURSE_UPDATE_INTERVAL_MINS*60:
-            print(
-                f'no course update - it hasn\'t been {COURSE_UPDATE_INTERVAL_MINS} minutes since last update for course {courseid}')
             return
 
         # update time immediately
@@ -134,12 +132,12 @@ class Monitor:
             # if no changes to course info, do not update
             if new_course == self._db.get_course(courseid):
                 print(
-                    f'no course update - course data hasn\'t changed for {courseid}')
+                    f'course data has not changed for course {courseid}')
                 return
 
             # update course data in db
             print(
-                f'yes course update - updated course entry in database for {courseid}')
+                f'updated course entry in database for course {courseid}')
             self._db.update_course_all(courseid, new_course,
                                        new_mapping, new_enroll, new_cap)
         except Exception as e:
