@@ -603,6 +603,7 @@ let dashboardSkip = function () {
         e.preventDefault();
         scrollBottom("#main");
     });
+    if (window.location.href.indexOf("skip") !== -1) $("#dashboard-skip").click();
 };
 
 // quick-skip to course search
