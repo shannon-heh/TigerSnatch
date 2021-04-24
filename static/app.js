@@ -980,7 +980,7 @@ let getUserDataListener = function () {
             enableAdminFunction();
             return;
         }
-        let data = res["data"].split(",");
+        let data = res["data"].split("{");
         $(`#get-${label}-input`).val("");
 
         dataHTML = "";

@@ -399,7 +399,7 @@ class Database:
         if len(res) == 0:
             return 'No data'
 
-        return ','.join(sorted(res))
+        return '{'.join(sorted(res))
 
 
 # ----------------------------------------------------------------------
