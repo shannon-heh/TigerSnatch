@@ -3,15 +3,15 @@
 # Manages regular execution of the email notification script using a
 # cron wrapper. Disable/enable using admin panel or _set_cron_status.py.
 #
-# Set execution interval in config:     NOTIFS_INTERVAL_MINS
+# Set execution interval in config:     NOTIFS_INTERVAL_SECS
 # ----------------------------------------------------------------------
 
 from send_notifs import cronjob
-from config import NOTIFS_INTERVAL_MINS
+from config import NOTIFS_INTERVAL_SECS
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 
 scheduler = BlockingScheduler()
-scheduler.add_job(cronjob, 'interval', minutes=NOTIFS_INTERVAL_MINS)
+scheduler.add_job(cronjob, 'interval', seconds=NOTIFS_INTERVAL_SECS)
 
 scheduler.start()
