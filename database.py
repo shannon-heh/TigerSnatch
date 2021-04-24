@@ -19,8 +19,7 @@ class Database:
     # creates a reference to the TigerSnatch MongoDB database
 
     def __init__(self):
-        print(
-            f'{(datetime.now()-timedelta(hours=4)).strftime("%Y-%m-%d %H:%M:%S ET")}: connecting to database', end='...')
+        print(f'{(datetime.now()-timedelta(hours=4)).strftime("%Y-%m-%d %H:%M:%S ET")}: connecting to database', end='...')
         stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
                                serverSelectionTimeoutMS=5000)
@@ -57,8 +56,11 @@ class Database:
                 f'current section of course {courseid} for {netid} not found - match cannot be made')
 
         matches = []
-        # for each seciton that user wants
+        # for each section that user wants
         for classid in user_course_waitlists:
+            # skip case where user subscribes to  current section
+            if classid == curr_section:
+                continue
             # get netids that want to swap out of the sections you want
             swapout_list = self.get_swapout_for_class(classid)
             for match_netid in swapout_list:
@@ -74,9 +76,6 @@ class Database:
                 # if yes, add them to matches
                 match_email = self.get_user(match_netid, 'email')
                 match_section = self.classid_to_sectionname(classid)
-
-                # if match_section == self.classid_to_sectionname(curr_section):
-                #     continue
 
                 matches.append([match_netid, match_section, match_email])
 
@@ -409,7 +408,6 @@ class Database:
 
     # returns True if netid is on app blacklist
 
-
     def is_blacklisted(self, netid):
         try:
             blacklist = self.get_blacklist()
@@ -587,7 +585,6 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
-
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
@@ -1088,6 +1085,6 @@ if __name__ == '__main__':
     # print(db.find_matches('ntyp', '002054'))  # should return sheh with P02
     # print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
     # db.update_current_section('ntyp', '002054', '21921')
-    # print(db.get_current_section('ntyp', '002054'))
-    db.update_current_section('ntyp', '002051', '43475')
-    print(db.get_current_sections('ntyp'))
+    # print(db.get_current_section('sheh', '002051'))
+    # db.update_current_section('ntyp', '002051', '43475')
+    # print(db.get_current_sections('ntyp'))
