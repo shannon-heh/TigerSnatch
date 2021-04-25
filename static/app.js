@@ -665,6 +665,9 @@ let blacklistToastHelper = function (type) {
 let blacklistListener = function () {
     $("button.btn-blacklist").on("click", function (e) {
         e.preventDefault();
+
+        if (!confirm("Are you sure you want to blacklist this user?")) return;
+
         disableAdminFunction();
         netid = e.target.getAttribute("data-netid");
 
@@ -685,6 +688,9 @@ let blacklistListener = function () {
 let blacklistRemovalListener = function () {
     $("button.btn-blacklist-removal").on("click", function (e) {
         e.preventDefault();
+
+        if (!confirm("Are you sure you want to unblacklist this user?")) return;
+
         disableAdminFunction();
         netid = e.target.getAttribute("data-netid");
 
