@@ -6,6 +6,9 @@
 # Set execution interval in config:     NOTIFS_INTERVAL_SECS
 # ----------------------------------------------------------------------
 
+from sys import path
+path.append('src')  # noqa
+
 from send_notifs import cronjob
 from config import NOTIFS_INTERVAL_SECS
 from apscheduler.schedulers.blocking import BlockingScheduler

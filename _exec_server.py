@@ -6,6 +6,9 @@
 # Example: python _exec_server.py 12345
 # ----------------------------------------------------------------------
 
+from sys import path
+path.append('src')  # noqa
+
 from sys import argv, stderr, exit
 from app import app
 from config import TS_HOST

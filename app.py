@@ -3,6 +3,9 @@
 # Defines endpoints for TigerSnatch app.
 # ----------------------------------------------------------------------
 
+from sys import path
+path.append('src')  # noqa
+
 from flask import Flask
 from flask import render_template, make_response, request, redirect, url_for, jsonify
 from database import Database
@@ -13,10 +16,9 @@ from _exec_update_all_courses import do_update_async
 from app_helper import do_search, pull_course, is_admin
 from urllib.parse import quote_plus, unquote_plus
 from sys import stderr
-import traceback
 import logging
 
-app = Flask(__name__, template_folder='./templates')
+app = Flask(__name__, template_folder='./views')
 app.secret_key = APP_SECRET_KEY
 log = logging.getLogger('werkzeug')
 log.disabled = True
@@ -25,13 +27,13 @@ _CAS = CASClient()
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    # traceback.print_exc()
     print(e)
     return render_template('error.html')
 
 
 @app.before_request
 def enforceHttpsInHeroku():
+    # always force redirect to HTTPS (secure connection)
     if request.headers.get('X-Forwarded-Proto') == 'http':
         url = request.url.replace('http://', 'https://', 1)
         code = 301
@@ -89,7 +91,7 @@ def tutorial():
         return make_response(html)
 
     html = render_template('tutorial.html',
-                           user_is_admin=is_admin(CASClient().authenticate()),
+                           user_is_admin=is_admin(_CAS.authenticate()),
                            loggedin=True,
                            notifs_online=Database().get_cron_notification_status())
     return make_response(html)
@@ -153,7 +155,7 @@ def about():
         return make_response(html)
 
     html = render_template('about.html',
-                           user_is_admin=is_admin(CASClient().authenticate()),
+                           user_is_admin=is_admin(_CAS.authenticate()),
                            loggedin=True,
                            notifs_online=Database().get_cron_notification_status())
     return make_response(html)
@@ -171,7 +173,7 @@ def activity():
     trade_logs = _db.get_user_trade_log(netid)
 
     html = render_template('activity.html',
-                           user_is_admin=is_admin(CASClient().authenticate()),
+                           user_is_admin=is_admin(_CAS.authenticate()),
                            loggedin=True,
                            waitlist_logs=waitlist_logs,
                            trade_logs=trade_logs,
