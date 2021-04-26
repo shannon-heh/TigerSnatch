@@ -58,7 +58,7 @@ class Database:
         matches = []
         # for each section that user wants
         for classid in user_course_waitlists:
-            # skip case where user subscribes to  current section
+            # skip case where user subscribes to current section
             if classid == curr_section:
                 continue
             # get netids that want to swap out of the sections you want
@@ -73,16 +73,20 @@ class Database:
                 if match_netid in matches:
                     raise Exception(
                         f'user {match_netid} has more than one current section for course {courseid}')
-                # if yes, add them to matches
+
                 match_email = self.get_user(match_netid, 'email')
                 match_section = self.classid_to_sectionname(classid)
+
+                # ensure that only sections of the same type (e.g. P, C, S, B) are matches
+                # if match_section[0] != self.classid_to_sectionname(curr_section)[0]:
+                #     continue
 
                 matches.append([match_netid, match_section, match_email])
 
         if not matches:
             print(f'no matches found for user {netid} in course {courseid}')
         else:
-            print(f'yay - matches found for user {netid} in course {courseid}')
+            print(f'matches found for user {netid} in course {courseid}')
 
         return matches
 
@@ -408,6 +412,7 @@ class Database:
 
     # returns True if netid is on app blacklist
 
+
     def is_blacklisted(self, netid):
         try:
             blacklist = self.get_blacklist()
@@ -585,6 +590,7 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
+
 
     def get_current_term_code(self):
         return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
@@ -982,7 +988,7 @@ class Database:
     #   * deletes all documents from enrollments
     #   * deletes all documents from waitlists
     # NOTE: does not affect user-specific data apart from clearing a
-    # user's enrolled waitlists
+    # user's subscriptions
 
     def reset_db(self):
         def clear_coll(coll):
@@ -1012,12 +1018,19 @@ class Database:
     #   * deletes all documents from mappings
     #   * deletes all documents from courses
     #   * deletes all documents from enrollments
+    #   * deletes all user current sections
     # NOTE: does NOT clear waitlist-related data, unlike self.reset_db()
 
     def soft_reset_db(self):
         def clear_coll(coll):
             print('clearing', coll)
             self._db[coll].delete_many({})
+
+        print('clearing current_sections in users')
+        self._db.users.update_many(
+            {},
+            {'$set': {'current_sections': {}}}
+        )
 
         clear_coll('mappings')
         clear_coll('courses')

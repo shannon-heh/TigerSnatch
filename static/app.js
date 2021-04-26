@@ -514,27 +514,33 @@ let switchListener = function () {
         $("#close-waitlist-modal").attr("data-classid", classid);
 
         switchid = `#switch-${classid}`;
+        n_tigers = $(this).closest("td").next("td");
 
         // if user is not on waitlist for this class, then add them
         if (!$(switchid).attr("checked")) {
-            $(switchid).attr("disabled", true);
+            $(".waitlist-switch").attr("disabled", true);
             $.post(`/add_to_waitlist/${classid}`, function (res) {
                 // checks that user successfully added to waitlist on back-end
                 if (res["isSuccess"] === 2) {
-                    $(switchid).attr("disabled", false);
+                    $(".waitlist-switch").attr("disabled", true);
+
                     return;
                 }
                 if (res["isSuccess"] === 0) {
                     $("#close-waitlist-modal").modal("show");
                     $(switchid).attr("checked", false);
                     $(switchid).prop("checked", false);
-                    $(switchid).attr("disabled", false);
+                    $(".waitlist-switch").attr("disabled", false);
                     return;
                 }
+
+                // increments # tigers
+                n_tigers.html(Number(n_tigers.html()) + 1);
+
                 $(switchid).attr("checked", true);
                 $(switchid).attr("data-bs-toggle", "modal");
                 $(switchid).attr("data-bs-target", "#confirm-remove-waitlist");
-                $(switchid).attr("disabled", false);
+                $(".waitlist-switch").attr("disabled", false);
 
                 $(".toast-container").prepend(toastAdded.clone().attr("id", "toast-added-" + ++i));
                 $("#toast-added-" + i).toast("show");
@@ -550,12 +556,19 @@ let modalConfirmListener = function () {
         classid = $("#confirm-remove-waitlist").attr("data-classid");
         switchid = `#switch-${classid}`;
         $(switchid).attr("disabled", true);
+
+        n_tigers = $(switchid).closest("td").next("td");
+
         $.post(`/remove_from_waitlist/${classid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
             if (!res["isSuccess"]) {
                 $(switchid).attr("disabled", false);
                 return;
             }
+
+            // decrements # tigers
+            n_tigers.html(Number(n_tigers.html()) - 1);
+
             $(`${switchid}.dashboard-switch`).closest("tr.dashboard-course-row").remove();
             $(switchid).removeAttr("checked");
             $(switchid).removeAttr("data-bs-toggle");

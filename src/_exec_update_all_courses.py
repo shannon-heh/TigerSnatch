@@ -5,17 +5,17 @@
 #
 # Specify one of the following flags:
 #   --soft: resets only course-related data
-#	--hard: resets both course and waitlist-related data
+#	--hard: resets both course and subscription-related data
 #
 # Approximate execution frequency: once at the start of every course
 # selection period i.e. on or after (asap) the date when courses for the
 # next semester are released on the Registrar's Course Offerings
 # website.
 #
-# WARNING: all waitlist-related data will be CLEARED if the flag --hard
+# WARNING: all subscription-related data will be CLEARED if the flag --hard
 # is specified. We recommend running this script with --hard only ONCE
 # at the very beginning of the course selection period. If you wish to
-# refresh only course (non-waitlist) data, run with --soft (this may be
+# refresh only course (non-subscription) data, run with --soft (this may be
 # run safely throughout the semester, but that is not recommended unless
 # there are MAJOR changes to the semester's course offerings).
 #

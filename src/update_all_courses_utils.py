@@ -84,6 +84,10 @@ def process_dept_code(args):
                     if section.endswith('99'):
                         continue
 
+                    # skip 0-capacity sections
+                    if int(class_['capacity']) == 0:
+                        continue
+
                     classid = class_['class_number']
 
                     # in the (very) occurrence that a class does not have any meetings...
