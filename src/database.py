@@ -780,10 +780,17 @@ class Database:
 
     # updates the enrollment and capacity for class classid
 
-    def update_enrollment(self, classid, new_enroll, new_cap):
+    def update_enrollment(self, classid, new_enroll, new_cap, update_courses_entry=True):
         self._db.enrollments.update_one({'classid': classid},
                                         {'$set': {'enrollment': new_enroll,
                                                   'capacity': new_cap}})
+
+        if update_courses_entry:
+            courseid = self._db.enrollments.find_one({'classid': classid},
+                                                    {'_id': 0, 'courseid': 1})['courseid']
+            self._db.courses.update_one({'courseid': courseid},
+                                        {'$set': {f'class_{classid}.enrollment': new_enroll,
+                                                f'class_{classid}.capacity': new_cap}})
 
 # ----------------------------------------------------------------------
 # WAITLIST METHODS
@@ -946,7 +953,7 @@ class Database:
         self._db.courses.replace_one({'courseid': courseid}, new_course)
         for classid in new_enroll.keys():
             self.update_enrollment(
-                classid, new_enroll[classid], new_cap[classid])
+                classid, new_enroll[classid], new_cap[classid], update_courses_entry=False)
         self._db.mappings.replace_one({'courseid': courseid}, new_mapping)
 
     # adds a document containing mapping data to the mappings collection
