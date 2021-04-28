@@ -47,6 +47,10 @@ def redirect_landing():
     return not _CAS.is_logged_in() or not Database().is_user_created(_CAS.authenticate())
 
 
+# ----------------------------------------------------------------------
+# ACCESSIBLE BY ALL, VIA URL
+# ----------------------------------------------------------------------
+
 @app.route('/', methods=['GET'])
 def index():
     if redirect_landing():
@@ -54,7 +58,7 @@ def index():
     return redirect(url_for('dashboard'))
 
 
-@app.route('/landing', methods=['GET', 'POST'])
+@app.route('/landing', methods=['GET'])
 def landing():
     html = render_template('landing.html')
     return make_response(html)
@@ -82,10 +86,6 @@ def login():
 
 @app.route('/tutorial', methods=['GET'])
 def tutorial():
-    # if redirect_landing():
-    #     return redirect(url_for('landing'))
-    # html = render_template('tutorial.html')
-    # return make_response(html)
     if redirect_landing():
         html = render_template('tutorial.html', loggedin=False)
         return make_response(html)
@@ -182,52 +182,6 @@ def activity():
     return make_response(html)
 
 
-@app.route('/searchresults', methods=['POST'])
-@app.route('/searchresults/<query>', methods=['POST'])
-def get_search_results(query=''):
-    res = do_search(query)
-    html = render_template('search/search_results.html',
-                           last_query=quote_plus(query),
-                           last_query_unquoted=unquote_plus(query),
-                           search_res=res)
-    return make_response(html)
-
-
-@app.route('/courseinfo/<courseid>', methods=['POST'])
-def get_course_info(courseid):
-    _db = Database()
-    netid = _CAS.authenticate()
-
-    course_details, classes_list = pull_course(courseid)
-    curr_waitlists = _db.get_user(netid, 'waitlists')
-    section_names = _db.get_section_names_in_course(courseid)
-    current_section = _db.get_current_section(netid, courseid)
-    current_sectionname = _db.classid_to_sectionname(
-        current_section) if current_section is not None else ''
-    trade_unavailable = False
-    if not section_names or len(section_names) < 2:
-        trade_unavailable = True
-
-    num_full = sum(class_data['isFull'] for class_data in classes_list)
-    term_code = _db.get_current_term_code()
-
-    html = render_template('course/course.html',
-                           netid=netid,
-                           user_is_admin=is_admin(netid),
-                           courseid=courseid,
-                           course_details=course_details,
-                           classes_list=classes_list,
-                           trade_unavailable=trade_unavailable,
-                           num_full=num_full,
-                           current_section=current_section,
-                           current_sectionname=current_sectionname,
-                           term_code=term_code,
-                           curr_waitlists=curr_waitlists,
-                           section_names=section_names,
-                           notifs_online=_db.get_cron_notification_status())
-    return make_response(html)
-
-
 @app.route('/course', methods=['GET'])
 def get_course():
     if not _CAS.is_logged_in():
@@ -292,6 +246,56 @@ def logout():
     _CAS.logout()
     return redirect(url_for('landing'))
 
+# ----------------------------------------------------------------------
+# ACCESSIBLE BY ALL, NOT VIA URL
+# ----------------------------------------------------------------------
+
+
+@app.route('/searchresults', methods=['POST'])
+@app.route('/searchresults/<query>', methods=['POST'])
+def get_search_results(query=''):
+    res = do_search(query)
+    html = render_template('search/search_results.html',
+                           last_query=quote_plus(query),
+                           last_query_unquoted=unquote_plus(query),
+                           search_res=res)
+    return make_response(html)
+
+
+@app.route('/courseinfo/<courseid>', methods=['POST'])
+def get_course_info(courseid):
+    _db = Database()
+    netid = _CAS.authenticate()
+
+    course_details, classes_list = pull_course(courseid)
+    curr_waitlists = _db.get_user(netid, 'waitlists')
+    section_names = _db.get_section_names_in_course(courseid)
+    current_section = _db.get_current_section(netid, courseid)
+    current_sectionname = _db.classid_to_sectionname(
+        current_section) if current_section is not None else ''
+    trade_unavailable = False
+    if not section_names or len(section_names) < 2:
+        trade_unavailable = True
+
+    num_full = sum(class_data['isFull'] for class_data in classes_list)
+    term_code = _db.get_current_term_code()
+
+    html = render_template('course/course.html',
+                           netid=netid,
+                           user_is_admin=is_admin(netid),
+                           courseid=courseid,
+                           course_details=course_details,
+                           classes_list=classes_list,
+                           trade_unavailable=trade_unavailable,
+                           num_full=num_full,
+                           current_section=current_section,
+                           current_sectionname=current_sectionname,
+                           term_code=term_code,
+                           curr_waitlists=curr_waitlists,
+                           section_names=section_names,
+                           notifs_online=_db.get_cron_notification_status())
+    return make_response(html)
+
 
 @app.route('/add_to_waitlist/<classid>', methods=['POST'])
 def add_to_waitlist(classid):
@@ -306,8 +310,12 @@ def remove_from_waitlist(classid):
     waitlist = Waitlist(netid)
     return jsonify({'isSuccess': waitlist.remove_from_waitlist(classid)})
 
+# ----------------------------------------------------------------------
+# ACCESSIBLE BY ADMIN ONLY, VIA URL
+# ----------------------------------------------------------------------
 
-@app.route('/admin', methods=['GET', 'POST'])
+
+@app.route('/admin', methods=['GET'])
 def admin():
     netid = _CAS.authenticate()
     netid = netid.strip()
@@ -347,7 +355,11 @@ def admin():
     return make_response(html)
 
 
-@app.route('/add_to_blacklist/<user>', methods=['GET', 'POST'])
+# ----------------------------------------------------------------------
+# ACCESSIBLE BY ADMIN ONLY, NOT VIA URL
+# ----------------------------------------------------------------------
+
+@app.route('/add_to_blacklist/<user>', methods=['POST'])
 def add_to_blacklist(user):
     netid = _CAS.authenticate()
     netid = netid.strip()
@@ -427,21 +439,6 @@ def clear_all_user_logs():
         return redirect(url_for('landing'))
 
     return jsonify({'isSuccess': Database().clear_all_user_logs()})
-
-
-@app.route('/update_all_courses', methods=['POST'])
-def update_all_courses():
-    netid = _CAS.authenticate()
-    netid = netid.strip()
-    try:
-        if not is_admin(netid):
-            return redirect(url_for('landing'))
-    except:
-        return redirect(url_for('landing'))
-
-    do_update_async()  # CAUTION: hard reset and update
-
-    return jsonify({})
 
 
 @app.route('/clear_all_waitlists', methods=['POST'])
@@ -540,6 +537,21 @@ def contact_trade(course_name, match_netid, section_name):
     except:
         return jsonify({'isSuccess': False})
     return jsonify({'isSuccess': True})
+
+
+@app.route('/update_all_courses', methods=['POST'])
+def update_all_courses():
+    netid = _CAS.authenticate()
+    netid = netid.strip()
+    try:
+        if not is_admin(netid):
+            return redirect(url_for('landing'))
+    except:
+        return redirect(url_for('landing'))
+
+    do_update_async()  # CAUTION: hard reset and update
+
+    return jsonify({})
 
 
 @app.route('/fill_section/<classid>', methods=['POST'])
