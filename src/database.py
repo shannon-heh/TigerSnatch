@@ -1092,22 +1092,8 @@ class Database:
 
     def _add_system_log(self, type, meta):
         meta['type'] = type
-        meta['time'] = datetime.now().isoformat()
+        meta['time'] = datetime.now()
         self._db.system.insert_one(meta)
-
-        # print(log)
-        # stdout.flush()
-        # log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {log}"
-
-        # self._db.system.update_one({}, {
-        #     '$push': {
-        #         'logs': {
-        #             '$each': [log],
-        #             '$position': 0,
-        #             '$slice': MAX_SYSTEM_LOG_LENGTH
-        #         }
-        #     }
-        # })
 
         # prints database name, its collections, and the number of documents
         # in each collection

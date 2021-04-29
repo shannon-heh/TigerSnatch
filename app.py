@@ -76,7 +76,7 @@ def login():
         return make_response(render_template('blacklisted.html'))
 
     _db._add_system_log('user', {
-        'message': f'netid {netid} logged in'
+        'message': f'user {netid} logged in'
     })
 
     if not _db.is_user_created(netid):
