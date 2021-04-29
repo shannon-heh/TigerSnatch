@@ -11,6 +11,7 @@ import base64
 from config import CONSUMER_KEY, CONSUMER_SECRET
 from database import Database
 from sys import stdout
+from time import time
 
 
 _db = Database()
@@ -46,9 +47,7 @@ class MobileApp:
     '''
 
     def _getJSON(self, endpoint, **kwargs):
-        _db._add_system_log(
-            f'querying MobileApp {endpoint} with params {kwargs}')
-        stdout.flush()
+        tic = time()
         req = requests.get(
             self.configs.BASE_URL + endpoint,
             params=kwargs if "kwargs" not in kwargs else kwargs["kwargs"],
@@ -57,6 +56,13 @@ class MobileApp:
             },
         )
         text = req.text
+
+        _db._add_system_log('mobileapp', {
+            'message': f'MobileApp API query',
+            'query_time': time() - tic,
+            'endpoint': endpoint,
+            'args': kwargs
+        })
 
         # Check to see if the response failed due to invalid credentials
         text = self._updateConfigs(text, endpoint, **kwargs)

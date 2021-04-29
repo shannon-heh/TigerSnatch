@@ -6,9 +6,9 @@
 
 from sys import stderr, stdout
 import re
-from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, MAX_SYSTEM_LOG_LENGTH, HEROKU_API_KEY
+from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, HEROKU_API_KEY
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
-from pymongo import MongoClient
+from pymongo import MongoClient, database
 from pymongo.errors import ConnectionFailure
 from datetime import datetime, timedelta
 import heroku3
@@ -19,10 +19,9 @@ class Database:
     # creates a reference to the TigerSnatch MongoDB database
 
     def __init__(self):
-        # print(f'{(datetime.now()-timedelta(hours=4)).strftime("%Y-%m-%d %H:%M:%S ET")}: connecting to database', end='...')
-        # stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
-                               serverSelectionTimeoutMS=5000)
+                               serverSelectionTimeoutMS=5000,
+                               maxIdleTimeMS=600000)
 
         try:
             self._db.admin.command('ismaster')
@@ -30,7 +29,6 @@ class Database:
             print('failed (server not available)', file=stderr)
             raise Exception('server unavailable')
 
-        # print('success')
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
@@ -214,9 +212,12 @@ class Database:
 
             self._add_admin_log(
                 f'notification script is now {"on" if status else "off"}')
+            self._add_system_log('cron', {
+                'message': f'notification script set to {"on" if status else "off"}'
+            })
         except:
             raise Exception(
-                'something is badly wrong - check heroku website', file=stderr)
+                'something is badly wrong - check heroku website')
 
     # sets notification script status; either True (on) or False (off)
 
@@ -226,7 +227,7 @@ class Database:
             return 'notifs' in app.dynos()
         except:
             raise Exception(
-                'something is badly wrong - check heroku website', file=stderr)
+                'something is badly wrong - check heroku website')
 
     # clears and removes users from all waitlists
 
@@ -1075,8 +1076,9 @@ class Database:
         else:
             app.disable_maintenance_mode()
 
-        self._add_system_log(
-            f'heroku maintenance mode is now {"on" if status else "off"}')
+        self._add_system_log('heroku', {
+            'message': f'maintenance mode set to {"on" if status else "off"}'
+        })
 
     # connects to Heroku and returns app variable so you can do
     # operations with Heroku
@@ -1088,23 +1090,27 @@ class Database:
 
     # adds log message to logs array in system collection
 
-    def _add_system_log(self, log):
-        print(log)
-        stdout.flush()
-        log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {log}"
+    def _add_system_log(self, type, meta):
+        meta['type'] = type
+        meta['time'] = datetime.now().isoformat()
+        self._db.system.insert_one(meta)
 
-        self._db.system.update_one({}, {
-            '$push': {
-                'logs': {
-                    '$each': [log],
-                    '$position': 0,
-                    '$slice': MAX_SYSTEM_LOG_LENGTH
-                }
-            }
-        })
+        # print(log)
+        # stdout.flush()
+        # log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {log}"
 
-    # prints database name, its collections, and the number of documents
-    # in each collection
+        # self._db.system.update_one({}, {
+        #     '$push': {
+        #         'logs': {
+        #             '$each': [log],
+        #             '$position': 0,
+        #             '$slice': MAX_SYSTEM_LOG_LENGTH
+        #         }
+        #     }
+        # })
+
+        # prints database name, its collections, and the number of documents
+        # in each collection
 
     def __str__(self):
         self._check_basic_integrity()

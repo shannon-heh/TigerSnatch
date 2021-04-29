@@ -75,6 +75,10 @@ def login():
             f'blacklisted user {netid} attempted to access the app')
         return make_response(render_template('blacklisted.html'))
 
+    _db._add_system_log('user', {
+        'message': f'netid {netid} logged in'
+    })
+
     if not _db.is_user_created(netid):
         _db.create_user(netid)
         return redirect(url_for('tutorial'))
@@ -195,8 +199,9 @@ def get_course():
     courseid = request.args.get('courseid')
     query = request.args.get('query')
 
-    _db._add_system_log(
-        f'course page {courseid} visited by user {netid}')
+    _db._add_system_log('user', {
+        'message': f'course page {courseid} visited by user {netid}'
+    })
 
     if query is None:
         query = ''
@@ -265,8 +270,9 @@ def get_search_results(query=''):
 def get_course_info(courseid):
     netid = _CAS.authenticate()
 
-    _db._add_system_log(
-        f'course page {courseid} visited by user {netid.rstrip()}')
+    _db._add_system_log('user', {
+        'message': f'course page {courseid} visited by user {netid.rstrip()}'
+    })
 
     course_details, classes_list = pull_course(courseid, _db)
     curr_waitlists = _db.get_user(netid, 'waitlists')
@@ -326,7 +332,9 @@ def admin():
     except:
         return redirect(url_for(''))
 
-    _db._add_system_log(f'admin {netid} viewed admin panel')
+    _db._add_system_log('admin', {
+        'message': f'admin {netid} viewed admin panel'
+    })
 
     admin_logs = _db.get_admin_logs()
     try:
