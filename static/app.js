@@ -1212,7 +1212,7 @@ let findMatches = function () {
 
                     if (
                         !confirm(
-                            "Are you sure you want to email this user? They will be notified in their Activity page if you confirm!"
+                            "Are you sure you want to email this user? They will be notified on their Activity page if you confirm!"
                         )
                     )
                         return;

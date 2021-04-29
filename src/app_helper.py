@@ -3,7 +3,6 @@
 # Defines helper methods to construct endpoints.
 # ----------------------------------------------------------------------
 
-from database import Database
 from monitor import Monitor
 import re
 
@@ -18,29 +17,28 @@ def validate_query(query):
 
 
 # searches for course based on user query
-def do_search(query, search_netid=False):
+def do_search(query, db, search_netid=False):
     res = []
     if query.strip() == "":
         res = None
     else:
         query = query.replace(' ', '')
         if search_netid:
-            res = Database().search_for_user(query)
+            res = db.search_for_user(query)
         else:
-            res = Database().search_for_course(query)
+            res = db.search_for_course(query)
     return res
 
 
 # pulls most recent course info and returns dictionary with
 # course details and list with class info
-def pull_course(courseid):
+def pull_course(courseid, db):
 
-    if courseid is None or courseid == "" or Database().get_course(courseid) is None:
+    if courseid is None or courseid == "" or db.get_course(courseid) is None:
         return None, None
 
     # updates course info if it has been 2 minutes since last update
     Monitor().pull_course_updates(courseid)
-    db = Database()
     course = db.get_course_with_enrollment(courseid)
 
     # split course data into basic course details, and list of classes
@@ -63,8 +61,8 @@ def pull_course(courseid):
     return course_details, classes_list
 
 
-def is_admin(netid):
-    return Database().is_admin(netid.rstrip())
+def is_admin(netid, db):
+    return db.is_admin(netid.rstrip())
 
 
 if __name__ == '__main__':
