@@ -59,7 +59,7 @@ class MobileApp:
 
         _db._add_system_log('mobileapp', {
             'message': f'MobileApp API query',
-            'query_time': time() - tic,
+            'response_time': time() - tic,
             'endpoint': endpoint,
             'args': kwargs
         })
