@@ -118,6 +118,8 @@ def dashboard():
 
     if query is None:
         query = ''
+    if len(query) > 100:
+        query = query[:100]
     search_res = do_search(query, _db)
 
     if new_email is not None:
@@ -200,7 +202,8 @@ def get_course():
 
     if query is None:
         query = ''
-
+    if len(query) > 100:
+        query = query[:100]
     search_res = do_search(query, _db)
 
     course_details, classes_list = pull_course(courseid, _db)
@@ -337,6 +340,8 @@ def admin():
 
     if query is None:
         query = ''
+    if len(query) > 100:
+        query = query[:100]
     search_res = _db.search_for_user(query)
 
     html = render_template('base.html',
