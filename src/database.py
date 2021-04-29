@@ -1075,7 +1075,7 @@ class Database:
         else:
             app.disable_maintenance_mode()
 
-        self._add_admin_log(
+        self._add_system_log(
             f'heroku maintenance mode is now {"on" if status else "off"}')
 
     # connects to Heroku and returns app variable so you can do
