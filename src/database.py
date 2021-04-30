@@ -589,7 +589,7 @@ class Database:
             course_name = self.courseid_to_displayname(courseid)
             section_name = self.classid_to_sectionname(
                 current_sections[courseid])
-            res.append((course_name, section_name))
+            res.append((course_name, section_name, courseid))
 
         return res
 
