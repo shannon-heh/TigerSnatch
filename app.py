@@ -29,7 +29,9 @@ _db = Database()
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    print(e)
+    _db._add_system_log('error', {
+        'message': str(e)
+    })
     return render_template('error.html')
 
 
