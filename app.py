@@ -85,8 +85,6 @@ def login():
         _db.create_user(netid)
         return redirect(url_for('tutorial'))
 
-    print('user', netid, 'logged in')
-
     return redirect(url_for('dashboard'))
 
 
@@ -114,7 +112,6 @@ def dashboard():
         _db._add_admin_log(
             f'blacklisted user {netid} attempted to access the app')
         return make_response(render_template('blacklisted.html'))
-    print('user', netid, 'viewed dashboard')
 
     data = _db.get_dashboard_data(netid)
     email = _db.get_user(netid, 'email')

@@ -14,7 +14,6 @@ from database import Database
 from sys import stdout, stderr
 from random import shuffle
 from time import time
-from datetime import datetime, timedelta
 
 
 def cronjob():

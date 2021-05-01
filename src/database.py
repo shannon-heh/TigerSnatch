@@ -4,11 +4,11 @@
 # database.
 # ----------------------------------------------------------------------
 
-from sys import stderr, stdout
+from sys import stderr
 import re
 from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, HEROKU_API_KEY
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
-from pymongo import MongoClient, database
+from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from datetime import datetime, timedelta
 import heroku3
@@ -241,6 +241,10 @@ class Database:
 
             self._add_admin_log('clearing waitlists in waitlists collection')
             self._db['waitlists'].delete_many({})
+
+            self._add_system_log('admin', {
+                'message': 'all subscriptions cleared'
+            })
             return True
         except:
             return False
@@ -262,6 +266,10 @@ class Database:
                 {},
                 {'$set': {'swap_out': []}}
             )
+
+            self._add_system_log('admin', {
+                'message': 'all trades cleared'
+            })
             return True
         except:
             return False
@@ -277,6 +285,10 @@ class Database:
                 {'$set': {'waitlist_log': [],
                           'trade_log': []}}
             )
+
+            self._add_system_log('admin', {
+                'message': 'all user logs cleared'
+            })
             return True
         except:
             return False
@@ -292,6 +304,10 @@ class Database:
             self._db.users.update_many({'netid': {'$in': class_waitlist}},
                                        {'$pull': {'waitlists': classid}})
             self._db.waitlists.delete_one({'classid': classid})
+
+            self._add_system_log('admin', {
+                'message': f'subscriptions for class {classid} cleared'
+            })
             return True
         except:
             if log_classid_skip:
@@ -310,6 +326,10 @@ class Database:
 
             for classid in classids:
                 self.clear_class_waitlist(classid, log_classid_skip=False)
+
+            self._add_system_log('admin', {
+                'message': f'subscriptions for course {courseid} cleared'
+            })
             return True
         except:
             print(
@@ -358,6 +378,10 @@ class Database:
                 {}, {'$set': {'blacklist': blacklist}})
             self._add_admin_log(
                 f'user {netid} added to blacklist and removed from database')
+
+            self._add_system_log('admin', {
+                'message': f'user {netid} added to blacklist and removed from database'
+            })
             return True
 
         except Exception:
@@ -378,6 +402,10 @@ class Database:
             self._db.admin.update_one(
                 {}, {'$set': {'blacklist': blacklist}})
             self._add_admin_log(f'user {netid} removed from blacklist')
+
+            self._add_system_log('admin', {
+                'message': f'user {netid} removed from blacklist'
+            })
             return True
         except Exception:
             print(f'failed to remove user {netid} from blacklist', file=stderr)

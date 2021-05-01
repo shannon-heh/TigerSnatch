@@ -22,7 +22,7 @@ def do_search(query, db, search_netid=False):
     if query.strip() == "":
         res = None
     else:
-        query = query.replace(' ', '')
+        query = " ".join(query.split())
         if search_netid:
             res = db.search_for_user(query)
         else:

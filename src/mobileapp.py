@@ -10,7 +10,6 @@ import json
 import base64
 from config import CONSUMER_KEY, CONSUMER_SECRET
 from database import Database
-from sys import stdout
 from time import time
 
 
@@ -58,7 +57,7 @@ class MobileApp:
         text = req.text
 
         _db._add_system_log('mobileapp', {
-            'message': f'MobileApp API query',
+            'message': 'MobileApp API query',
             'response_time': time() - tic,
             'endpoint': endpoint,
             'args': kwargs
