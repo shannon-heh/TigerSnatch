@@ -22,7 +22,9 @@ app = Flask(__name__, template_folder='./views')
 app.secret_key = APP_SECRET_KEY
 log = logging.getLogger('werkzeug')
 log.disabled = True
+
 _CAS = CASClient()
+_db = Database()
 
 
 @app.errorhandler(Exception)
@@ -44,7 +46,7 @@ def enforceHttpsInHeroku():
 # if user is not logged in with CAS
 # or if user is logged in with CAS, but doesn't have entry in DB
 def redirect_landing():
-    return not _CAS.is_logged_in() or not Database().is_user_created(_CAS.authenticate())
+    return not _CAS.is_logged_in() or not _db.is_user_created(_CAS.authenticate())
 
 
 # ----------------------------------------------------------------------
@@ -66,8 +68,6 @@ def landing():
 
 @app.route('/login', methods=['GET'])
 def login():
-    _db = Database()
-
     netid = _CAS.authenticate()
     netid = netid.rstrip()
     if _db.is_blacklisted(netid):
@@ -91,9 +91,9 @@ def tutorial():
         return make_response(html)
 
     html = render_template('tutorial.html',
-                           user_is_admin=is_admin(_CAS.authenticate()),
+                           user_is_admin=is_admin(_CAS.authenticate(), _db),
                            loggedin=True,
-                           notifs_online=Database().get_cron_notification_status())
+                           notifs_online=_db.get_cron_notification_status())
     return make_response(html)
 
 
@@ -102,7 +102,6 @@ def dashboard():
     if redirect_landing():
         return redirect(url_for('landing'))
 
-    _db = Database()
     netid = _CAS.authenticate()
     netid = netid.rstrip()
     if _db.is_blacklisted(netid):
@@ -119,7 +118,9 @@ def dashboard():
 
     if query is None:
         query = ''
-    search_res = do_search(query)
+    if len(query) > 100:
+        query = query[:100]
+    search_res = do_search(query, _db)
 
     if new_email is not None:
         if '<' in new_email or '>' in new_email or 'script' in new_email:
@@ -135,7 +136,7 @@ def dashboard():
                            is_dashboard=True,
                            is_admin=False,
                            netid=netid,
-                           user_is_admin=is_admin(netid),
+                           user_is_admin=is_admin(netid, _db),
                            search_res=search_res,
                            last_query=quote_plus(query),
                            last_query_unquoted=unquote_plus(query),
@@ -155,9 +156,9 @@ def about():
         return make_response(html)
 
     html = render_template('about.html',
-                           user_is_admin=is_admin(_CAS.authenticate()),
+                           user_is_admin=is_admin(_CAS.authenticate(), _db),
                            loggedin=True,
-                           notifs_online=Database().get_cron_notification_status())
+                           notifs_online=_db.get_cron_notification_status())
     return make_response(html)
 
 
@@ -168,16 +169,15 @@ def activity():
 
     netid = _CAS.authenticate()
 
-    _db = Database()
     waitlist_logs = _db.get_user_waitlist_log(netid)
     trade_logs = _db.get_user_trade_log(netid)
 
     html = render_template('activity.html',
-                           user_is_admin=is_admin(_CAS.authenticate()),
+                           user_is_admin=is_admin(_CAS.authenticate(), _db),
                            loggedin=True,
                            waitlist_logs=waitlist_logs,
                            trade_logs=trade_logs,
-                           notifs_online=Database().get_cron_notification_status())
+                           notifs_online=_db.get_cron_notification_status())
 
     return make_response(html)
 
@@ -186,8 +186,6 @@ def activity():
 def get_course():
     if not _CAS.is_logged_in():
         return redirect(url_for('landing'))
-
-    _db = Database()
 
     netid = _CAS.authenticate()
     netid = netid.rstrip()
@@ -199,12 +197,16 @@ def get_course():
     courseid = request.args.get('courseid')
     query = request.args.get('query')
 
+    _db._add_system_log(
+        f'course page {courseid} visited by user {netid}')
+
     if query is None:
         query = ''
+    if len(query) > 100:
+        query = query[:100]
+    search_res = do_search(query, _db)
 
-    search_res = do_search(query)
-
-    course_details, classes_list = pull_course(courseid)
+    course_details, classes_list = pull_course(courseid, _db)
     curr_waitlists = _db.get_user(netid, 'waitlists')
     num_full = sum(class_data['isFull'] for class_data in classes_list)
     term_code = _db.get_current_term_code()
@@ -221,7 +223,7 @@ def get_course():
     html = render_template('base.html',
                            is_dashboard=False,
                            is_admin=False,
-                           user_is_admin=is_admin(netid),
+                           user_is_admin=is_admin(netid, _db),
                            netid=netid,
                            current_section=current_section,
                            current_sectionname=current_sectionname,
@@ -254,7 +256,7 @@ def logout():
 @app.route('/searchresults', methods=['POST'])
 @app.route('/searchresults/<query>', methods=['POST'])
 def get_search_results(query=''):
-    res = do_search(query)
+    res = do_search(query, _db)
     html = render_template('search/search_results.html',
                            last_query=quote_plus(query),
                            last_query_unquoted=unquote_plus(query),
@@ -264,10 +266,12 @@ def get_search_results(query=''):
 
 @app.route('/courseinfo/<courseid>', methods=['POST'])
 def get_course_info(courseid):
-    _db = Database()
     netid = _CAS.authenticate()
 
-    course_details, classes_list = pull_course(courseid)
+    _db._add_system_log(
+        f'course page {courseid} visited by user {netid.rstrip()}')
+
+    course_details, classes_list = pull_course(courseid, _db)
     curr_waitlists = _db.get_user(netid, 'waitlists')
     section_names = _db.get_section_names_in_course(courseid)
     current_section = _db.get_current_section(netid, courseid)
@@ -282,7 +286,7 @@ def get_course_info(courseid):
 
     html = render_template('course/course.html',
                            netid=netid,
-                           user_is_admin=is_admin(netid),
+                           user_is_admin=is_admin(netid, _db),
                            courseid=courseid,
                            course_details=course_details,
                            classes_list=classes_list,
@@ -320,14 +324,13 @@ def admin():
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for(''))
     except:
         return redirect(url_for(''))
 
-    print('admin', netid, 'viewed admin panel')
+    _db._add_system_log(f'admin {netid} viewed admin panel')
 
-    _db = Database()
     admin_logs = _db.get_admin_logs()
     try:
         admin_logs = admin_logs['logs']
@@ -337,6 +340,8 @@ def admin():
 
     if query is None:
         query = ''
+    if len(query) > 100:
+        query = query[:100]
     search_res = _db.search_for_user(query)
 
     html = render_template('base.html',
@@ -364,12 +369,12 @@ def add_to_blacklist(user):
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({'isSuccess': Database().add_to_blacklist(user.strip())})
+    return jsonify({'isSuccess': _db.add_to_blacklist(user.strip())})
 
 
 @app.route('/remove_from_blacklist/<user>', methods=['POST'])
@@ -377,12 +382,12 @@ def remove_from_blacklist(user):
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({'isSuccess': Database().remove_from_blacklist(user.strip())})
+    return jsonify({'isSuccess': _db.remove_from_blacklist(user.strip())})
 
 
 @app.route('/get_notifications_status', methods=['POST'])
@@ -393,12 +398,12 @@ def get_notifications_status():
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({'isOn': Database().get_cron_notification_status()})
+    return jsonify({'isOn': _db.get_cron_notification_status()})
 
 
 @app.route('/set_notifications_status/<status>', methods=['POST'])
@@ -406,12 +411,12 @@ def set_notifications_status(status):
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    Database().set_cron_notification_status(status == 'true')
+    _db.set_cron_notification_status(status == 'true')
     return jsonify({})
 
 
@@ -420,12 +425,12 @@ def clear_all_trades():
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({'isSuccess': Database().clear_all_trades()})
+    return jsonify({'isSuccess': _db.clear_all_trades()})
 
 
 @app.route('/clear_all_user_logs', methods=['POST'])
@@ -433,12 +438,12 @@ def clear_all_user_logs():
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({'isSuccess': Database().clear_all_user_logs()})
+    return jsonify({'isSuccess': _db.clear_all_user_logs()})
 
 
 @app.route('/clear_all_waitlists', methods=['POST'])
@@ -446,12 +451,12 @@ def clear_all_waitlists():
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({'isSuccess': Database().clear_all_waitlists()})
+    return jsonify({'isSuccess': _db.clear_all_waitlists()})
 
 
 @app.route('/clear_by_class/<classid>', methods=['POST'])
@@ -459,12 +464,12 @@ def clear_by_class(classid):
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({'isSuccess': Database().clear_class_waitlist(classid)})
+    return jsonify({'isSuccess': _db.clear_class_waitlist(classid)})
 
 
 @app.route('/clear_by_course/<courseid>', methods=['POST'])
@@ -472,12 +477,12 @@ def clear_by_course(courseid):
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({'isSuccess': Database().clear_course_waitlists(courseid)})
+    return jsonify({'isSuccess': _db.clear_course_waitlists(courseid)})
 
 
 @app.route('/get_user_data/<netid>/<isTrade>', methods=['POST'])
@@ -485,20 +490,20 @@ def get_user_data(netid, isTrade):
     netid_ = _CAS.authenticate()
     netid_.strip()
     try:
-        if not is_admin(netid_):
+        if not is_admin(netid_, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
-    return jsonify({'data': Database().get_waited_sections(netid.strip(),
-                                                           trades=isTrade == 'true')})
+    return jsonify({'data': _db.get_waited_sections(netid.strip(),
+                                                    trades=isTrade == 'true')})
 
 
 @app.route('/update_user_section/<courseid>/<classid>', methods=['POST'])
 def update_user_section(courseid, classid):
     netid = _CAS.authenticate()
     netid = netid.rstrip()
-    status = Database().update_current_section(netid, courseid, classid)
+    status = _db.update_current_section(netid, courseid, classid)
     return jsonify({'isSuccess': status})
 
 
@@ -506,7 +511,7 @@ def update_user_section(courseid, classid):
 def remove_user_section(courseid):
     netid = _CAS.authenticate()
     netid = netid.rstrip()
-    status = Database().remove_current_section(netid, courseid)
+    status = _db.remove_current_section(netid, courseid)
     return jsonify({'isSuccess': status})
 
 
@@ -514,7 +519,7 @@ def remove_user_section(courseid):
 def find_matches(courseid):
     netid = _CAS.authenticate()
     netid = netid.rstrip()
-    matches = Database().find_matches(netid.strip(), courseid)
+    matches = _db.find_matches(netid.strip(), courseid)
     return jsonify({'data': matches})
 
 
@@ -524,7 +529,6 @@ def contact_trade(course_name, match_netid, section_name):
     netid = netid.rstrip()
     log_str = f'You contacted {match_netid} to swap into {course_name} {section_name}'
     log_str_alt = f'{netid} contacted you about swapping into your section {course_name} {section_name}'
-    _db = Database()
 
     # protects against HTML injection
     if '<' in log_str or '>' in log_str or 'script' in log_str:
@@ -544,7 +548,7 @@ def update_all_courses():
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
@@ -559,17 +563,16 @@ def fill_section(classid):
     netid = _CAS.authenticate()
     netid = netid.strip()
     try:
-        if not is_admin(netid):
+        if not is_admin(netid, _db):
             return redirect(url_for('landing'))
     except:
         return redirect(url_for('landing'))
 
     try:
-        db = Database()
-        curr_enrollment = db.get_class_enrollment(classid)
-        db.update_enrollment(
+        curr_enrollment = _db.get_class_enrollment(classid)
+        _db.update_enrollment(
             classid, curr_enrollment['capacity'], curr_enrollment['capacity'])
-        db._add_admin_log(f'manually filled enrollments for class {classid}')
+        _db._add_admin_log(f'manually filled enrollments for class {classid}')
     except:
         return jsonify({'isSuccess': False})
 

@@ -86,6 +86,10 @@ def get_course_in_mobileapp(term, course_, curr_time):
                 if section.endswith('99'):
                     continue
 
+                # skip 0-capacity sections
+                if int(class_['capacity']) == 0:
+                    continue
+
                 classid = class_['class_number']
 
                 new_class = {

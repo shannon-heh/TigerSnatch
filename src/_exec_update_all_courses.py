@@ -88,7 +88,7 @@ def do_update(reset_type):
 def do_update_async():
     # needed for execution on heroku servers to avoid the 30 second
     # request timeout for syncronous processes
-    system('python _exec_update_all_courses.py --hard &')
+    system('python src/_exec_update_all_courses.py --hard &')
 
 
 if __name__ == '__main__':

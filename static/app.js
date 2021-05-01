@@ -1212,7 +1212,7 @@ let findMatches = function () {
 
                     if (
                         !confirm(
-                            "Are you sure you want to email this user? They will be notified in their Activity page if you confirm!"
+                            "Are you sure you want to email this user? They will be notified on their Activity page if you confirm!"
                         )
                     )
                         return;
@@ -1239,21 +1239,23 @@ let findMatches = function () {
     });
 };
 
-// jQuery 'on' only applies listeners to elements currently on DOM
-// applies listeners to current elements when document is loaded
-$(document).ready(function () {
-    searchFormListener();
-    searchResultListener();
-    switchListener();
-    showAllListener();
-    modalCancelListener();
-    modalConfirmListener();
-    dashboardCourseSelectListener();
-    pageBackListener();
+// handles button clicks in the Trade Panel
+let tradeFunctions = function () {
+    updateCurrentSection();
+    removeCurrentSection();
+    findMatches();
+}
+
+
+// handles functions that optimizes mobile view
+let mobileViewFunctions = function () {
     dashboardSkip();
     searchSkip();
-    initTooltipsToasts();
     navbarAutoclose();
+}
+
+// handles features on the admin panel
+let adminFunctions = function () {
     blacklistListener();
     blacklistRemovalListener();
     updateTermListener();
@@ -1265,8 +1267,34 @@ $(document).ready(function () {
     getUserDataListener();
     initToggleEmailNotificationsButton();
     toggleEmailNotificationsListener();
-    updateCurrentSection();
-    removeCurrentSection();
-    findMatches();
     fillSectionListener();
+}
+
+// handles course search functions
+let searchFunctions = function () {
+    searchFormListener();
+    searchResultListener();
+
+}
+
+// handles changes in course subscription
+let subscriptionFunctions = function () {
+    switchListener();
+    modalConfirmListener();
+    modalCancelListener();
+}
+
+
+// jQuery 'on' only applies listeners to elements currently on DOM
+// applies listeners to current elements when document is loaded
+$(document).ready(function () {
+    tradeFunctions();
+    mobileViewFunctions();
+    adminFunctions();
+    searchFunctions();
+    subscriptionFunctions();
+    showAllListener();
+    pageBackListener();
+    initTooltipsToasts();
+    dashboardCourseSelectListener();
 });

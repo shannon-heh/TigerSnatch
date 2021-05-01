@@ -4,9 +4,9 @@
 # database.
 # ----------------------------------------------------------------------
 
-from sys import stderr
+from sys import stderr, stdout
 import re
-from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, HEROKU_API_KEY
+from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, MAX_SYSTEM_LOG_LENGTH, HEROKU_API_KEY
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -160,14 +160,17 @@ class Database:
 
     def _add_admin_log(self, log):
         print(log)
-        logs = self._db.admin.find_one({}, {'logs': 1, '_id': 0})['logs']
         log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {log}"
-        logs.insert(0, log)
 
-        if len(logs) > MAX_ADMIN_LOG_LENGTH:
-            logs.pop(-1)
-
-        self._db.admin.update_one({}, {'$set': {'logs': logs}})
+        self._db.admin.update_one({}, {
+            '$push': {
+                'logs': {
+                    '$each': [log],
+                    '$position': 0,
+                    '$slice': MAX_ADMIN_LOG_LENGTH
+                }
+            }
+        })
 
     # check if netid is an admin is defined in the database
 
@@ -451,15 +454,18 @@ class Database:
     # update user netid's waitlist log
 
     def update_user_waitlist_log(self, netid, entry):
-        log = self.get_user_waitlist_log(netid)
         entry = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {entry}"
 
-        log.insert(0, entry)
-        if len(log) > MAX_LOG_LENGTH:
-            log.pop(-1)
+        self._db.logs.update_one({'netid': netid}, {
+            '$push': {
+                'waitlist_log': {
+                    '$each': [entry],
+                    '$position': 0,
+                    '$slice': MAX_LOG_LENGTH
+                }
+            }
+        })
 
-        self._db.logs.update_one(
-            {'netid': netid}, {'$set': {'waitlist_log': log}})
         print(
             f'waitlist log for user {netid} successfully updated with entry {entry}')
 
@@ -472,15 +478,17 @@ class Database:
     # update user netid's waitlist log
 
     def update_user_trade_log(self, netid, entry):
-        log = self.get_user_trade_log(netid)
         entry = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {entry}"
 
-        log.insert(0, entry)
-        if len(log) > MAX_LOG_LENGTH:
-            log.pop(-1)
-
-        self._db.logs.update_one(
-            {'netid': netid}, {'$set': {'trade_log': log}})
+        self._db.logs.update_one({'netid': netid}, {
+            '$push': {
+                'trade_log': {
+                    '$each': [entry],
+                    '$position': 0,
+                    '$slice': MAX_LOG_LENGTH
+                }
+            }
+        })
         print(
             f'trade log for user {netid} successfully updated with entry {entry}')
 
@@ -787,10 +795,10 @@ class Database:
 
         if update_courses_entry:
             courseid = self._db.enrollments.find_one({'classid': classid},
-                                                    {'_id': 0, 'courseid': 1})['courseid']
+                                                     {'_id': 0, 'courseid': 1})['courseid']
             self._db.courses.update_one({'courseid': courseid},
                                         {'$set': {f'class_{classid}.enrollment': new_enroll,
-                                                f'class_{classid}.capacity': new_cap}})
+                                                  f'class_{classid}.capacity': new_cap}})
 
 # ----------------------------------------------------------------------
 # WAITLIST METHODS
@@ -1067,7 +1075,7 @@ class Database:
         else:
             app.disable_maintenance_mode()
 
-        self._add_admin_log(
+        self._add_system_log(
             f'heroku maintenance mode is now {"on" if status else "off"}')
 
     # connects to Heroku and returns app variable so you can do
@@ -1077,6 +1085,23 @@ class Database:
         heroku_conn = heroku3.from_key(HEROKU_API_KEY)
         app = heroku_conn.apps()['tigersnatch']
         return app
+
+    # adds log message to logs array in system collection
+
+    def _add_system_log(self, log):
+        print(log)
+        stdout.flush()
+        log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {log}"
+
+        self._db.system.update_one({}, {
+            '$push': {
+                'logs': {
+                    '$each': [log],
+                    '$position': 0,
+                    '$slice': MAX_SYSTEM_LOG_LENGTH
+                }
+            }
+        })
 
     # prints database name, its collections, and the number of documents
     # in each collection
@@ -1092,19 +1117,3 @@ class Database:
 
 if __name__ == '__main__':
     db = Database()
-    # db.remove_from_blacklist('sheh')
-    # print(db.is_admin('ntyp'))
-    # db.update_user_waitlist_log('sheh', 'A spot has opened up in COS126 L01')
-    # db.update_user_waitlist_log('sheh', 'A spot has opened up in COS226 P03')
-    # db.update_user_trade_log(
-    #     'sheh', 'You have contacted ntyp about a trade for COS226')
-    # db.update_user_trade_log(
-    #     'sheh', 'You have contacted zishouz about a trade for COS226')
-    # db.update_current_section('ntyp', '002054', "21921")
-    # db.update_current_section('sheh', '002054', "21929")
-    # print(db.find_matches('ntyp', '002054'))  # should return sheh with P02
-    # print(db.find_matches('sheh', '002054'))  # should return ntyp with P01
-    # db.update_current_section('ntyp', '002054', '21921')
-    # print(db.get_current_section('sheh', '002051'))
-    # db.update_current_section('ntyp', '002051', '43475')
-    # print(db.get_current_sections('ntyp'))

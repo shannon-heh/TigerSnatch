@@ -22,8 +22,7 @@ def cronjob():
     monitor = Monitor()
     db = Database()
 
-    print((datetime.now()-timedelta(hours=4)).strftime('%Y-%m-%d %H:%M:%S ET'))
-    print('starting notification cron job')
+    db._add_system_log('email notifications script executing')
 
     # get all class openings (for waited-on classes) from MobileApp
     new_slots = monitor.get_classes_with_changed_enrollments()
@@ -48,12 +47,11 @@ def cronjob():
                 notify = Notify(classid, i, n_new_slots)
 
                 print(notify)
-                print('sending email to', notify.get_netid(), end='...')
+                print('sending email to', notify.get_netid())
                 stdout.flush()
 
                 # only if email was sent, remove user from waitlist
                 if notify.send_email_html():
-                    print('success')
                     print(i+1, '/', n_notifs, 'emails sent for this class')
                     total += 1
                     # db.remove_from_waitlist(notify.get_netid(), classid)
@@ -64,10 +62,13 @@ def cronjob():
 
             print()
 
-    print(total, 'emails sent in approx.', round(time()-tic), 'seconds')
-
     if total > 0:
         db._add_admin_log(
+            f'sent {total} emails in {round(time()-tic)} seconds')
+        db._add_system_log(
+            f'sent {total} emails in {round(time()-tic)} seconds')
+    elif total == 0:
+        db._add_system_log(
             f'sent {total} emails in {round(time()-tic)} seconds')
 
 
