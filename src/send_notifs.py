@@ -14,7 +14,6 @@ from database import Database
 from sys import stdout, stderr
 from random import shuffle
 from time import time
-from datetime import datetime, timedelta
 
 
 def cronjob():
@@ -22,7 +21,9 @@ def cronjob():
     monitor = Monitor()
     db = Database()
 
-    db._add_system_log('email notifications script executing')
+    db._add_system_log('cron', {
+        'message': 'emails script executing'
+    })
 
     # get all class openings (for waited-on classes) from MobileApp
     new_slots = monitor.get_classes_with_changed_enrollments()
@@ -65,11 +66,13 @@ def cronjob():
     if total > 0:
         db._add_admin_log(
             f'sent {total} emails in {round(time()-tic)} seconds')
-        db._add_system_log(
-            f'sent {total} emails in {round(time()-tic)} seconds')
+        db._add_system_log('cron', {
+            'message': f'sent {total} emails in {round(time()-tic)} seconds'
+        })
     elif total == 0:
-        db._add_system_log(
-            f'sent {total} emails in {round(time()-tic)} seconds')
+        db._add_system_log('cron', {
+            'message': f'sent 0 emails in {round(time()-tic)} seconds'
+        })
 
 
 if __name__ == '__main__':

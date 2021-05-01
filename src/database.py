@@ -4,9 +4,9 @@
 # database.
 # ----------------------------------------------------------------------
 
-from sys import stderr, stdout
+from sys import stderr
 import re
-from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, MAX_SYSTEM_LOG_LENGTH, HEROKU_API_KEY
+from config import DB_CONNECTION_STR, COLLECTIONS, MAX_LOG_LENGTH, MAX_WAITLIST_SIZE, MAX_ADMIN_LOG_LENGTH, HEROKU_API_KEY
 from schema import COURSES_SCHEMA, CLASS_SCHEMA, MAPPINGS_SCHEMA, ENROLLMENTS_SCHEMA
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
@@ -19,10 +19,9 @@ class Database:
     # creates a reference to the TigerSnatch MongoDB database
 
     def __init__(self):
-        # print(f'{(datetime.now()-timedelta(hours=4)).strftime("%Y-%m-%d %H:%M:%S ET")}: connecting to database', end='...')
-        # stdout.flush()
         self._db = MongoClient(DB_CONNECTION_STR,
-                               serverSelectionTimeoutMS=5000)
+                               serverSelectionTimeoutMS=5000,
+                               maxIdleTimeMS=600000)
 
         try:
             self._db.admin.command('ismaster')
@@ -30,7 +29,6 @@ class Database:
             print('failed (server not available)', file=stderr)
             raise Exception('server unavailable')
 
-        # print('success')
         self._db = self._db.tigersnatch
         self._check_basic_integrity()
 
@@ -214,9 +212,12 @@ class Database:
 
             self._add_admin_log(
                 f'notification script is now {"on" if status else "off"}')
+            self._add_system_log('cron', {
+                'message': f'notification script set to {"on" if status else "off"}'
+            })
         except:
             raise Exception(
-                'something is badly wrong - check heroku website', file=stderr)
+                'something is badly wrong - check heroku website')
 
     # sets notification script status; either True (on) or False (off)
 
@@ -226,7 +227,7 @@ class Database:
             return 'notifs' in app.dynos()
         except:
             raise Exception(
-                'something is badly wrong - check heroku website', file=stderr)
+                'something is badly wrong - check heroku website')
 
     # clears and removes users from all waitlists
 
@@ -240,6 +241,10 @@ class Database:
 
             self._add_admin_log('clearing waitlists in waitlists collection')
             self._db['waitlists'].delete_many({})
+
+            self._add_system_log('admin', {
+                'message': 'all subscriptions cleared'
+            })
             return True
         except:
             return False
@@ -261,6 +266,10 @@ class Database:
                 {},
                 {'$set': {'swap_out': []}}
             )
+
+            self._add_system_log('admin', {
+                'message': 'all trades cleared'
+            })
             return True
         except:
             return False
@@ -276,6 +285,10 @@ class Database:
                 {'$set': {'waitlist_log': [],
                           'trade_log': []}}
             )
+
+            self._add_system_log('admin', {
+                'message': 'all user logs cleared'
+            })
             return True
         except:
             return False
@@ -291,6 +304,10 @@ class Database:
             self._db.users.update_many({'netid': {'$in': class_waitlist}},
                                        {'$pull': {'waitlists': classid}})
             self._db.waitlists.delete_one({'classid': classid})
+
+            self._add_system_log('admin', {
+                'message': f'subscriptions for class {classid} cleared'
+            })
             return True
         except:
             if log_classid_skip:
@@ -309,6 +326,10 @@ class Database:
 
             for classid in classids:
                 self.clear_class_waitlist(classid, log_classid_skip=False)
+
+            self._add_system_log('admin', {
+                'message': f'subscriptions for course {courseid} cleared'
+            })
             return True
         except:
             print(
@@ -357,6 +378,10 @@ class Database:
                 {}, {'$set': {'blacklist': blacklist}})
             self._add_admin_log(
                 f'user {netid} added to blacklist and removed from database')
+
+            self._add_system_log('admin', {
+                'message': f'user {netid} added to blacklist and removed from database'
+            })
             return True
 
         except Exception:
@@ -377,6 +402,10 @@ class Database:
             self._db.admin.update_one(
                 {}, {'$set': {'blacklist': blacklist}})
             self._add_admin_log(f'user {netid} removed from blacklist')
+
+            self._add_system_log('admin', {
+                'message': f'user {netid} removed from blacklist'
+            })
             return True
         except Exception:
             print(f'failed to remove user {netid} from blacklist', file=stderr)
@@ -588,7 +617,7 @@ class Database:
             course_name = self.courseid_to_displayname(courseid)
             section_name = self.classid_to_sectionname(
                 current_sections[courseid])
-            res.append((course_name, section_name))
+            res.append((course_name, section_name, courseid))
 
         return res
 
@@ -1075,8 +1104,9 @@ class Database:
         else:
             app.disable_maintenance_mode()
 
-        self._add_system_log(
-            f'heroku maintenance mode is now {"on" if status else "off"}')
+        self._add_system_log('heroku', {
+            'message': f'maintenance mode set to {"on" if status else "off"}'
+        })
 
     # connects to Heroku and returns app variable so you can do
     # operations with Heroku
@@ -1088,23 +1118,13 @@ class Database:
 
     # adds log message to logs array in system collection
 
-    def _add_system_log(self, log):
-        print(log)
-        stdout.flush()
-        log = f"{(datetime.now()-timedelta(hours=4)).strftime('%b %d, %Y @ %-I:%M %p ET')} \u2192 {log}"
+    def _add_system_log(self, type, meta):
+        meta['type'] = type
+        meta['time'] = datetime.now()
+        self._db.system.insert_one(meta)
 
-        self._db.system.update_one({}, {
-            '$push': {
-                'logs': {
-                    '$each': [log],
-                    '$position': 0,
-                    '$slice': MAX_SYSTEM_LOG_LENGTH
-                }
-            }
-        })
-
-    # prints database name, its collections, and the number of documents
-    # in each collection
+        # prints database name, its collections, and the number of documents
+        # in each collection
 
     def __str__(self):
         self._check_basic_integrity()
