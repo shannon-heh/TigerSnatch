@@ -366,6 +366,8 @@ const toastRemovedSectionFail = $(
 `)
 );
 
+i = 0; // dummy variable used for toast ids
+
 // scrolls to the bottom of id #dest
 let scrollBottom = function (dest) {
     $(dest).animate(
@@ -502,7 +504,17 @@ let dashboardCourseSelectListener = function () {
     });
 };
 
-i = 0; // dummy variable used for toast ids
+let disableSwitchFunctions = function () {
+    $(".waitlist-switch").attr("disabled", true);
+    $("*").css("pointer-events", "none");
+    $("*").css("cursor", "wait");
+};
+
+let enableSwitchFunctions = function () {
+    $(".waitlist-switch").attr("disabled", false);
+    $("*").css("pointer-events", "");
+    $("*").css("cursor", "");
+};
 
 // listens for toggle of waitlist notification switch
 let switchListener = function () {
@@ -518,19 +530,15 @@ let switchListener = function () {
 
         // if user is not on waitlist for this class, then add them
         if (!$(switchid).attr("checked")) {
-            $(".waitlist-switch").attr("disabled", true);
+            disableSwitchFunctions();
             $.post(`/add_to_waitlist/${classid}`, function (res) {
                 // checks that user successfully added to waitlist on back-end
-                if (res["isSuccess"] === 2) {
-                    $(".waitlist-switch").attr("disabled", true);
-
-                    return;
-                }
+                if (res["isSuccess"] === 2) return;
                 if (res["isSuccess"] === 0) {
                     $("#close-waitlist-modal").modal("show");
                     $(switchid).attr("checked", false);
                     $(switchid).prop("checked", false);
-                    $(".waitlist-switch").attr("disabled", false);
+                    enableSwitchFunctions();
                     return;
                 }
 
@@ -540,7 +548,7 @@ let switchListener = function () {
                 $(switchid).attr("checked", true);
                 $(switchid).attr("data-bs-toggle", "modal");
                 $(switchid).attr("data-bs-target", "#confirm-remove-waitlist");
-                $(".waitlist-switch").attr("disabled", false);
+                enableSwitchFunctions();
 
                 $(".toast-container").prepend(toastAdded.clone().attr("id", "toast-added-" + ++i));
                 $("#toast-added-" + i).toast("show");
@@ -555,16 +563,13 @@ let modalConfirmListener = function () {
         e.preventDefault();
         classid = $("#confirm-remove-waitlist").attr("data-classid");
         switchid = `#switch-${classid}`;
-        $(switchid).attr("disabled", true);
+        disableSwitchFunctions();
 
         n_tigers = $(switchid).closest("td").next("td");
 
         $.post(`/remove_from_waitlist/${classid}`, function (res) {
             // checks that user successfully removed from waitlist on back-end
-            if (!res["isSuccess"]) {
-                $(switchid).attr("disabled", false);
-                return;
-            }
+            if (!res["isSuccess"]) return;
 
             // decrements # tigers
             n_tigers.html(Number(n_tigers.html()) - 1);
@@ -573,7 +578,7 @@ let modalConfirmListener = function () {
             $(switchid).removeAttr("checked");
             $(switchid).removeAttr("data-bs-toggle");
             $(switchid).removeAttr("data-bs-target");
-            $(switchid).attr("disabled", false);
+            enableSwitchFunctions();
 
             $(".toast-container").prepend(toastRemoved.clone().attr("id", "toast-removed-" + ++i));
             $("#toast-removed-" + i).toast("show");
@@ -1244,15 +1249,14 @@ let tradeFunctions = function () {
     updateCurrentSection();
     removeCurrentSection();
     findMatches();
-}
-
+};
 
 // handles functions that optimizes mobile view
 let mobileViewFunctions = function () {
     dashboardSkip();
     searchSkip();
     navbarAutoclose();
-}
+};
 
 // handles features on the admin panel
 let adminFunctions = function () {
@@ -1268,22 +1272,20 @@ let adminFunctions = function () {
     initToggleEmailNotificationsButton();
     toggleEmailNotificationsListener();
     fillSectionListener();
-}
+};
 
 // handles course search functions
 let searchFunctions = function () {
     searchFormListener();
     searchResultListener();
-
-}
+};
 
 // handles changes in course subscription
 let subscriptionFunctions = function () {
     switchListener();
     modalConfirmListener();
     modalCancelListener();
-}
-
+};
 
 // jQuery 'on' only applies listeners to elements currently on DOM
 // applies listeners to current elements when document is loaded
