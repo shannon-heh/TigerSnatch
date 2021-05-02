@@ -630,12 +630,15 @@ class Database:
 
 
     def get_current_term_code(self):
-        return self._db.admin.find_one({}, {'current_term_code': 1, '_id': 0})['current_term_code']
+        res = self._db.admin.find_one(
+            {}, {'current_term_code': 1, 'current_term_name': 1, '_id': 0})
+        return res['current_term_code'], res['current_term_name']
 
     # updates current term code from admin collection
 
-    def update_current_term_code(self, code):
-        self._db.admin.update_one({}, {'$set': {'current_term_code': code}})
+    def update_current_term_code(self, code, name):
+        self._db.admin.update_one({}, {'$set': {'current_term_code': code,
+                                                'current_term_name': name}})
 
 # ----------------------------------------------------------------------
 # COURSE METHODS

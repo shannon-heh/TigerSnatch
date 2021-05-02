@@ -13,7 +13,7 @@ _api = MobileApp()
 
 # gets the latest term code
 def get_latest_term():
-    return Database().get_current_term_code()
+    return Database().get_current_term_code()[0]
 
 
 # returns two dictionaries: one containing new class enrollments, one

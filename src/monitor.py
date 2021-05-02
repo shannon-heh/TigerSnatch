@@ -131,13 +131,9 @@ class Monitor:
 
             # if no changes to course info, do not update
             if new_course == self._db.get_course(courseid):
-                print(
-                    f'course data has not changed for course {courseid}')
                 return
 
             # update course data in db
-            print(
-                f'updated course entry in database for course {courseid}')
             self._db.update_course_all(courseid, new_course,
                                        new_mapping, new_enroll, new_cap)
         except Exception as e:

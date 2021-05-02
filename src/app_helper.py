@@ -5,6 +5,7 @@
 
 from monitor import Monitor
 import re
+from sys import stderr
 
 
 MAX_QUERY_LENGTH = 150
@@ -18,9 +19,15 @@ def validate_query(query):
 
 # searches for course based on user query
 def do_search(query, db, search_netid=False):
+    if query is None or not isinstance(query, str):
+        return None
+
     res = []
     if query.strip() == "":
         res = None
+    elif '<' in query or '>' in query or 'script' in query:
+        print('HTML code detected in', query, file=stderr)
+        return None
     else:
         query = " ".join(query.split())
         if search_netid:

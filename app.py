@@ -94,10 +94,13 @@ def tutorial():
         html = render_template('tutorial.html', loggedin=False)
         return make_response(html)
 
+    term_name = _db.get_current_term_code()[1]
+
     html = render_template('tutorial.html',
                            user_is_admin=is_admin(_CAS.authenticate(), _db),
                            loggedin=True,
-                           notifs_online=_db.get_cron_notification_status())
+                           notifs_online=_db.get_cron_notification_status(),
+                           term_name=term_name)
     return make_response(html)
 
 
@@ -134,6 +137,7 @@ def dashboard():
         return redirect(url_for('dashboard'))
 
     curr_sections = _db.get_current_sections(netid)
+    term_name = _db.get_current_term_code()[1]
 
     html = render_template('base.html',
                            is_dashboard=True,
@@ -147,7 +151,8 @@ def dashboard():
                            data=data,
                            email=email,
                            curr_sections=curr_sections,
-                           notifs_online=_db.get_cron_notification_status())
+                           notifs_online=_db.get_cron_notification_status(),
+                           term_name=term_name)
 
     return make_response(html)
 
@@ -158,10 +163,13 @@ def about():
         html = render_template('about.html', loggedin=False)
         return make_response(html)
 
+    term_name = _db.get_current_term_code()[1]
+
     html = render_template('about.html',
                            user_is_admin=is_admin(_CAS.authenticate(), _db),
                            loggedin=True,
-                           notifs_online=_db.get_cron_notification_status())
+                           notifs_online=_db.get_cron_notification_status(),
+                           term_name=term_name)
     return make_response(html)
 
 
@@ -174,13 +182,15 @@ def activity():
 
     waitlist_logs = _db.get_user_waitlist_log(netid)
     trade_logs = _db.get_user_trade_log(netid)
+    term_name = _db.get_current_term_code()[1]
 
     html = render_template('activity.html',
                            user_is_admin=is_admin(_CAS.authenticate(), _db),
                            loggedin=True,
                            waitlist_logs=waitlist_logs,
                            trade_logs=trade_logs,
-                           notifs_online=_db.get_cron_notification_status())
+                           notifs_online=_db.get_cron_notification_status(),
+                           term_name=term_name)
 
     return make_response(html)
 
@@ -213,7 +223,7 @@ def get_course():
     course_details, classes_list = pull_course(courseid, _db)
     curr_waitlists = _db.get_user(netid, 'waitlists')
     num_full = sum(class_data['isFull'] for class_data in classes_list)
-    term_code = _db.get_current_term_code()
+    term_code, term_name = _db.get_current_term_code()
     section_names = _db.get_section_names_in_course(courseid)
     current_section = _db.get_current_section(netid, courseid)
     current_sectionname = _db.classid_to_sectionname(
@@ -240,6 +250,7 @@ def get_course():
                            num_full=num_full,
                            section_names=section_names,
                            term_code=term_code,
+                           term_name=term_name,
                            last_query=quote_plus(query),
                            last_query_unquoted=unquote_plus(query),
                            notifs_online=_db.get_cron_notification_status())
@@ -287,7 +298,7 @@ def get_course_info(courseid):
         trade_unavailable = True
 
     num_full = sum(class_data['isFull'] for class_data in classes_list)
-    term_code = _db.get_current_term_code()
+    term_code, term_name = _db.get_current_term_code()
 
     html = render_template('course/course.html',
                            netid=netid,
@@ -300,6 +311,7 @@ def get_course_info(courseid):
                            current_section=current_section,
                            current_sectionname=current_sectionname,
                            term_code=term_code,
+                           term_name=term_name,
                            curr_waitlists=curr_waitlists,
                            section_names=section_names,
                            notifs_online=_db.get_cron_notification_status())
@@ -351,6 +363,8 @@ def admin():
         query = query[:100]
     search_res = _db.search_for_user(query)
 
+    term_code, term_name = _db.get_current_term_code()
+
     html = render_template('base.html',
                            is_dashboard=False,
                            is_admin=True,
@@ -362,7 +376,8 @@ def admin():
                            admin_logs=admin_logs,
                            blacklist=_db.get_blacklist(),
                            notifs_online=_db.get_cron_notification_status(),
-                           current_term_code=_db.get_current_term_code())
+                           current_term_code=term_code,
+                           term_name=term_name)
 
     return make_response(html)
 
