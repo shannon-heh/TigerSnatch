@@ -598,10 +598,11 @@ class Database:
     # contain user query string
 
     def search_for_user(self, query):
-        query = re.compile(query, re.IGNORECASE)
-
-        res = list(self._db.users.find({'netid': {'$regex': query}}))
-        return res
+        query = " ".join(query.split())
+        query = re.sub(r'[^0-9a-zA-Z]+', '', query)
+        query_re = re.compile(query, re.IGNORECASE)
+        res = list(self._db.users.find({'netid': {'$regex': query_re}}))
+        return res, query
 
     # returns a user's current sections
 

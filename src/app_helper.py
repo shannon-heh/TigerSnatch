@@ -18,7 +18,7 @@ def validate_query(query):
 
 
 # searches for course based on user query
-def do_search(query, db, search_netid=False):
+def do_search(query, db):
     if query is None or not isinstance(query, str):
         return None
 
@@ -31,10 +31,7 @@ def do_search(query, db, search_netid=False):
     else:
         query = " ".join(query.split())
         query = re.sub(r'[^0-9a-zA-Z"?:%\', ]+', '', query)
-        if search_netid:
-            res = db.search_for_user(query)
-        else:
-            res = db.search_for_course(query)
+        res = db.search_for_course(query)
     return res, query
 
 
