@@ -30,11 +30,12 @@ def do_search(query, db, search_netid=False):
         return None
     else:
         query = " ".join(query.split())
+        query = re.sub(r'[^0-9a-zA-Z"?:%\', ]+', '', query)
         if search_netid:
             res = db.search_for_user(query)
         else:
             res = db.search_for_course(query)
-    return res
+    return res, query
 
 
 # pulls most recent course info and returns dictionary with

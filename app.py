@@ -126,7 +126,7 @@ def dashboard():
         query = ''
     if len(query) > 100:
         query = query[:100]
-    search_res = do_search(query, _db)
+    search_res, new_query = do_search(query, _db)
 
     if new_email is not None:
         if '<' in new_email or '>' in new_email or 'script' in new_email:
@@ -145,8 +145,8 @@ def dashboard():
                            netid=netid,
                            user_is_admin=is_admin(netid, _db),
                            search_res=search_res,
-                           last_query=quote_plus(query),
-                           last_query_unquoted=unquote_plus(query),
+                           last_query=quote_plus(new_query),
+                           last_query_unquoted=unquote_plus(new_query),
                            username=netid.rstrip(),
                            data=data,
                            email=email,
@@ -218,7 +218,7 @@ def get_course():
         query = ''
     if len(query) > 100:
         query = query[:100]
-    search_res = do_search(query, _db)
+    search_res, new_query = do_search(query, _db)
 
     course_details, classes_list = pull_course(courseid, _db)
     curr_waitlists = _db.get_user(netid, 'waitlists')
@@ -251,8 +251,8 @@ def get_course():
                            section_names=section_names,
                            term_code=term_code,
                            term_name=term_name,
-                           last_query=quote_plus(query),
-                           last_query_unquoted=unquote_plus(query),
+                           last_query=quote_plus(new_query),
+                           last_query_unquoted=unquote_plus(new_query),
                            notifs_online=_db.get_cron_notification_status())
 
     return make_response(html)
@@ -271,10 +271,10 @@ def logout():
 @app.route('/searchresults', methods=['POST'])
 @app.route('/searchresults/<query>', methods=['POST'])
 def get_search_results(query=''):
-    res = do_search(query, _db)
+    res, new_query = do_search(query, _db)
     html = render_template('search/search_results.html',
-                           last_query=quote_plus(query),
-                           last_query_unquoted=unquote_plus(query),
+                           last_query=quote_plus(new_query),
+                           last_query_unquoted=unquote_plus(new_query),
                            search_res=res)
     return make_response(html)
 
@@ -361,7 +361,7 @@ def admin():
         query = ''
     if len(query) > 100:
         query = query[:100]
-    search_res = _db.search_for_user(query)
+    search_res, new_query = _db.search_for_user(query)
 
     term_code, term_name = _db.get_current_term_code()
 
@@ -370,8 +370,8 @@ def admin():
                            is_admin=True,
                            user_is_admin=True,
                            search_res=search_res,
-                           last_query=quote_plus(query),
-                           last_query_unquoted=unquote_plus(query),
+                           last_query=quote_plus(new_query),
+                           last_query_unquoted=unquote_plus(new_query),
                            username=netid.rstrip(),
                            admin_logs=admin_logs,
                            blacklist=_db.get_blacklist(),
