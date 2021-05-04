@@ -656,9 +656,8 @@ let navbarAutoclose = function () {
             !click.hasClass("nav-item") &&
             !click.hasClass("nav-button") &&
             !click.hasClass("nav-link")
-        ) {
+        )
             $(".navbar-toggler").click();
-        }
     });
 };
 

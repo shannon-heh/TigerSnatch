@@ -72,6 +72,9 @@ div.row.align-items-start {
     img#tigersnatch-icon {
         display: none !important;
     }
+    a#nav-logo {
+        font-size: calc(1.325rem + 0.9vw) !important;
+    }
 }
 
 ul.navbar-nav {

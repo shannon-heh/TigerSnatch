@@ -598,6 +598,9 @@ class Database:
     # contain user query string
 
     def search_for_user(self, query):
+        if query is None:
+            return [], ''
+
         query = " ".join(query.split())
         query = re.sub(r'[^0-9a-zA-Z]+', '', query)
         query_re = re.compile(query, re.IGNORECASE)
