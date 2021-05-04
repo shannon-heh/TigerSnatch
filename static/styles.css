@@ -405,6 +405,11 @@ tr {
     margin: auto;
 }
 
+.tutorial-text {
+    padding-left: 15%;
+    padding-right: 15%;
+}
+
 div#subscription-activity-col,
 div#trade-activity-col {
     margin-bottom: 100px;
