@@ -20,18 +20,21 @@ def validate_query(query):
 # searches for course based on user query
 def do_search(query, db):
     if query is None or not isinstance(query, str):
-        return None
+        return None, ''
 
     res = []
     if query.strip() == "":
-        res = None
+        return None, ''
     elif '<' in query or '>' in query or 'script' in query:
         print('HTML code detected in', query, file=stderr)
-        return None
+        return None, ''
     else:
         query = " ".join(query.split())
         query = re.sub(r'[^0-9a-zA-Z"?:%\', ]+', '', query)
         res = db.search_for_course(query)
+
+    # sort by course department + number (e.g. COS126)
+    res = sorted(res, key=lambda x: x['displayname'])
     return res, query
 
 

@@ -147,7 +147,7 @@ const toastClearFail = $(
     data-bs-delay="3000"
 >
     <div class="d-flex">
-        <div class="toast-body">Failed to clear. Contact a TigerSnatch developer for assistance.</div>
+        <div class="toast-body">Failed to clear. Check course/class ID or contact a TigerSnatch developer for assistance.</div>
         <button
             type="button"
             class="btn-close btn-close-white me-2 m-auto"
