@@ -29,9 +29,10 @@ _db = Database()
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    _db._add_system_log('error', {
-        'message': request.path + ': ' + str(e)
-    })
+    if 'favicon' not in request.path and 'apple-touch-icon' not in request.path:
+        _db._add_system_log('error', {
+            'message': request.path + ': ' + str(e)
+        })
     return render_template('error.html')
 
 
