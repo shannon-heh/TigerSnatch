@@ -29,7 +29,8 @@ _db = Database()
 
 @app.errorhandler(Exception)
 def handle_exception(e):
-    if 'favicon' not in request.path and 'apple-touch-icon' not in request.path:
+    # 404 errors simply clutter system logs
+    if '404 Not Found' not in str(e):
         _db._add_system_log('error', {
             'message': request.path + ': ' + str(e)
         })
