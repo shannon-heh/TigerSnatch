@@ -233,13 +233,12 @@ class Database:
 
     def clear_all_waitlists(self):
         try:
-            self._add_admin_log('clearing waitlists in users collection')
+            self._add_admin_log('clearing all subscriptions')
             self._db.users.update_many(
                 {},
                 {'$set': {'waitlists': []}}
             )
 
-            self._add_admin_log('clearing waitlists in waitlists collection')
             self._db['waitlists'].delete_many({})
 
             self._add_system_log('admin', {
@@ -253,15 +252,12 @@ class Database:
 
     def clear_all_trades(self):
         try:
-            self._add_admin_log(
-                'clearing current_sections in users collection')
+            self._add_admin_log('clearing all trades')
             self._db.users.update_many(
                 {},
                 {'$set': {'current_sections': {}}}
             )
 
-            self._add_admin_log(
-                'clearing swap_out arrays in enrollments collection')
             self._db.enrollments.update_many(
                 {},
                 {'$set': {'swap_out': []}}
@@ -279,7 +275,7 @@ class Database:
     def clear_all_user_logs(self):
         try:
             self._add_admin_log(
-                'clearing all user waitlist and trade logs')
+                'clearing all user subscriptions and trades logs')
             self._db.logs.update_many(
                 {},
                 {'$set': {'waitlist_log': [],
@@ -287,7 +283,7 @@ class Database:
             )
 
             self._add_system_log('admin', {
-                'message': 'all user logs cleared'
+                'message': 'all user subscriptions and trades logs cleared'
             })
             return True
         except:
@@ -299,7 +295,7 @@ class Database:
         try:
             class_waitlist = self.get_class_waitlist(classid)['waitlist']
             self._add_admin_log(
-                f'removing users {class_waitlist} from class {classid}')
+                f'unsubscribing users {class_waitlist} from class {classid}')
 
             self._db.users.update_many({'netid': {'$in': class_waitlist}},
                                        {'$pull': {'waitlists': classid}})
@@ -322,7 +318,8 @@ class Database:
             course_data = self.get_course(courseid)
             classids = [i.split('_')[1]
                         for i in course_data.keys() if i.startswith('class_')]
-            self._add_admin_log(f'clearing waitlists for course {courseid}')
+            self._add_admin_log(
+                f'clearing subscriptions for course {courseid}')
 
             for classid in classids:
                 self.clear_class_waitlist(classid, log_classid_skip=False)
@@ -359,7 +356,7 @@ class Database:
         try:
             if self.is_admin(netid):
                 self._add_admin_log(
-                    f'user {netid} is an admin - cannot be added to blacklist')
+                    f'user {netid} is an admin - cannot be blacklisted')
                 return
 
             blacklist = self.get_blacklist()
@@ -443,7 +440,6 @@ class Database:
 # ----------------------------------------------------------------------
 
     # returns True if netid is on app blacklist
-
 
     def is_blacklisted(self, netid):
         try:
@@ -631,7 +627,6 @@ class Database:
 # ----------------------------------------------------------------------
 
     # gets current term code from admin collection
-
 
     def get_current_term_code(self):
         res = self._db.admin.find_one(
@@ -1125,13 +1120,15 @@ class Database:
 
     # adds log message to logs array in system collection
 
-    def _add_system_log(self, type, meta):
+    def _add_system_log(self, type, meta, netid=None):
         meta['type'] = type
         meta['time'] = datetime.now()
+        if netid is not None:
+            meta['netid'] = netid
         self._db.system.insert_one(meta)
 
-        # prints database name, its collections, and the number of documents
-        # in each collection
+    # prints database name, its collections, and the number of documents
+    # in each collection
 
     def __str__(self):
         self._check_basic_integrity()

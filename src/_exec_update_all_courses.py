@@ -81,7 +81,7 @@ def do_update(reset_type):
         db.set_cron_notification_status(True)
 
     db._add_admin_log(
-        f'updated courses to term code {current_term_code} in {round(time()-tic)} seconds')
+        f'updated to term code {current_term_code} in {round(time()-tic)} seconds')
 
     print(f'success: approx. {round(time()-tic)} seconds')
 

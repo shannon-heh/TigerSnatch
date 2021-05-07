@@ -81,7 +81,7 @@ def login():
 
     _db._add_system_log('user', {
         'message': f'user {netid} logged in'
-    })
+    }, netid=netid)
 
     if not _db.is_user_created(netid):
         _db.create_user(netid)
@@ -214,7 +214,7 @@ def get_course():
 
     _db._add_system_log('user', {
         'message': f'course page {courseid} visited by user {netid}'
-    })
+    }, netid=netid)
 
     if query is None:
         query = ''
@@ -284,10 +284,11 @@ def get_search_results(query=''):
 @app.route('/courseinfo/<courseid>', methods=['POST'])
 def get_course_info(courseid):
     netid = _CAS.authenticate()
+    netid = netid.rstrip()
 
     _db._add_system_log('user', {
-        'message': f'course page {courseid} visited by user {netid.rstrip()}'
-    })
+        'message': f'course page {courseid} visited by user {netid}'
+    }, netid=netid)
 
     course_details, classes_list = pull_course(courseid, _db)
     curr_waitlists = _db.get_user(netid, 'waitlists')
@@ -350,7 +351,7 @@ def admin():
 
     _db._add_system_log('admin', {
         'message': f'admin {netid} viewed admin panel'
-    })
+    }, netid=netid)
 
     admin_logs = _db.get_admin_logs()
     try:
