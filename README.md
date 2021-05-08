@@ -87,13 +87,10 @@
         </div>
     </div>
     <br />
-    <div class="row">
-        <p class="fw-light text-center mt-4 mb-3 tutorial-text">
-            TigerSnatch subscriptions are independent from official Registrar waitlists. You
-            might not be able to enroll in courses shown on TigerSnatch even if spots free
-            up. Always check Course Offerings for course-specific enrollment info.
-        </p>
-    </div>
 </div>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous" />
 <link rel="stylesheet" type="text/css" href="static/styles.min.css" />
+
+_TigerSnatch subscriptions are independent from official Registrar waitlists. You
+might not be able to enroll in courses shown on TigerSnatch even if spots free
+up. Always check Course Offerings for course-specific enrollment info._
