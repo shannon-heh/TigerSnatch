@@ -202,7 +202,7 @@ class Database:
 
     # sets notification script status to either True (on) or False (off)
 
-    def set_cron_notification_status(self, status):
+    def set_cron_notification_status(self, status, admin_netid='SYSTEM_AUTO'):
         if not isinstance(status, bool):
             raise Exception('status must be a boolean')
 
@@ -214,7 +214,7 @@ class Database:
                 f'notification script is now {"on" if status else "off"}')
             self._add_system_log('cron', {
                 'message': f'notification script set to {"on" if status else "off"}'
-            })
+            }, netid=admin_netid)
         except:
             raise Exception(
                 'something is badly wrong - check heroku website')
@@ -231,7 +231,7 @@ class Database:
 
     # clears and removes users from all waitlists
 
-    def clear_all_waitlists(self):
+    def clear_all_waitlists(self, admin_netid):
         try:
             self._add_admin_log('clearing all subscriptions')
             self._db.users.update_many(
@@ -243,14 +243,14 @@ class Database:
 
             self._add_system_log('admin', {
                 'message': 'all subscriptions cleared'
-            })
+            }, netid=admin_netid)
             return True
         except:
             return False
 
     # clears and removes users from all Trades
 
-    def clear_all_trades(self):
+    def clear_all_trades(self, admin_netid):
         try:
             self._add_admin_log('clearing all trades')
             self._db.users.update_many(
@@ -265,14 +265,14 @@ class Database:
 
             self._add_system_log('admin', {
                 'message': 'all trades cleared'
-            })
+            }, netid=admin_netid)
             return True
         except:
             return False
 
     # clears all user logs
 
-    def clear_all_user_logs(self):
+    def clear_all_user_logs(self, admin_netid):
         try:
             self._add_admin_log(
                 'clearing all user subscriptions and trades logs')
@@ -284,14 +284,14 @@ class Database:
 
             self._add_system_log('admin', {
                 'message': 'all user subscriptions and trades logs cleared'
-            })
+            }, netid=admin_netid)
             return True
         except:
             return False
 
     # clears and removes users from the waitlist for class classid
 
-    def clear_class_waitlist(self, classid, log_classid_skip=True):
+    def clear_class_waitlist(self, classid, admin_netid, log_classid_skip=True):
         try:
             class_waitlist = self.get_class_waitlist(classid)['waitlist']
             self._add_admin_log(
@@ -303,7 +303,7 @@ class Database:
 
             self._add_system_log('admin', {
                 'message': f'subscriptions for class {classid} cleared'
-            })
+            }, netid=admin_netid)
             return True
         except:
             if log_classid_skip:
@@ -313,7 +313,7 @@ class Database:
 
     # clears and removes users from all waitlists for class classid
 
-    def clear_course_waitlists(self, courseid):
+    def clear_course_waitlists(self, courseid, admin_netid):
         try:
             course_data = self.get_course(courseid)
             classids = [i.split('_')[1]
@@ -326,7 +326,7 @@ class Database:
 
             self._add_system_log('admin', {
                 'message': f'subscriptions for course {courseid} cleared'
-            })
+            }, netid=admin_netid)
             return True
         except:
             print(
@@ -335,7 +335,7 @@ class Database:
 
     # adds netid to app blacklist
 
-    def add_to_blacklist(self, netid):
+    def add_to_blacklist(self, netid, admin_netid):
         # removes user profile from users collection
         # removes user from any waitlists
         def remove_user(netid):
@@ -378,7 +378,7 @@ class Database:
 
             self._add_system_log('admin', {
                 'message': f'user {netid} added to blacklist and removed from database'
-            })
+            }, netid=admin_netid)
             return True
 
         except Exception:
@@ -387,7 +387,7 @@ class Database:
 
     # remove netid from app blacklist
 
-    def remove_from_blacklist(self, netid):
+    def remove_from_blacklist(self, netid, admin_netid):
         try:
             blacklist = self.get_blacklist()
             if netid not in blacklist:
@@ -402,7 +402,7 @@ class Database:
 
             self._add_system_log('admin', {
                 'message': f'user {netid} removed from blacklist'
-            })
+            }, netid=admin_netid)
             return True
         except Exception:
             print(f'failed to remove user {netid} from blacklist', file=stderr)

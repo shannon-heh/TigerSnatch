@@ -83,10 +83,18 @@ def do_update(reset_type):
     db._add_admin_log(
         f'updated to term code {current_term_code} in {round(time()-tic)} seconds')
 
+    db._add_system_log('admin', {
+        'message': f'updated to term code {current_term_code} in {round(time()-tic)} seconds'
+    }, netid='SYSTEM_AUTO')
+
     print(f'success: approx. {round(time()-tic)} seconds')
 
 
-def do_update_async():
+def do_update_async(admin_netid):
+    Database()._add_system_log('admin', {
+        'message': 'course term update started'
+    }, netid=admin_netid)
+
     # needed for execution on heroku servers to avoid the 30 second
     # request timeout for syncronous processes
     system('python src/_exec_update_all_courses.py --hard &')

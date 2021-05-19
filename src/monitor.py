@@ -50,14 +50,6 @@ class Monitor:
         with Pool(cpu_count()) as pool:
             all_data = pool.map(process, process_args)
 
-        # for course in all_data:
-        #     for classid in course._new_enroll:
-        #         print('updating enrollment for',
-        #               course._course_deptnum, 'class', classid)
-        #         self._db.update_enrollment(classid,
-        #                                    course._new_enroll[classid],
-        #                                    course._new_cap[classid])
-
         self._waited_course_wrappers = all_data
 
     # generates, caches, and returns a dictionary in the form:
